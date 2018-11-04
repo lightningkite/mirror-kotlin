@@ -96,6 +96,19 @@ class SimpleJSONTest {
     }
 
     @Test
+    fun extraField() {
+        ClassInfo.register(PostClassInfo)
+        val testData = """{
+    "userId": 1,
+    "id": 1,
+    "extra": "ignore me",
+    "title": "sunt aut facere repellat provident occaecati excepturi optio reprehenderit",
+    "body": "quia et suscipit\nsuscipit recusandae consequuntur expedita et cum\nreprehenderit molestiae ut ut quas totam\nnostrum rerum est autem sunt rem eveniet architecto"
+  }"""
+        JsonSerializer.read(testData, Post::class.type)
+    }
+
+    @Test
     fun externalStuff() {
         ClassInfo.register(PostClassInfo)
 
