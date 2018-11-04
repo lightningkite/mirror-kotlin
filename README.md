@@ -7,7 +7,9 @@ A plugin/runtime combination built for serializing and reflecting on objects in 
 
 The plugin generates Kotlin files describing the classes you specify.
 
-The runtime can take that reflected data and serialize it JSON for you, and other (very unique) formats are coming soon (within the next week).
+The runtime can take that reflected data and, using it, can serialize things to JSON for you.
+
+Other formats, such as SQL, are coming soon.
 
 
 # Plugin
