@@ -2,6 +2,10 @@ package com.lightningkite.mirror.string
 
 class CharIteratorReader(source: CharIterator) : CharIterator() {
     var position: Int = -1
+
+    var line: Int = 0
+    var column: Int = 0
+
     val iter = source
     val stack = CharArray(1024)
     var stackPointer = 0
@@ -9,7 +13,14 @@ class CharIteratorReader(source: CharIterator) : CharIterator() {
     override fun hasNext(): Boolean = stackPointer != 0 || iter.hasNext()
     override fun nextChar(): Char {
         position++
-        return if (stackPointer == 0) iter.nextChar() else stack[--stackPointer]
+        val result = if (stackPointer == 0) iter.nextChar() else stack[--stackPointer]
+        if (result == '\n') {
+            line++
+            column = 0
+        } else {
+            column++
+        }
+        return result
     }
 
     fun skip() {
@@ -20,6 +31,12 @@ class CharIteratorReader(source: CharIterator) : CharIterator() {
     fun back(char: Char) {
         position--
         stack[stackPointer++] = char
+        if (char == '\n') {
+            line--
+            column = 0
+        } else {
+            column--
+        }
     }
 
     fun back(string: String) {

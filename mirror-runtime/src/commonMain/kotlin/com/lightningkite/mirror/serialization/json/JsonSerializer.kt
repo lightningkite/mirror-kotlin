@@ -24,13 +24,21 @@ open class JsonSerializer : StringSerializer, Encoder<Appendable>, Decoder<CharI
 
     override fun <V> write(value: V, type: Type<V>): String {
         val builder = StringBuilder()
-        encoder(type).invoke(builder, value)
-        return builder.toString()
+        try {
+            encoder(type).invoke(builder, value)
+            return builder.toString()
+        } catch (e: Throwable) {
+            throw SerializationException("Issue at position ${builder.length}", e)
+        }
     }
 
     override fun <V> read(from: String, type: Type<V>): V {
         val reader = CharIteratorReader(from.iterator())
-        return decoder(type).invoke(reader)
+        return try {
+            decoder(type).invoke(reader)
+        } catch (e: Throwable) {
+            throw SerializationException("Issue at line ${reader.line}, column ${reader.column}, position ${reader.position}", e)
+        }
     }
 
     fun CharIteratorReader.decodeNumber(): Double {
@@ -157,6 +165,7 @@ open class JsonSerializer : StringSerializer, Encoder<Appendable>, Decoder<CharI
                         }
                         else -> builder.append(it)
                     }
+                    escaped = false
                 } else {
                     when (it) {
                         '\\' -> escaped = true
