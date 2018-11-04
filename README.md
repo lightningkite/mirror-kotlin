@@ -3,6 +3,13 @@ By Lightning Kite
 
 Status: In development
 
+A plugin/runtime combination built for serializing and reflecting on objects in pure Kotlin common, making your code solid across platforms.
+
+The plugin generates Kotlin files describing the classes you specify.
+
+The runtime can take that reflected data and serialize it JSON for you, and other (very unique) formats are coming soon (within the next week).
+
+
 # Plugin
 
 ## Set up (for now)
@@ -60,6 +67,15 @@ The result will be objects in the same package as the classes you want reflected
 
 For example, if I asked for `com.lightningkite.recktangle.Point`, I'll get an object with the fully qualified name `com.lightningkite.recktangle.PointClassInfo`, which will have metadata about the class, a method for constructing an instance, and field objects for retrieving the value of a field.
 
+
+## Development details
+
+How does it work?  It reads `kotlin_metadata` files from your libraries using [kotlin-metadata](https://github.com/Takhion/kotlin-metadata) and reads your source code using an ANTLR4 parser.
+
+It takes the data read and outputs some basic code files that are implementations of interfaces found in the runtime.
+
+
+
 # Runtime
 
 The runtime contains the interfaces that will be implemented by the generated reflected data, as well as a serialization/deserialization system.
@@ -70,9 +86,17 @@ JsonSerialization.write(listOf("string1", "string2"), String::class.type.list) /
 //["string1","string2"]
 ```
 
-## Adding Formats
+To start using the automatically-created serializers from the plugin, you need to call the setup function you created using the plugin.
 
-Adding your own formats is pretty easy.  Just extend `Encoder` or `Decoder`.  Look at `JsonSerializer` as an example. 
+```kotlin
+setupFunctionName()
+```
+
+
+## What is and isn't serialized
+
+When using the automatic reflective serializers, only fields that are introduced using `val` or `var` in the primary constructor are serialized and deserialized.  If you need to add other fields, write your own serializer.
+
 
 ## Custom serialization
 
@@ -113,4 +137,30 @@ fun setup(){
     }
 }
 
+```
+
+
+## Adding Formats
+
+Adding your own formats is pretty easy.  Just extend `Encoder` or `Decoder`.  Look at `JsonSerializer` as an example. 
+
+
+# Known Limitations
+
+- The ANTLR4 specification for Kotlin I'm using doesn't seem to be dead accurate.  If you put strange things in the file, you'll get strange results.  Try to keep the files you use reflection on simple.
+- When using classes from outside your project, optional fields not present on deserialization are expensive.  This is because when you are reflecting on classes from other libraries, the plugin is unable to obtain the instructions used to set defaults for fields.  As such, it uses a workaround that invokes the constructor once for every missing optional field.  
+- The plugin cannot handle (yet) short references to classes within classes.  For example:
+
+```kotlin
+class Owner {
+    class Child(val sibling: Child?)
+}
+```
+
+Do this instead:
+
+```kotlin
+class Owner {
+    class Child(val sibling: Owner.Child?)
+}
 ```
