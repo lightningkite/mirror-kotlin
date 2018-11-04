@@ -1,0 +1,3 @@
+rootProject.name = 'mirror-test'
+
+enableFeaturePreview('GRADLE_METADATA')
