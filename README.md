@@ -36,7 +36,7 @@ apply plugin: 'com.lightningkite.mirror'
 
 Adding the plugin will add a `mirror` task to your project.
 
-The `mirror` task will look for files ending with `mirror.txt`, and will add next to them generate files for reflection.
+The `mirror` task will look for files ending with `mirror.txt`, and will add generate files next to them, including a setup function that you give the name for.
 
 ## `mirror.txt`
 
