@@ -13,6 +13,6 @@ data class TypeProjection(
     }
 
     companion object {
-        val STAR = TypeProjection(Type(Any::class, nullable = true), isStar = true)
+        val STAR = TypeProjection(Type<Any?>(Any::class, nullable = true), isStar = true)
     }
 }

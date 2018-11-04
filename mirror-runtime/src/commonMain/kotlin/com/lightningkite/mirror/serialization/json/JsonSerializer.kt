@@ -22,13 +22,13 @@ open class JsonSerializer : StringSerializer, Encoder<Appendable>, Decoder<CharI
 
     override val contentType: String = "application/json"
 
-    override fun <V : Any> write(value: V?, type: Type<V>): String {
+    override fun <V> write(value: V, type: Type<V>): String {
         val builder = StringBuilder()
         encoder(type).invoke(builder, value)
         return builder.toString()
     }
 
-    override fun <V : Any> read(from: String, type: Type<V>): V? {
+    override fun <V> read(from: String, type: Type<V>): V {
         val reader = CharIteratorReader(from.iterator())
         return decoder(type).invoke(reader)
     }
@@ -117,7 +117,7 @@ open class JsonSerializer : StringSerializer, Encoder<Appendable>, Decoder<CharI
 
         addEncoder(String::class.type) { string ->
             append('\"')
-            for (ch in string!!) {
+            for (ch in string) {
                 when (ch) {
                     '"' -> append("\\").append(ch)
                     '\\' -> append(ch).append(ch)
@@ -174,7 +174,7 @@ open class JsonSerializer : StringSerializer, Encoder<Appendable>, Decoder<CharI
         }
         val stringDecoder = decoder(String::class.type)
         addDecoder(Char::class.type) {
-            stringDecoder(this)!!.first()
+            stringDecoder(this).first()
         }
 
         setNotNullEncoder(List::class) { type ->
@@ -393,7 +393,7 @@ open class JsonSerializer : StringSerializer, Encoder<Appendable>, Decoder<CharI
                 while (hasNext()) {
                     if (peek() == '}') break
                     skipWhitespace()
-                    val key = stringDecoder.invoke(this)!!
+                    val key = stringDecoder.invoke(this)
                     skipWhitespace()
                     skipAssert(":")
                     skipWhitespace()

@@ -8,7 +8,7 @@ interface Decoder<IN> {
     val kClassDecoders: MutableMap<KClass<*>, (Type<*>) -> (IN.() -> Any?)?>
     val decoders: MutableMap<Type<*>, IN.() -> Any?>
 
-    fun <T : Any> addDecoder(type: Type<T>, action: IN.() -> T?) {
+    fun <T> addDecoder(type: Type<T>, action: IN.() -> T) {
         @Suppress("UNCHECKED_CAST")
         decoders[type] = action as IN.() -> Any?
     }
@@ -24,7 +24,7 @@ interface Decoder<IN> {
     }
 
     @Suppress("UNCHECKED_CAST")
-    fun <T : Any> decoder(type: Type<T>): IN.() -> T? = rawDecoder(type) as (IN.() -> T?)
+    fun <T> decoder(type: Type<T>): IN.() -> T = rawDecoder(type) as (IN.() -> T)
 
     @Suppress("UNCHECKED_CAST")
     fun rawDecoder(type: Type<*>): IN.() -> Any? =

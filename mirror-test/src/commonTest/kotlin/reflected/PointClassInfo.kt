@@ -2,6 +2,7 @@
 package com.lightningkite.recktangle
 
 
+import com.lightningkite.mirror.info.*
 import kotlin.reflect.KClass
 
 @Suppress("RemoveExplicitTypeArguments", "UNCHECKED_CAST")
@@ -21,8 +22,8 @@ object PointClassInfo : ClassInfo<Point> {
     override val enumValues: List<Point>? = null
 
     object Fields {
-        val x = SerializedFieldInfo<Point, kotlin.Float>(PointClassInfo, "x", Type<kotlin.Float>(kotlin.Float::class as KClass<kotlin.Float>, listOf(), false), true, { it.x as kotlin.Float }, listOf())
-        val y = SerializedFieldInfo<Point, kotlin.Float>(PointClassInfo, "y", Type<kotlin.Float>(kotlin.Float::class as KClass<kotlin.Float>, listOf(), false), true, { it.y as kotlin.Float }, listOf())
+        val x = SerializedFieldInfo<Point, kotlin.Float>(PointClassInfo, "x", Type<kotlin.Float>(kotlin.Float::class, listOf(), false), true, { it.x as kotlin.Float }, listOf())
+        val y = SerializedFieldInfo<Point, kotlin.Float>(PointClassInfo, "y", Type<kotlin.Float>(kotlin.Float::class, listOf(), false), true, { it.y as kotlin.Float }, listOf())
     }
 
     override val fields: List<SerializedFieldInfo<Point, *>> = listOf(Fields.x, Fields.y)

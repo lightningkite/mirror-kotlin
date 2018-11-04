@@ -12,9 +12,9 @@ var <T : Any> KClass<T>.info
 private val KClass_type = HashMap<KClass<*>, Type<*>>()
 @Suppress("UNCHECKED_CAST")
 val <T : Any> KClass<T>.type: Type<T>
-    get() = KClass_type.getOrPut(this) { Type(this) } as Type<T>
+    get() = KClass_type.getOrPut(this) { Type<T>(this) } as Type<T>
 
 private val KClass_typeNullable = HashMap<KClass<*>, Type<*>>()
 @Suppress("UNCHECKED_CAST")
 val <T : Any> KClass<T>.typeNullable: Type<T>
-    get() = KClass_typeNullable.getOrPut(this) { Type(this, nullable = true) } as Type<T>
+    get() = KClass_typeNullable.getOrPut(this) { Type<T?>(this, nullable = true) } as Type<T>

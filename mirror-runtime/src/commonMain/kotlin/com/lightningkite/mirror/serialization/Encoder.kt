@@ -8,7 +8,7 @@ interface Encoder<OUT> {
     val kClassEncoders: MutableMap<KClass<*>, (Type<*>) -> (OUT.(value: Any?) -> Unit)?>
     val encoders: MutableMap<Type<*>, OUT.(value: Any?) -> Unit>
 
-    fun <T : Any> addEncoder(type: Type<T>, action: OUT.(value: T?) -> Unit) {
+    fun <T> addEncoder(type: Type<T>, action: OUT.(value: T) -> Unit) {
         @Suppress("UNCHECKED_CAST")
         encoders[type] = action as OUT.(value: Any?) -> Unit
     }
@@ -24,7 +24,7 @@ interface Encoder<OUT> {
     }
 
 
-    fun <T : Any> encoder(type: Type<T>): OUT.(value: T?) -> Unit = rawEncoder(type)
+    fun <T> encoder(type: Type<T>): OUT.(value: T) -> Unit = rawEncoder(type)
 
     fun rawEncoder(type: Type<*>): OUT.(value: Any?) -> Unit =
             encoders.getOrPut(type) {
