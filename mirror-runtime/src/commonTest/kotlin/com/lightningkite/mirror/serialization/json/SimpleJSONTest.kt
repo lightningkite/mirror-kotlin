@@ -700,7 +700,9 @@ class SimpleJSONTest {
     "title": "at nam consequatur ea labore ea harum",
     "body": "cupiditate quo est a modi nesciunt soluta\nipsa voluptas error itaque dicta in\nautem qui minus magnam et distinctio eum\naccusamus ratione error aut"
   }
-]"""
+]
+
+"""
         val result = JsonSerializer.read(testData, Post::class.type.list)
         println(result.joinToString("\n"))
     }

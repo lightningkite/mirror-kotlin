@@ -34,10 +34,11 @@ open class JsonSerializer : StringSerializer, Encoder<Appendable>, Decoder<CharI
 
     override fun <V> read(from: String, type: Type<V>): V {
         val reader = CharIteratorReader(from.iterator())
+        reader.skipWhitespace()
         return try {
             decoder(type).invoke(reader)
         } catch (e: Throwable) {
-            throw SerializationException("Issue at line ${reader.line}, column ${reader.column}, position ${reader.position}", e)
+            throw SerializationException("Issue at line ${reader.line}, column ${reader.column}, position ${reader.position}, next: ${reader.read(20)}", e)
         }
     }
 
@@ -53,6 +54,38 @@ open class JsonSerializer : StringSerializer, Encoder<Appendable>, Decoder<CharI
                 else -> false
             }
         }.toDouble()
+    }
+
+    fun CharIteratorReader.decodeString(): String {
+        skipAssert("\"")
+        var escaped = false
+        val builder = StringBuilder()
+        loop@ while (hasNext()) {
+            val it = nextChar()
+            if (escaped) {
+                when (it) {
+                    '"' -> builder.append('\"')
+                    '\\' -> builder.append('\\')
+                    'n' -> builder.append('\n')
+                    'r' -> builder.append('\r')
+                    't' -> builder.append('\t')
+                    'b' -> builder.append('\b')
+                    'f' -> builder.append('\u000c')
+                    'u' -> {
+                        read(4).toInt(16)
+                    }
+                    else -> builder.append(it)
+                }
+                escaped = false
+            } else {
+                when (it) {
+                    '\\' -> escaped = true
+                    '"' -> break@loop
+                    else -> builder.append(it)
+                }
+            }
+        }
+        return builder.toString()
     }
 
     init {
@@ -146,35 +179,7 @@ open class JsonSerializer : StringSerializer, Encoder<Appendable>, Decoder<CharI
             append('\"')
         }
         addDecoder(String::class.type) {
-            skipAssert("\"")
-            var escaped = false
-            val builder = StringBuilder()
-            loop@ while (hasNext()) {
-                val it = nextChar()
-                if (escaped) {
-                    when (it) {
-                        '"' -> builder.append('\"')
-                        '\\' -> builder.append('\\')
-                        'n' -> builder.append('\n')
-                        'r' -> builder.append('\r')
-                        't' -> builder.append('\t')
-                        'b' -> builder.append('\b')
-                        'f' -> builder.append('\u000c')
-                        'u' -> {
-                            read(4).toInt(16)
-                        }
-                        else -> builder.append(it)
-                    }
-                    escaped = false
-                } else {
-                    when (it) {
-                        '\\' -> escaped = true
-                        '"' -> break@loop
-                        else -> builder.append(it)
-                    }
-                }
-            }
-            builder.toString()
+            decodeString()
         }
 
         val stringEncoder = encoder(String::class.type)
@@ -352,6 +357,7 @@ open class JsonSerializer : StringSerializer, Encoder<Appendable>, Decoder<CharI
             '+' -> decodeNumber()
             'f', 'F' -> skip(5)
             't', 'T' -> skip(4)
+            '"' -> decodeString()
             '[' -> {
                 var counter = 1
                 skip {
