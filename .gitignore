@@ -2,6 +2,7 @@
 ### Gradle template
 mirror-runtime/.gradle
 /build/
+*.iml
 
 .gradle
 

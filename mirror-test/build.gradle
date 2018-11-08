@@ -7,11 +7,11 @@ buildscript {
     }
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:${kotlinVersion}"
-        classpath "com.lightningkite:mirror-plugin:0.0.1"
+//        classpath "com.lightningkite:mirror-plugin:0.0.1"
     }
 }
 apply plugin: 'kotlin-multiplatform'
-apply plugin: 'com.lightningkite.mirror'
+//apply plugin: 'com.lightningkite.mirror'
 
 
 repositories {

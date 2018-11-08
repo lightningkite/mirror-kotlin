@@ -86,7 +86,7 @@ class ReadClassInfo(
     }
 
     fun filePart(): String = """
-        |@Suppress("RemoveExplicitTypeArguments", "UNCHECKED_CAST")
+        |@Suppress("RemoveExplicitTypeArguments", "UNCHECKED_CAST", "USELESS_CAST")
         |object $reflectionName: ClassInfo<$accessNameWithStars> {
         |
         |   override val kClass: KClass<$accessNameWithStars> = $accessName::class
