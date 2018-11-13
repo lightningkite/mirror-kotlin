@@ -22,15 +22,3 @@ buildscript {
 }
 apply plugin: 'com.jfrog.bintray'
 apply plugin: 'idea'
-
-task build {
-    subprojects.each { dependsOn("${it.name}:build") }
-}
-
-task publishToMavenLocal {
-    subprojects.each { dependsOn("${it.name}:publishToMavenLocal") }
-}
-
-task clean {
-    subprojects.each { dependsOn("${it.name}:clean") }
-}
