@@ -1,5 +1,5 @@
 buildscript {
-    ext.kotlinVersion = '1.3.0'
+    ext.kotlinVersion = '1.3.10'
     repositories {
         mavenLocal()
         jcenter()
@@ -7,11 +7,11 @@ buildscript {
     }
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:${kotlinVersion}"
-//        classpath "com.lightningkite:mirror-plugin:0.0.1"
+        classpath "com.lightningkite:mirror-plugin:0.0.2"
     }
 }
 apply plugin: 'kotlin-multiplatform'
-//apply plugin: 'com.lightningkite.mirror'
+apply plugin: 'com.lightningkite.mirror'
 
 
 repositories {
@@ -20,7 +20,7 @@ repositories {
     mavenLocal()
 }
 group 'com.lightningkite'
-version '0.0.1'
+version '0.0.2'
 
 
 kotlin {
@@ -31,39 +31,49 @@ kotlin {
     sourceSets {
         commonMain {
             dependencies {
-                implementation 'org.jetbrains.kotlin:kotlin-stdlib-common'
+                api 'org.jetbrains.kotlin:kotlin-stdlib-common'
 
-                implementation "com.lightningkite:kommon:${project.version}"
-                implementation "com.lightningkite:lokalize:${project.version}"
-                implementation "com.lightningkite:recktangle:${project.version}"
-                implementation "com.lightningkite:mirror-runtime:${project.version}"
+                api "com.lightningkite:kommon-metadata:${project.version}"
+                api "com.lightningkite:lokalize-metadata:${project.version}"
+                api "com.lightningkite:recktangle-metadata:${project.version}"
+                api "com.lightningkite:mirror-runtime-metadata:${project.version}"
             }
         }
         commonTest {
             dependencies {
-                implementation 'org.jetbrains.kotlin:kotlin-test-common'
-                implementation 'org.jetbrains.kotlin:kotlin-test-annotations-common'
+                api 'org.jetbrains.kotlin:kotlin-test-common'
+                api 'org.jetbrains.kotlin:kotlin-test-annotations-common'
             }
         }
         jvmMain {
             dependencies {
-                implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
+                api 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
+
+                api "com.lightningkite:kommon-jvm:${project.version}"
+                api "com.lightningkite:lokalize-jvm:${project.version}"
+                api "com.lightningkite:recktangle-jvm:${project.version}"
+                api "com.lightningkite:mirror-runtime-jvm:${project.version}"
             }
         }
         jvmTest {
             dependencies {
-                implementation 'org.jetbrains.kotlin:kotlin-test'
-                implementation 'org.jetbrains.kotlin:kotlin-test-junit'
+                api 'org.jetbrains.kotlin:kotlin-test'
+                api 'org.jetbrains.kotlin:kotlin-test-junit'
             }
         }
         jsMain {
             dependencies {
-                implementation 'org.jetbrains.kotlin:kotlin-stdlib-js'
+                api 'org.jetbrains.kotlin:kotlin-stdlib-js'
+
+                api "com.lightningkite:kommon-js:${project.version}"
+                api "com.lightningkite:lokalize-js:${project.version}"
+                api "com.lightningkite:recktangle-js:${project.version}"
+                api "com.lightningkite:mirror-runtime-js:${project.version}"
             }
         }
         jsTest {
             dependencies {
-                implementation 'org.jetbrains.kotlin:kotlin-test-js'
+                api 'org.jetbrains.kotlin:kotlin-test-js'
             }
         }
     }

@@ -26,7 +26,7 @@ class Tests {
     fun testSerializeDate() {
         val stringSerializer = JsonSerializer.encoder(String::class.type)
         JsonSerializer.addEncoder(Date::class.type) {
-            stringSerializer.invoke(this, it!!.iso8601())
+            stringSerializer.invoke(this, it.iso8601())
         }
         assertEquals("\"1993-08-25\"", JsonSerializer.write(Date(Year(1993), Month.August, 25), Date::class.type))
     }

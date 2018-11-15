@@ -5,6 +5,6 @@ data class SerializedFieldInfo<Owner : Any, T>(
         val name: String,
         val type: Type<T>,
         val isOptional: Boolean,
-        val get: (Owner) -> T?,
+        val get: (Owner) -> T,
         val annotations: List<AnnotationInfo> = listOf()
 )
