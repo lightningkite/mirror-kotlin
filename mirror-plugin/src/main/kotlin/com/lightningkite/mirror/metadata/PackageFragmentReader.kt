@@ -84,11 +84,11 @@ class PackageFragmentReader(val fragment: ProtoBuf.PackageFragment) {
                 } + if (isDataClass) {
                     listOf(ReadClassInfo.Modifier.Data)
                 } else listOf(),
-                implements = this.supertypeList.map { it.read(table) },
+                implements = this.supertypeList.map { it.read(table, listOf(this)) },
                 packageName = packageName,
                 owner = fullName.removePrefix(packageName).removeSuffix(name).trim('.').takeUnless { it.isBlank() },
                 name = name,
-                typeParameters = typeParameterList.map { it.read(table) },
+                typeParameters = typeParameterList.map { it.read(table, listOf(this)) },
                 enumValues = if (classKind == ProtoBuf.Class.Kind.ENUM_CLASS)
                     enumEntryList.mapNotNull {
                         resolveString(it.hasName(), it.name)
@@ -101,12 +101,12 @@ class PackageFragmentReader(val fragment: ProtoBuf.PackageFragment) {
     }
 
     fun ProtoBuf.Class.readFields(constructor: ProtoBuf.Constructor?, properties: List<ProtoBuf.Property>, table: TypeTable): List<ReadSerializedFieldInfo> {
-        val propertyNames = properties.associate { resolveString(it.hasName(), it.name) to it.returnType(table).read(table) }
+        val propertyNames = properties.associate { resolveString(it.hasName(), it.name) to it.returnType(table).read(table, listOf(this)) }
         if (constructor == null) return emptyList()
         val props = ArrayList<ReadSerializedFieldInfo>()
         for (argument in constructor.valueParameterList) {
             val argName = resolveString(argument.hasName(), argument.name) ?: continue
-            val argType = argument.type(table).read(table)
+            val argType = argument.type(table).read(table, listOf(this))
             val correspondingPropertyType = propertyNames[argName] ?: continue
             if (correspondingPropertyType == argType) {
                 //Wahoo!  We found one!
@@ -121,41 +121,50 @@ class PackageFragmentReader(val fragment: ProtoBuf.PackageFragment) {
         return props
     }
 
-    fun ProtoBuf.Type.read(typeTable: TypeTable): ReadType {
+    fun ProtoBuf.Type.read(typeTable: TypeTable, containingClasses: List<ProtoBuf.Class>): ReadType {
         return ReadType(
                 kClass = resolveString(hasTypeParameterName(), typeParameterName)
-                        ?: resolveQualifiedName(hasClassName(), className)?.resolve() ?: "Any",
+                        ?: (if (hasTypeParameter())
+                            containingClasses
+                                    .flatMap { it.typeParameterList }
+                                    .find { typeParameter == it.id  }
+                                    ?.name?.let { resolveString(true, it) }
+                        else null)
+                        ?: resolveQualifiedName(hasClassName(), className)?.resolve()
+                        ?: "Any",
                 typeArguments = argumentList.map {
-                    it.read(typeTable)
+                    it.read(typeTable, containingClasses)
                 },
                 isNullable = this.nullable
         )
     }
 
-    fun ProtoBuf.Type.Argument.read(typeTable: TypeTable): ReadTypeProjection {
+    fun ProtoBuf.Type.Argument.read(typeTable: TypeTable, containingClasses: List<ProtoBuf.Class>): ReadTypeProjection {
+        val type = this.type(typeTable)?.read(typeTable, containingClasses)
         return ReadTypeProjection(
-                type = this.type(typeTable)?.read(typeTable) ?: ReadType("Any", isNullable = true),
+                //Panic A only occurs here
+                type = type ?: ReadType("Any", isNullable = true),
                 variance = when (this.projection) {
                     ProtoBuf.Type.Argument.Projection.IN -> ReadTypeProjection.Variance.IN
                     ProtoBuf.Type.Argument.Projection.OUT -> ReadTypeProjection.Variance.OUT
-                    ProtoBuf.Type.Argument.Projection.INV -> ReadTypeProjection.Variance.EXACT
+                    ProtoBuf.Type.Argument.Projection.INV -> ReadTypeProjection.Variance.INVARIANT
                     ProtoBuf.Type.Argument.Projection.STAR -> ReadTypeProjection.Variance.STAR
-                    else -> ReadTypeProjection.Variance.EXACT
+                    else -> ReadTypeProjection.Variance.INVARIANT
                 }
         )
     }
 
-    fun ProtoBuf.TypeParameter.read(typeTable: TypeTable): ReadTypeParameter {
+    fun ProtoBuf.TypeParameter.read(typeTable: TypeTable, containingClasses: List<ProtoBuf.Class>): ReadTypeParameter {
         return ReadTypeParameter(
                 name = resolveString(hasName(), name)!!,
                 projection = ReadTypeProjection(
-                        type = this.upperBounds(typeTable).firstOrNull()?.read(typeTable)
+                        type = this.upperBounds(typeTable).firstOrNull()?.read(typeTable, containingClasses)
                                 ?: ReadType("Any", isNullable = true),
                         variance = when (variance) {
                             ProtoBuf.TypeParameter.Variance.IN -> ReadTypeProjection.Variance.IN
                             ProtoBuf.TypeParameter.Variance.OUT -> ReadTypeProjection.Variance.OUT
-                            ProtoBuf.TypeParameter.Variance.INV -> ReadTypeProjection.Variance.EXACT
-                            else -> ReadTypeProjection.Variance.EXACT
+                            ProtoBuf.TypeParameter.Variance.INV -> ReadTypeProjection.Variance.INVARIANT
+                            else -> ReadTypeProjection.Variance.INVARIANT
                         }
                 )
         )

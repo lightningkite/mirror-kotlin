@@ -14,12 +14,6 @@ data class ReadTypeParameter(
 
 }
 
-class TestType<T : Comparable<T>> {
-    companion object {
-        fun instance() = TestType<Comparable<Comparable<*>>>()
-    }
-}
-
 fun ReadTypeParameter.useMinimumBound(owner: ReadClassInfo, resolutions: Map<String, Int> = mapOf()) = projection.useMinimumBound(owner, resolutions)
 fun ReadTypeProjection.useMinimumBound(owner: ReadClassInfo, resolutions: Map<String, Int> = mapOf()) = type.useMinimumBound(owner, resolutions)
 fun ReadType.useMinimumBound(owner: ReadClassInfo, resolutions: Map<String, Int> = mapOf()): String {
@@ -29,7 +23,8 @@ fun ReadType.useMinimumBound(owner: ReadClassInfo, resolutions: Map<String, Int>
             "*"
         } else {
             //We need to resolve this once.
-            owner.typeParameters.find { it.name == this.kClass }!!.projection.type.useMinimumBound(owner, resolutions + (this.kClass to resolutions.getOrDefault(this.kClass, 0) + 1))
+            val type = owner.typeParameters.find { it.name == this.kClass }!!.projection.type
+            type.useMinimumBound(owner, resolutions + (this.kClass to resolutions.getOrDefault(this.kClass, 0) + 1))
         }
     } else kClass + (if (typeArguments.isNotEmpty())
         typeArguments.joinToString(",", "<", ">") {

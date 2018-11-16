@@ -35,7 +35,7 @@ fun Node.toKxClasses(packageName: String, imports: List<String>, owner: ReadClas
                 ReadTypeParameter(
                         name = it["simpleIdentifier"]!!.content!!,
                         projection = ReadTypeProjection(it["type"]?.toKxType()
-                                ?: ReadType("Any", isNullable = true), ReadTypeProjection.Variance.EXACT)
+                                ?: ReadType("Any", isNullable = true), ReadTypeProjection.Variance.INVARIANT)
                 )
             }
             ?: listOf()
@@ -129,7 +129,7 @@ fun Node.toKxTypeProjection(): ReadTypeProjection {
             type = this["type"]?.toKxType()
                     ?: anyNullableType,
             variance = this["typeProjectionModifierList"]?.get("varianceAnnotation")?.terminals?.firstOrNull()?.let { ReadTypeProjection.Variance.valueOf(it.toUpperCase()) }
-                    ?: ReadTypeProjection.Variance.EXACT
+                    ?: ReadTypeProjection.Variance.INVARIANT
     )
 }
 

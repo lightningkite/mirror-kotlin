@@ -28,7 +28,6 @@ interface ClassInfo<T : Any> {
         Interface
     }
 
-
     companion object {
         val map = HashMap<KClass<*>, ClassInfo<*>>()
 

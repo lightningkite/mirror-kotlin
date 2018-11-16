@@ -5,5 +5,5 @@ class AnnotationInfo(
         val arguments: List<Any?>,
         val useSiteTarget: String? = null
 ) {
-    override fun toString(): String = "AnnotationInfo(\"$name\", ${arguments.joinToString(", ", "listOf<Any?>(", ")")})"
+    override fun toString(): String = "AnnotationInfo(\"$name\", ${arguments.joinToString(", ", "listOf(", ")")})"
 }

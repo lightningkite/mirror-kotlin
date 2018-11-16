@@ -54,6 +54,8 @@ fun reflectTask(directories: List<File>, jarsToInspect: List<File>) {
             .filter { it.qualifiedName in requestedNames }
             .associateBy { it.qualifiedName }
 
+    println("Declarations: ${declarations.map { it.key }}")
+
     for (file in requestFiles) {
         val lines = file.readLines().asSequence().filter { it.isNotBlank() }.toList()
         val myDeclarations = lines.subList(2, lines.size).mapNotNull { declarations[it] }

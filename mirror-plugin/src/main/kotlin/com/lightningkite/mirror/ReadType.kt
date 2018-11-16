@@ -14,6 +14,9 @@ data class ReadType(
     fun resolveMinimumKClass(owner: ReadClassInfo): String = owner.typeParameters.find { it.name == kClass }?.projection?.type?.kClass
             ?: kClass
 
-    fun toString(owner: ReadClassInfo) = "Type<${useMinimumBound(owner)}>(${resolveMinimumKClass(owner)}::class, listOf(${typeArguments.joinToString()}), $isNullable)"
+    fun toString(owner: ReadClassInfo) = "Type<${useMinimumBound(owner)}>(${resolveMinimumKClass(owner)}::class, listOf(${typeArguments.joinToString{it.toString(owner)}}), $isNullable)"
 
+    override fun toString(): String {
+        return ""
+    }
 }

@@ -1,5 +1,3 @@
 com.lightningkite.mirror.test
 configureMirror
-com.lightningkite.recktangle.Point
-com.lightningkite.recktangle.Rectangle
-com.lightningkite.kotlinx.persistence.ChangeEvent
+com.lightningkite.mirror.archive.ConditionOnItem.LessThan

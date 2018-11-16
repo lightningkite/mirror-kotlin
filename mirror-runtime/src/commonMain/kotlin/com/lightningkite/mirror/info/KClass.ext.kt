@@ -16,5 +16,5 @@ val <T : Any> KClass<T>.type: Type<T>
 
 private val KClass_typeNullable = HashMap<KClass<*>, Type<*>>()
 @Suppress("UNCHECKED_CAST")
-val <T : Any> KClass<T>.typeNullable: Type<T>
-    get() = KClass_typeNullable.getOrPut(this) { Type<T?>(this, nullable = true) } as Type<T>
+val <T : Any> KClass<T>.typeNullable: Type<T?>
+    get() = KClass_typeNullable.getOrPut(this) { Type<T?>(this, nullable = true) } as Type<T?>

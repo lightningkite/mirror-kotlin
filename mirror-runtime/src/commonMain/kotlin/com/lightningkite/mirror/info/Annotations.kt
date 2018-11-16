@@ -38,4 +38,4 @@ annotation class Mutates
 
 @Target(AnnotationTarget.CLASS, AnnotationTarget.FUNCTION)
 @Retention(AnnotationRetention.RUNTIME)
-annotation class Throws(vararg val exceptionTypes: String)
+annotation class ThrowsTypes(vararg val exceptionTypes: String)
