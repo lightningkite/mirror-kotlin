@@ -38,10 +38,12 @@ interface Encoder<OUT> {
         override fun compareTo(other: Generator<OUT>): Int = other.priority.compareTo(priority)
         fun generateEncoder(type: Type<*>): (OUT.(value: Any?) -> Unit)?
     }
+
+    fun <T> encode(out: OUT, value: T, type: Type<T>) = encoder(type).invoke(out, value)
 }
 
 
-inline fun <OUT, T : Any> Encoder<OUT>.setNotNullEncoder(kClass: KClass<T>, crossinline action: (Type<*>) -> (OUT.(value: T?) -> Unit)?) {
+inline fun <OUT, T : Any> Encoder<OUT>.setNotNullEncoder(kClass: KClass<T>, crossinline action: (Type<*>) -> (OUT.(value: T) -> Unit)?) {
     @Suppress("UNCHECKED_CAST")
     kClassEncoders[kClass] = gen@{ type: Type<*> ->
         if (type.nullable) return@gen null

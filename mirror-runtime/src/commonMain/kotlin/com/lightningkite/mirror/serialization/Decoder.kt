@@ -39,6 +39,8 @@ interface Decoder<IN> {
         override fun compareTo(other: Generator<IN>): Int = other.priority.compareTo(priority)
         fun generateDecoder(type: Type<*>): (IN.() -> Any?)?
     }
+
+    fun <T> decode(input: IN, type: Type<T>) = decoder(type).invoke(input)
 }
 
 inline fun <IN, T : Any> Decoder<IN>.setNotNullDecoder(kClass: KClass<T>, crossinline action: (Type<*>) -> (IN.() -> T?)?) {
