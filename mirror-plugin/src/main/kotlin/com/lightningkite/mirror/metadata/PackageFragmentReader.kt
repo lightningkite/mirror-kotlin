@@ -131,7 +131,7 @@ class PackageFragmentReader(val fragment: ProtoBuf.PackageFragment) {
                                     ?.name?.let { resolveString(true, it) }
                         else null)
                         ?: resolveQualifiedName(hasClassName(), className)?.resolve()
-                        ?: "Any",
+                        ?: "PANIC",
                 typeArguments = argumentList.map {
                     it.read(typeTable, containingClasses)
                 },
@@ -142,7 +142,6 @@ class PackageFragmentReader(val fragment: ProtoBuf.PackageFragment) {
     fun ProtoBuf.Type.Argument.read(typeTable: TypeTable, containingClasses: List<ProtoBuf.Class>): ReadTypeProjection {
         val type = this.type(typeTable)?.read(typeTable, containingClasses)
         return ReadTypeProjection(
-                //Panic A only occurs here
                 type = type ?: ReadType("Any", isNullable = true),
                 variance = when (this.projection) {
                     ProtoBuf.Type.Argument.Projection.IN -> ReadTypeProjection.Variance.IN

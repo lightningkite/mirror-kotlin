@@ -46,7 +46,7 @@ class ReadClassInfo(
         get() = "$packageName.$accessName"
 
     fun generateConstructor(): String {
-        if (modifiers.contains(Modifier.Interface) || modifiers.contains(Modifier.Abstract) || modifiers.contains(Modifier.Sealed))
+        if (modifiers.contains(Modifier.Interface) || modifiers.contains(Modifier.Abstract) || modifiers.contains(Modifier.Sealed) || enumValues != null)
             return """
             |   override fun construct(map: Map<String, Any?>): $accessNameWithBound = throw NotImplementedError()
             """.trimMargin()
@@ -100,7 +100,7 @@ class ReadClassInfo(
         |
         |   override val name: String = "$name"
         |   override val annotations: List<AnnotationInfo> = listOf(${annotations.joinToString()})
-        |   override val enumValues: List<$accessNameWithStars>? = ${if (enumValues == null) "null" else enumValues.joinToString(", ", "listOf(", ")")}
+        |   override val enumValues: List<$accessNameWithStars>? = ${if (enumValues == null) "null" else enumValues.joinToString(", ", "listOf(", ")"){ "$accessName.$it" }}
         |
         |   object Fields {
         |       ${
