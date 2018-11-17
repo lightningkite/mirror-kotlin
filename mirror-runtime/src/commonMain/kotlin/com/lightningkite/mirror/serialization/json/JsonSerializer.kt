@@ -89,6 +89,8 @@ open class JsonSerializer : StringSerializer, Encoder<Appendable>, Decoder<CharI
     }
 
     init {
+        useCommonEncoders()
+        useCommonDecoders()
 
         addEncoder(Unit::class.type) {
             append('0')
@@ -310,8 +312,6 @@ open class JsonSerializer : StringSerializer, Encoder<Appendable>, Decoder<CharI
             }
         }
 
-        addDecoder(EnumCoderGenerators.DecoderGenerator(this))
-        addEncoder(EnumCoderGenerators.EncoderGenerator(this))
         addDecoder(ReflectiveDecoderGenerator())
         addEncoder(ReflectiveEncoderGenerator())
         addDecoder(PolymorphicDecoderGenerator())
@@ -321,6 +321,8 @@ open class JsonSerializer : StringSerializer, Encoder<Appendable>, Decoder<CharI
     }
 
     inner class ReflectiveEncoderGenerator : Encoder.Generator<Appendable> {
+        override val description: String
+            get() = "reflective"
         override val priority: Float get() = 0f
 
         override fun generateEncoder(type: Type<*>): (Appendable.(value: Any?) -> Unit)? {
@@ -343,6 +345,125 @@ open class JsonSerializer : StringSerializer, Encoder<Appendable>, Decoder<CharI
                     sub.invoke(this, key.get.untyped(it!!))
                 }
                 this.append('}')
+            }
+        }
+    }
+
+    inner class ReflectiveDecoderGenerator : Decoder.Generator<CharIteratorReader> {
+        override val description: String
+            get() = "reflective"
+        override val priority: Float get() = 0f
+
+        override fun generateDecoder(type: Type<*>): (CharIteratorReader.() -> Any?)? {
+            if (type.nullable) return null
+            val stringDecoder = decoder(String::class.type)
+            val fields = type.kClass.info.fields
+            val subCoders by lazy { fields.associate { it.name to rawDecoder(it.type as Type<*>) } }
+
+            return {
+                val map = HashMap<String, Any?>()
+                skipAssert("{")
+                while (hasNext()) {
+                    if (peek() == '}') break
+                    skipWhitespace()
+                    val key = stringDecoder.invoke(this)
+                    skipWhitespace()
+                    skipAssert(":")
+                    skipWhitespace()
+                    val subCoder = subCoders[key]
+                    if (subCoder == null) {
+                        skipValue()
+                    } else {
+                        val value = subCoder.invoke(this)
+                        map[key] = value
+                    }
+                    skipWhitespace()
+                    if (peek() == '}') break
+                    else skipAssert(",")
+                }
+                skipAssert("}")
+
+                type.kClass.info.construct(map)
+            }
+        }
+    }
+
+    inner class PolymorphicEncoderGenerator : Encoder.Generator<Appendable> {
+        override val description: String
+            get() = "polymorphic"
+        override val priority: Float get() = .1f
+
+        override fun generateEncoder(type: Type<*>): (Appendable.(value: Any?) -> Unit)? {
+            if (!type.kClass.serializePolymorphic) return null
+            val string = rawEncoder(String::class.type)
+            return { value ->
+                val underlyingType = when (value) {
+                    is List<*> -> List::class
+                    is Map<*, *> -> Map::class
+                    else -> value!!::class
+                }
+                append('[')
+                string.invoke(this, underlyingType.externalName)
+                append(',')
+                rawEncoder(underlyingType.type).invoke(this, value)
+                append(']')
+            }
+        }
+    }
+
+    inner class PolymorphicDecoderGenerator : Decoder.Generator<CharIteratorReader> {
+        override val description: String
+            get() = "polymorphic"
+        override val priority: Float get() = .1f
+
+        override fun generateDecoder(type: Type<*>): (CharIteratorReader.() -> Any?)? {
+            if (!type.kClass.serializePolymorphic) return null
+            val string = rawDecoder(String::class.type)
+            return {
+                skipAssert("[")
+                skipWhitespace()
+                val actualType = KClassesByExternalName[string.invoke(this)]!!
+                skipWhitespace()
+                skipAssert(",")
+                skipWhitespace()
+                val value = rawDecoder(actualType.type).invoke(this)
+                skipAssert("]")
+                skipWhitespace()
+                value
+            }
+        }
+    }
+
+    inner class NullableEncoderGenerator : Encoder.Generator<Appendable> {
+        override val description: String
+            get() = "null"
+        override val priority: Float get() = 1f
+
+        override fun generateEncoder(type: Type<*>): (Appendable.(value: Any?) -> Unit)? {
+            if (!type.nullable) return null
+            val underlying = rawEncoder(type.copy(nullable = false))
+            return { value ->
+                if (value == null) {
+                    append("null")
+                } else {
+                    underlying.invoke(this, value)
+                }
+            }
+        }
+    }
+
+    inner class NullableDecoderGenerator : Decoder.Generator<CharIteratorReader> {
+        override val description: String
+            get() = "null"
+        override val priority: Float get() = 1f
+
+        override fun generateDecoder(type: Type<*>): (CharIteratorReader.() -> Any?)? {
+            if (!type.nullable) return null
+            val underlying = rawDecoder(type.copy(nullable = false))
+            return {
+                if (checkAndMoveIgnoreCase("null")) {
+                    null
+                } else underlying.invoke(this)
             }
         }
     }
@@ -389,115 +510,6 @@ open class JsonSerializer : StringSerializer, Encoder<Appendable>, Decoder<CharI
                         else -> true
                     }
                 }
-            }
-        }
-    }
-
-    inner class ReflectiveDecoderGenerator : Decoder.Generator<CharIteratorReader> {
-        override val priority: Float get() = 0f
-
-        override fun generateDecoder(type: Type<*>): (CharIteratorReader.() -> Any?)? {
-            if (type.nullable) return null
-            val stringDecoder = decoder(String::class.type)
-            val fields = type.kClass.info.fields
-            val subCoders by lazy { fields.associate { it.name to rawDecoder(it.type as Type<*>) } }
-
-            return {
-                val map = HashMap<String, Any?>()
-                skipAssert("{")
-                while (hasNext()) {
-                    if (peek() == '}') break
-                    skipWhitespace()
-                    val key = stringDecoder.invoke(this)
-                    skipWhitespace()
-                    skipAssert(":")
-                    skipWhitespace()
-                    val subCoder = subCoders[key]
-                    if (subCoder == null) {
-                        skipValue()
-                    } else {
-                        val value = subCoder.invoke(this)
-                        map[key] = value
-                    }
-                    skipWhitespace()
-                    if (peek() == '}') break
-                    else skipAssert(",")
-                }
-                skipAssert("}")
-
-                type.kClass.info.construct(map)
-            }
-        }
-    }
-
-    inner class PolymorphicEncoderGenerator : Encoder.Generator<Appendable> {
-        override val priority: Float get() = .1f
-
-        override fun generateEncoder(type: Type<*>): (Appendable.(value: Any?) -> Unit)? {
-            if (!type.kClass.serializePolymorphic) return null
-            val string = rawEncoder(String::class.type)
-            return { value ->
-                val underlyingType = when (value) {
-                    is List<*> -> List::class
-                    is Map<*, *> -> Map::class
-                    else -> value!!::class
-                }
-                append('[')
-                string.invoke(this, underlyingType.externalName)
-                append(',')
-                rawEncoder(underlyingType.type).invoke(this, value)
-                append(']')
-            }
-        }
-    }
-
-    inner class PolymorphicDecoderGenerator : Decoder.Generator<CharIteratorReader> {
-        override val priority: Float get() = .1f
-
-        override fun generateDecoder(type: Type<*>): (CharIteratorReader.() -> Any?)? {
-            if (!type.kClass.serializePolymorphic) return null
-            val string = rawDecoder(String::class.type)
-            return {
-                skipAssert("[")
-                skipWhitespace()
-                val actualType = KClassesByExternalName[string.invoke(this)]!!
-                skipWhitespace()
-                skipAssert(",")
-                skipWhitespace()
-                val value = rawDecoder(actualType.type).invoke(this)
-                skipAssert("]")
-                skipWhitespace()
-                value
-            }
-        }
-    }
-
-    inner class NullableEncoderGenerator : Encoder.Generator<Appendable> {
-        override val priority: Float get() = 1f
-
-        override fun generateEncoder(type: Type<*>): (Appendable.(value: Any?) -> Unit)? {
-            if (!type.nullable) return null
-            val underlying = rawEncoder(type.copy(nullable = false))
-            return { value ->
-                if (value == null) {
-                    append("null")
-                } else {
-                    underlying.invoke(this, value)
-                }
-            }
-        }
-    }
-
-    inner class NullableDecoderGenerator : Decoder.Generator<CharIteratorReader> {
-        override val priority: Float get() = 1f
-
-        override fun generateDecoder(type: Type<*>): (CharIteratorReader.() -> Any?)? {
-            if (!type.nullable) return null
-            val underlying = rawDecoder(type.copy(nullable = false))
-            return {
-                if (checkAndMoveIgnoreCase("null")) {
-                    null
-                } else underlying.invoke(this)
             }
         }
     }
