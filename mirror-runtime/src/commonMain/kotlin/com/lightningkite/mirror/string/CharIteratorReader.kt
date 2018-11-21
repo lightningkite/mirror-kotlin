@@ -169,6 +169,7 @@ class CharIteratorReader(source: CharIterator) : CharIterator() {
         }
     }
 
+    @Suppress("NOTHING_TO_INLINE")
     inline fun skip(count: Int) {
         repeat(count) {
             if (hasNext())

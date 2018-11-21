@@ -1,8 +1,9 @@
-package com.lightningkite.mirror
+package com.lightningkite.mirror.serialization.json
 
 import com.lightningkite.lokalize.Date
 import com.lightningkite.lokalize.Month
 import com.lightningkite.lokalize.Year
+import com.lightningkite.mirror.TestRegistry
 import com.lightningkite.mirror.info.*
 import com.lightningkite.recktangle.Point
 import com.lightningkite.mirror.serialization.DefaultRegistry
@@ -12,7 +13,7 @@ import com.lightningkite.recktangle.PointClassInfo
 import kotlin.reflect.KClass
 import kotlin.test.assertEquals
 
-class Tests {
+class ReflectionSerializerTest {
     
     val serializer = JsonSerializer(DefaultRegistry + TestRegistry)
 

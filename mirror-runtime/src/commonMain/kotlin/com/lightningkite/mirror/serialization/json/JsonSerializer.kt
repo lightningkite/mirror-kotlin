@@ -17,10 +17,6 @@ class JsonSerializer(override val registry: SerializationRegistry) : StringSeria
     override val encoders: MutableMap<Type<*>, Appendable.(value: Any?) -> Unit> = HashMap()
     override val arbitraryDecoders: MutableList<Decoder.Generator<CharIteratorReader>> = ArrayList()
     override val decoders: MutableMap<Type<*>, CharIteratorReader.() -> Any?> = HashMap()
-    init{
-        initializeDecoders()
-        initializeEncoders()
-    }
 
     override val contentType: String = "application/json"
 
@@ -311,6 +307,9 @@ class JsonSerializer(override val registry: SerializationRegistry) : StringSeria
                 }
             }
         }
+
+        initializeDecoders()
+        initializeEncoders()
 
         addDecoder(ReflectiveDecoderGenerator())
         addEncoder(ReflectiveEncoderGenerator())
