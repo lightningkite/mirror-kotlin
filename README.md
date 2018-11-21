@@ -40,7 +40,7 @@ Adding the plugin will add a `mirror` task to your project.
 
 The `mirror` task will look for files ending with `mirror.txt`, and will add generated files next to them.
 
-The generated files will have information about the classes you specify, and in addition, there will be a setup function that registers the generated data.
+The generated files will have information about the classes you specify in the form of a `ClassInfoRegistry`.
 
 After registering the data, you can use the object `SomeType::class.info` to access the metadata.  You can also access it more directly using `SomeTypeClassInfo`.
 
@@ -49,18 +49,18 @@ After registering the data, you can use the object `SomeType::class.info` to acc
 The format of `mirror.txt` is as follows:
 
 - Blank lines are ignored
-- The first two lines define where you want your setup function:
+- The first two lines define where you want your module object:
     - The first line is the package name
-    - The second line is the name of the function.
+    - The second line is the name of the module object.
 - All remaining lines are the fully-qualified names of classes you want reflective information about.
 
 Example:
 
 ```text
 
-package.for.setup.function
+package.for.module.object
 
-setupFunctionName
+ModuleObject
 
 fully.qualified.name.to.the.Class
 com.lightningkite.recktangle.Point
@@ -87,7 +87,7 @@ JsonSerialization.write(listOf("string1", "string2"), String::class.type.list) /
 //["string1","string2"]
 ```
 
-Make sure you call your setup function before attempting to serialize or deserialize things through reflection.  See [Mirror File](#mirror-file).
+Make sure you use your module to serialize or deserialize things through reflection.  See [Mirror File](#mirror-file).
 
 ```kotlin
 setupFunctionName()

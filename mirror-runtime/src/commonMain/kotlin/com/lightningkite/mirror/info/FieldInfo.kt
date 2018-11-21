@@ -1,6 +1,6 @@
 package com.lightningkite.mirror.info
 
-data class SerializedFieldInfo<Owner : Any, T>(
+data class FieldInfo<Owner : Any, T>(
         val owner: ClassInfo<Owner>,
         val name: String,
         val type: Type<T>,

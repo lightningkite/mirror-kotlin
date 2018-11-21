@@ -64,7 +64,7 @@ fun reflectTask(directories: List<File>, jarsToInspect: List<File>) {
         }
         val finalFile = DeclarationsFile(
                 packageName = lines.getOrNull(0) ?: "com.lightningkite.nopackage",
-                functionName = lines.getOrNull(1) ?: "setUpMirror()",
+                objectName = lines.getOrNull(1) ?: "setUpMirror()",
                 reflections = myDeclarations.map { it.packageName + "." + it.reflectionName }
         )
         File(file.parentFile, file.nameWithoutExtension + ".kt").writeText(finalFile.toString())

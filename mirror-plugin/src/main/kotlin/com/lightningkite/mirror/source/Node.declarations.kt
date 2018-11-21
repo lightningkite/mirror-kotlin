@@ -133,9 +133,9 @@ fun Node.toKxTypeProjection(): ReadTypeProjection {
     )
 }
 
-fun Node.toKxConstructorVariable(): ReadSerializedFieldInfo? {
+fun Node.toKxConstructorVariable(): ReadFieldInfo? {
     if (!terminals.contains("var") && !terminals.contains("val")) return null
-    return ReadSerializedFieldInfo(
+    return ReadFieldInfo(
             name = this["simpleIdentifier"]!!.content!!,
             type = this["type"]!!.toKxType(),
             annotations = kxAnnotationsFromModifierList("property"),

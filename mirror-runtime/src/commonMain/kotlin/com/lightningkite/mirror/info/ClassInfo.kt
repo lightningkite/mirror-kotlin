@@ -16,7 +16,7 @@ interface ClassInfo<T : Any> {
     val annotations: List<AnnotationInfo>
     val enumValues: List<T>?
 
-    val fields: List<SerializedFieldInfo<T, *>>
+    val fields: List<FieldInfo<T, *>>
 
     fun construct(map: Map<String, Any?>): T
 
@@ -26,39 +26,5 @@ interface ClassInfo<T : Any> {
         Data,
         Open,
         Interface
-    }
-
-    companion object {
-        val map = HashMap<KClass<*>, ClassInfo<*>>()
-
-        operator fun <T : Any> get(kClass: KClass<T>): ClassInfo<T> {
-            @Suppress("UNCHECKED_CAST")
-            return map.getOrPut(kClass) {
-                EmptyClassInfo(kClass)
-            } as ClassInfo<T>
-        }
-
-        fun register(
-                reflection: ClassInfo<*>
-        ) {
-            map[reflection.kClass] = reflection
-        }
-
-        init {
-            register(AnyClassInfo)
-            register(UnitClassInfo)
-            register(BooleanClassInfo)
-            register(ByteClassInfo)
-            register(ShortClassInfo)
-            register(IntClassInfo)
-            register(LongClassInfo)
-            register(FloatClassInfo)
-            register(DoubleClassInfo)
-            register(NumberClassInfo)
-            register(CharClassInfo)
-            register(StringClassInfo)
-            register(ListClassInfo)
-            register(MapClassInfo)
-        }
     }
 }

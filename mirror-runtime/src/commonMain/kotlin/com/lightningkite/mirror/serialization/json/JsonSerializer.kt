@@ -1,7 +1,7 @@
 package com.lightningkite.mirror.serialization.json
 
 import com.lightningkite.mirror.info.Type
-import com.lightningkite.mirror.info.info
+import com.lightningkite.mirror.info.canBeInstantiated
 import com.lightningkite.mirror.info.type
 import com.lightningkite.mirror.info.untyped
 import com.lightningkite.mirror.serialization.*
@@ -9,9 +9,7 @@ import com.lightningkite.mirror.string.CharIteratorReader
 import kotlin.reflect.KClass
 
 @Suppress("LeakingThis")
-open class JsonSerializer : StringSerializer, Encoder<Appendable>, Decoder<CharIteratorReader> {
-
-    companion object : JsonSerializer()
+class JsonSerializer(override val registry: SerializationRegistry) : StringSerializer, Encoder<Appendable>, Decoder<CharIteratorReader> {
 
     override val arbitraryEncoders: MutableList<Encoder.Generator<Appendable>> = ArrayList()
     override val kClassEncoders: MutableMap<KClass<*>, (Type<*>) -> (Appendable.(value: Any?) -> Unit)?> = HashMap()
@@ -19,6 +17,10 @@ open class JsonSerializer : StringSerializer, Encoder<Appendable>, Decoder<CharI
     override val encoders: MutableMap<Type<*>, Appendable.(value: Any?) -> Unit> = HashMap()
     override val arbitraryDecoders: MutableList<Decoder.Generator<CharIteratorReader>> = ArrayList()
     override val decoders: MutableMap<Type<*>, CharIteratorReader.() -> Any?> = HashMap()
+    init{
+        initializeDecoders()
+        initializeEncoders()
+    }
 
     override val contentType: String = "application/json"
 
@@ -89,8 +91,6 @@ open class JsonSerializer : StringSerializer, Encoder<Appendable>, Decoder<CharI
     }
 
     init {
-        useCommonEncoders()
-        useCommonDecoders()
 
         addEncoder(Unit::class.type) {
             append('0')
@@ -198,7 +198,7 @@ open class JsonSerializer : StringSerializer, Encoder<Appendable>, Decoder<CharI
             return@setNotNullEncoder { value ->
                 append('[')
                 var first = true
-                for (sub in value as List<*>) {
+                for (sub in value) {
                     if (first) {
                         first = false
                     } else {
@@ -233,7 +233,7 @@ open class JsonSerializer : StringSerializer, Encoder<Appendable>, Decoder<CharI
                 return@setNotNullEncoder { value ->
                     append('{')
                     var first = true
-                    for ((key, sub) in value as Map<*, *>) {
+                    for ((key, sub) in value) {
                         if (first) {
                             first = false
                         } else {
@@ -251,7 +251,7 @@ open class JsonSerializer : StringSerializer, Encoder<Appendable>, Decoder<CharI
                 return@setNotNullEncoder { value ->
                     append('{')
                     var first = true
-                    for ((key, sub) in value as Map<*, *>) {
+                    for ((key, sub) in value) {
                         if (first) {
                             first = false
                         } else {
@@ -329,7 +329,7 @@ open class JsonSerializer : StringSerializer, Encoder<Appendable>, Decoder<CharI
 
             if (type.nullable) return null
             val stringEncoder = rawEncoder(String::class.type)
-            val lazySubCoders by lazy { type.kClass.info.fields.associateWith { rawEncoder(it.type as Type<*>) } }
+            val lazySubCoders by lazy { registry.classInfoRegistry[type.kClass]!!.fields.associateWith { rawEncoder(it.type as Type<*>) } }
 
             return { it ->
                 this.append('{')
@@ -357,7 +357,7 @@ open class JsonSerializer : StringSerializer, Encoder<Appendable>, Decoder<CharI
         override fun generateDecoder(type: Type<*>): (CharIteratorReader.() -> Any?)? {
             if (type.nullable) return null
             val stringDecoder = decoder(String::class.type)
-            val fields = type.kClass.info.fields
+            val fields = registry.classInfoRegistry[type.kClass]!!.fields
             val subCoders by lazy { fields.associate { it.name to rawDecoder(it.type as Type<*>) } }
 
             return {
@@ -383,7 +383,7 @@ open class JsonSerializer : StringSerializer, Encoder<Appendable>, Decoder<CharI
                 }
                 skipAssert("}")
 
-                type.kClass.info.construct(map)
+                registry.classInfoRegistry[type.kClass]!!.construct(map)
             }
         }
     }
@@ -394,7 +394,7 @@ open class JsonSerializer : StringSerializer, Encoder<Appendable>, Decoder<CharI
         override val priority: Float get() = .1f
 
         override fun generateEncoder(type: Type<*>): (Appendable.(value: Any?) -> Unit)? {
-            if (!type.kClass.serializePolymorphic) return null
+            if (registry.classInfoRegistry[type.kClass]!!.canBeInstantiated) return null
             val string = rawEncoder(String::class.type)
             return { value ->
                 val underlyingType = when (value) {
@@ -403,7 +403,7 @@ open class JsonSerializer : StringSerializer, Encoder<Appendable>, Decoder<CharI
                     else -> value!!::class
                 }
                 append('[')
-                string.invoke(this, underlyingType.externalName)
+                string.invoke(this, registry.kClassToExternalNameRegistry[underlyingType])
                 append(',')
                 rawEncoder(underlyingType.type).invoke(this, value)
                 append(']')
@@ -417,12 +417,12 @@ open class JsonSerializer : StringSerializer, Encoder<Appendable>, Decoder<CharI
         override val priority: Float get() = .1f
 
         override fun generateDecoder(type: Type<*>): (CharIteratorReader.() -> Any?)? {
-            if (!type.kClass.serializePolymorphic) return null
+            if (registry.classInfoRegistry[type.kClass]!!.canBeInstantiated) return null
             val string = rawDecoder(String::class.type)
             return {
                 skipAssert("[")
                 skipWhitespace()
-                val actualType = KClassesByExternalName[string.invoke(this)]!!
+                val actualType = registry.externalNameToInfo[string.invoke(this)]!!
                 skipWhitespace()
                 skipAssert(",")
                 skipWhitespace()

@@ -1,6 +1,6 @@
 package com.lightningkite.mirror
 
-class ReadSerializedFieldInfo(
+class ReadFieldInfo(
         val name: String,
         val type: ReadType,
         val isOptional: Boolean = false,
@@ -8,6 +8,6 @@ class ReadSerializedFieldInfo(
         val default: String? = null
 ) {
     fun toString(owner: ReadClassInfo): String {
-        return "val $name = SerializedFieldInfo<${owner.accessNameWithStars}, ${type.useMinimumBound(owner)}>(${owner.reflectionName}, \"$name\", ${type.toString(owner)}, $isOptional, { it.$name as ${type.useMinimumBound(owner)}}, ${annotations.joinToString(", ", "listOf(", ")")})"
+        return "val $name = FieldInfo<${owner.accessNameWithStars}, ${type.useMinimumBound(owner)}>(${owner.reflectionName}, \"$name\", ${type.toString(owner)}, $isOptional, { it.$name as ${type.useMinimumBound(owner)}}, ${annotations.joinToString(", ", "listOf(", ")")})"
     }
 }

@@ -100,17 +100,17 @@ class PackageFragmentReader(val fragment: ProtoBuf.PackageFragment) {
         return listOf(info)
     }
 
-    fun ProtoBuf.Class.readFields(constructor: ProtoBuf.Constructor?, properties: List<ProtoBuf.Property>, table: TypeTable): List<ReadSerializedFieldInfo> {
+    fun ProtoBuf.Class.readFields(constructor: ProtoBuf.Constructor?, properties: List<ProtoBuf.Property>, table: TypeTable): List<ReadFieldInfo> {
         val propertyNames = properties.associate { resolveString(it.hasName(), it.name) to it.returnType(table).read(table, listOf(this)) }
         if (constructor == null) return emptyList()
-        val props = ArrayList<ReadSerializedFieldInfo>()
+        val props = ArrayList<ReadFieldInfo>()
         for (argument in constructor.valueParameterList) {
             val argName = resolveString(argument.hasName(), argument.name) ?: continue
             val argType = argument.type(table).read(table, listOf(this))
             val correspondingPropertyType = propertyNames[argName] ?: continue
             if (correspondingPropertyType == argType) {
                 //Wahoo!  We found one!
-                props.add(ReadSerializedFieldInfo(
+                props.add(ReadFieldInfo(
                         name = argName,
                         type = argType,
                         isOptional = argument.declaresDefaultValue,

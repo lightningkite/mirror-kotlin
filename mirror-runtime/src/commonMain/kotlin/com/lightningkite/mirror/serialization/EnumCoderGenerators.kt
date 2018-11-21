@@ -1,7 +1,6 @@
 package com.lightningkite.mirror.serialization
 
 import com.lightningkite.mirror.info.Type
-import com.lightningkite.mirror.info.info
 import com.lightningkite.mirror.info.typeNullable
 
 object EnumCoderGenerators {
@@ -9,7 +8,7 @@ object EnumCoderGenerators {
         override val description: String get() = "Enum"
         override val priority: Float get() = 1f
         override fun generateEncoder(type: Type<*>): (OUT.(value: Any?) -> Unit)? {
-            if(type.kClass.info.enumValues == null) return null
+            if(encoder.registry.classInfoRegistry[type.kClass]!!.enumValues == null) return null
             val stringEncoder = encoder.rawEncoder(String::class.typeNullable)
             return { value ->
                 stringEncoder.invoke(this, (value as Enum<*>).name)
@@ -21,7 +20,7 @@ object EnumCoderGenerators {
         override val description: String get() = "Enum"
         override val priority: Float get() = 1f
         override fun generateDecoder(type: Type<*>): (OUT.() -> Any?)? {
-            @Suppress("UNCHECKED_CAST") val enumValues = type.kClass.info.enumValues as? List<Enum<*>> ?: return null
+            @Suppress("UNCHECKED_CAST") val enumValues = decoder.registry.classInfoRegistry[type.kClass]!!.enumValues as? List<Enum<*>> ?: return null
             val stringDecoder = decoder.rawDecoder(String::class.typeNullable)
             return {
                 enumValues.find { (stringDecoder.invoke(this) as? String)?.equals(it.name, false) ?: false }

@@ -19,7 +19,7 @@ open class EmptyClassInfo<T : Any>(
         get() = listOf()
     override val enumValues: List<T>?
         get() = null
-    override val fields: List<SerializedFieldInfo<T, *>>
+    override val fields: List<FieldInfo<T, *>>
         get() = listOf()
 
     override fun construct(map: Map<String, Any?>): T {

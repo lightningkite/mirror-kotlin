@@ -1,4 +1,4 @@
 com.lightningkite.mirror
-configureMirror
+TestRegistry
 
 com.lightningkite.recktangle.Point

@@ -2,7 +2,7 @@ package com.lightningkite.mirror.serialization.json
 
 import com.lightningkite.mirror.info.AnnotationInfo
 import com.lightningkite.mirror.info.ClassInfo
-import com.lightningkite.mirror.info.SerializedFieldInfo
+import com.lightningkite.mirror.info.FieldInfo
 import com.lightningkite.mirror.info.Type
 import kotlin.reflect.KClass
 
@@ -26,7 +26,7 @@ object TestTypeClassInfo : ClassInfo<TestType<*>> {
     override val enumValues: List<TestType<*>>? = null
 
     object Fields {
-        val wrapped = SerializedFieldInfo<TestType<*>, Comparable<Comparable<*>>>(
+        val wrapped = FieldInfo<TestType<*>, Comparable<Comparable<*>>>(
                 TestTypeClassInfo,
                 "wrapped",
                 Type<Comparable<Comparable<*>>>(Comparable::class as KClass<Comparable<Comparable<*>>>, listOf(), false),
@@ -36,7 +36,7 @@ object TestTypeClassInfo : ClassInfo<TestType<*>> {
         )
     }
 
-    override val fields: List<SerializedFieldInfo<TestType<*>, *>> = listOf(Fields.wrapped)
+    override val fields: List<FieldInfo<TestType<*>, *>> = listOf(Fields.wrapped)
 
     override fun construct(map: Map<String, Any?>): TestType<Comparable<Comparable<*>>> {
 

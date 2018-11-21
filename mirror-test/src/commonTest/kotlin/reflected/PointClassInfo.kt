@@ -5,40 +5,40 @@ package com.lightningkite.recktangle
 import com.lightningkite.mirror.info.*
 import kotlin.reflect.KClass
 
-@Suppress("RemoveExplicitTypeArguments", "UNCHECKED_CAST")
-object PointClassInfo : ClassInfo<Point> {
+@Suppress("RemoveExplicitTypeArguments", "UNCHECKED_CAST", "USELESS_CAST")
+object PointClassInfo: ClassInfo<Point> {
 
-    override val kClass: KClass<Point> = Point::class
-    override val modifiers: List<ClassInfo.Modifier> = listOf(ClassInfo.Modifier.Data)
+   override val kClass: KClass<Point> = Point::class
+   override val modifiers: List<ClassInfo.Modifier> = listOf(ClassInfo.Modifier.Data)
 
-    override val implements: List<Type<*>> = listOf()
+   override val implements: List<Type<*>> = listOf()
 
-    override val packageName: String = "com.lightningkite.recktangle"
-    override val owner: KClass<*>? = null
-    override val ownerName: String? = null
+   override val packageName: String = "com.lightningkite.recktangle"
+   override val owner: KClass<*>? = null
+   override val ownerName: String? = null
 
-    override val name: String = "Point"
-    override val annotations: List<AnnotationInfo> = listOf()
-    override val enumValues: List<Point>? = null
+   override val name: String = "Point"
+   override val annotations: List<AnnotationInfo> = listOf()
+   override val enumValues: List<Point>? = null
 
-    object Fields {
-        val x = SerializedFieldInfo<Point, kotlin.Float>(PointClassInfo, "x", Type<kotlin.Float>(kotlin.Float::class, listOf(), false), true, { it.x as kotlin.Float }, listOf())
-        val y = SerializedFieldInfo<Point, kotlin.Float>(PointClassInfo, "y", Type<kotlin.Float>(kotlin.Float::class, listOf(), false), true, { it.y as kotlin.Float }, listOf())
-    }
+   object Fields {
+       val x = FieldInfo<Point, kotlin.Float>(PointClassInfo, "x", Type<kotlin.Float>(kotlin.Float::class, listOf(), false), true, { it.x as kotlin.Float}, listOf())
+        val y = FieldInfo<Point, kotlin.Float>(PointClassInfo, "y", Type<kotlin.Float>(kotlin.Float::class, listOf(), false), true, { it.y as kotlin.Float}, listOf())
+   }
 
-    override val fields: List<SerializedFieldInfo<Point, *>> = listOf(Fields.x, Fields.y)
+   override val fields:List<FieldInfo<Point, *>> = listOf(Fields.x, Fields.y)
 
-    override fun construct(map: Map<String, Any?>): Point {
-        //Gather variables
-
-        //Handle the optionals
-        val x: kotlin.Float = map["x"] as? kotlin.Float ?: (Fields.x.get(Point()) as kotlin.Float)
-        val y: kotlin.Float = map["y"] as? kotlin.Float ?: (Fields.y.get(Point(x = x)) as kotlin.Float)
-        //Finally do the call
-        return Point(
-                x = x,
-                y = y
-        )
-    }
+   override fun construct(map: Map<String, Any?>): Point {
+       //Gather variables
+       
+           //Handle the optionals
+       val x:kotlin.Float = map["x"] as? kotlin.Float ?: (Fields.x.get(Point()) as kotlin.Float)
+        val y:kotlin.Float = map["y"] as? kotlin.Float ?: (Fields.y.get(Point(x = x)) as kotlin.Float)
+       //Finally do the call
+       return Point(
+           x = x,
+            y = y
+       )
+   }
 
 }

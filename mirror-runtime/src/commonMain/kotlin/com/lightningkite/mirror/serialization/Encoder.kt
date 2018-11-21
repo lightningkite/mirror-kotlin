@@ -1,14 +1,21 @@
 package com.lightningkite.mirror.serialization
 
+import com.lightningkite.kommon.native.isFrozen
 import com.lightningkite.mirror.info.Type
 import kotlin.reflect.KClass
 
 typealias TypeEncoder<OUT, T> = OUT.(value: T) -> Unit
 
 interface Encoder<OUT> {
+    val registry: SerializationRegistry
     val arbitraryEncoders: MutableList<Generator<OUT>>
     val kClassEncoders: MutableMap<KClass<*>, (Type<*>) -> TypeEncoder<OUT, Any?>?>
     val encoders: MutableMap<Type<*>, TypeEncoder<OUT, Any?>>
+
+    @Suppress("UNCHECKED_CAST")
+    fun initializeEncoders(){
+        registry.encoderConfigurators.forEach { it.value.invoke(this as Encoder<Any?>) }
+    }
 
     fun <T> addEncoder(type: Type<T>, action: TypeEncoder<OUT, T>) {
         @Suppress("UNCHECKED_CAST")
@@ -29,10 +36,18 @@ interface Encoder<OUT> {
     fun <T> encoder(type: Type<T>): TypeEncoder<OUT, T> = rawEncoder(type)
 
     fun rawEncoder(type: Type<*>): TypeEncoder<OUT, Any?> =
-            encoders.getOrPut(type) {
-                kClassEncoders[type.kClass]?.invoke(type) ?: arbitraryEncoders.asSequence()
-                        .mapNotNull { it.generateEncoder(type) }
-                        .firstOrNull() ?: throw SerializationException("No encoder generated for $type!")
+            if(isFrozen){
+                encoders.getOrElse(type) {
+                    kClassEncoders[type.kClass]?.invoke(type) ?: arbitraryEncoders.asSequence()
+                            .mapNotNull { it.generateEncoder(type) }
+                            .firstOrNull() ?: throw SerializationException("No encoder generated for $type!")
+                }
+            } else {
+                encoders.getOrPut(type) {
+                    kClassEncoders[type.kClass]?.invoke(type) ?: arbitraryEncoders.asSequence()
+                            .mapNotNull { it.generateEncoder(type) }
+                            .firstOrNull() ?: throw SerializationException("No encoder generated for $type!")
+                }
             }
 
     interface Generator<OUT> : Comparable<Generator<OUT>> {
@@ -43,11 +58,6 @@ interface Encoder<OUT> {
     }
 
     fun <T> encode(out: OUT, value: T, type: Type<T>) = encoder(type).invoke(out, value)
-
-    @Suppress("UNCHECKED_CAST")
-    fun useCommonEncoders(){
-        CommonSerialization.onEncoderSetup.forEach { it.invoke(this as Encoder<Any?>) }
-    }
 }
 
 inline fun <OUT, T : Any> Encoder<OUT>.setNotNullEncoder(kClass: KClass<T>, crossinline action: (Type<*>) -> TypeEncoder<OUT, T>?) {

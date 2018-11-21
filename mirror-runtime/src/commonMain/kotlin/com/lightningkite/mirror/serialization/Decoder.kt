@@ -1,14 +1,21 @@
 package com.lightningkite.mirror.serialization
 
+import com.lightningkite.kommon.native.isFrozen
 import com.lightningkite.mirror.info.Type
 import kotlin.reflect.KClass
 
 typealias TypeDecoder<IN, T> = IN.() -> T
 
 interface Decoder<IN> {
+    val registry: SerializationRegistry
     val arbitraryDecoders: MutableList<Generator<IN>>
     val kClassDecoders: MutableMap<KClass<*>, (Type<*>) -> TypeDecoder<IN, Any?>?>
     val decoders: MutableMap<Type<*>, TypeDecoder<IN, Any?>>
+
+    @Suppress("UNCHECKED_CAST")
+    fun initializeDecoders() {
+        registry.decoderConfigurators.forEach { it.value.invoke(this as Decoder<Any?>) }
+    }
 
     fun <T> addDecoder(type: Type<T>, action: TypeDecoder<IN, T>) {
         @Suppress("UNCHECKED_CAST")
@@ -30,10 +37,18 @@ interface Decoder<IN> {
 
     @Suppress("UNCHECKED_CAST")
     fun rawDecoder(type: Type<*>): TypeDecoder<IN, Any?> =
-            decoders.getOrPut(type) {
-                kClassDecoders[type.kClass]?.invoke(type) ?: arbitraryDecoders.asSequence()
-                        .mapNotNull { it.generateDecoder(type) }
-                        .firstOrNull() ?: throw SerializationException("No decoder generated for $type!")
+            if (isFrozen) {
+                decoders.getOrElse(type) {
+                    kClassDecoders[type.kClass]?.invoke(type) ?: arbitraryDecoders.asSequence()
+                            .mapNotNull { it.generateDecoder(type) }
+                            .firstOrNull() ?: throw SerializationException("No decoder generated for $type!")
+                }
+            } else {
+                decoders.getOrPut(type) {
+                    kClassDecoders[type.kClass]?.invoke(type) ?: arbitraryDecoders.asSequence()
+                            .mapNotNull { it.generateDecoder(type) }
+                            .firstOrNull() ?: throw SerializationException("No decoder generated for $type!")
+                }
             }
 
     interface Generator<IN> : Comparable<Generator<IN>> {
@@ -44,11 +59,6 @@ interface Decoder<IN> {
     }
 
     fun <T> decode(input: IN, type: Type<T>) = decoder(type).invoke(input)
-
-    @Suppress("UNCHECKED_CAST")
-    fun useCommonDecoders(){
-        CommonSerialization.onDecoderSetup.forEach { it.invoke(this as Decoder<Any?>) }
-    }
 }
 
 inline fun <IN, T : Any> Decoder<IN>.setNotNullDecoder(kClass: KClass<T>, crossinline action: (Type<*>) -> TypeDecoder<IN, T>?) {

@@ -1,5 +1,25 @@
 package com.lightningkite.mirror.info
 
+import com.lightningkite.kommon.native.SharedImmutable
+
+@SharedImmutable
+val PrimitiveClassInfoRegistry : ClassInfoRegistry = ClassInfoRegistry(
+        AnyClassInfo,
+        UnitClassInfo,
+        BooleanClassInfo,
+        ByteClassInfo,
+        ShortClassInfo,
+        IntClassInfo,
+        LongClassInfo,
+        FloatClassInfo,
+        DoubleClassInfo,
+        NumberClassInfo,
+        CharClassInfo,
+        StringClassInfo,
+        ListClassInfo,
+        MapClassInfo
+)
+
 object AnyClassInfo : EmptyClassInfo<Any>(Any::class, "kotlin", "Any") {
     override val modifiers: List<ClassInfo.Modifier>
         get() = listOf(ClassInfo.Modifier.Abstract)

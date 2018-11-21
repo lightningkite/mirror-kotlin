@@ -1,8 +1,10 @@
 package com.lightningkite.mirror
 
+import com.lightningkite.kommon.native.SharedImmutable
 import com.lightningkite.mirror.info.*
 import kotlin.reflect.KClass
 
-fun configureMirror() {
-    ClassInfo.register(com.lightningkite.recktangle.PointClassInfo)
-}
+@SharedImmutable
+val TestRegistry = ClassInfoRegistry(
+    com.lightningkite.recktangle.PointClassInfo
+)

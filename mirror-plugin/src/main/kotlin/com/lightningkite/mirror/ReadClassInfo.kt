@@ -10,7 +10,7 @@ class ReadClassInfo(
         val typeParameters: List<ReadTypeParameter> = listOf(),
         val enumValues: List<String>? = null,
         val annotations: List<AnnotationInfo> = listOf(),
-        val fields: List<ReadSerializedFieldInfo> = listOf()
+        val fields: List<ReadFieldInfo> = listOf()
 ) {
 
     enum class Modifier {
@@ -108,7 +108,7 @@ class ReadClassInfo(
     }
         |   }
         |
-        |   override val fields:List<SerializedFieldInfo<$accessNameWithStars, *>> = listOf(${fields.joinToString { "Fields.${it.name}" }})
+        |   override val fields:List<FieldInfo<$accessNameWithStars, *>> = listOf(${fields.joinToString { "Fields.${it.name}" }})
         |
         |${generateConstructor()}
         |

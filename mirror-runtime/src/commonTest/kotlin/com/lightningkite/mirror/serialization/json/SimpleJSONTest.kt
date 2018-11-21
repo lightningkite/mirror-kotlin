@@ -1,31 +1,12 @@
 package com.lightningkite.mirror.serialization.json
 
 import com.lightningkite.mirror.info.*
+import com.lightningkite.mirror.serialization.DefaultRegistry
+import com.lightningkite.mirror.serialization.SerializationRegistry
 import kotlin.reflect.KClass
 import kotlin.test.Test
 
 class SimpleJSONTest {
-
-    fun <T : Any> test(value: T, type: Type<T>) {
-        val result = JsonSerializer.write(value, type)
-        println(result)
-        val back = JsonSerializer.read(result, type)
-    }
-
-    @Test
-    fun test() {
-        test(listOf(1, 2, 3, 4), Int::class.type.list)
-        test(mapOf(
-                "a" to 1,
-                "b" to 2,
-                "c" to 3
-        ), Int::class.type.stringMap)
-        test(mapOf(
-                "a" to listOf(1, 8),
-                "b" to listOf(2, 8),
-                "c" to listOf(3, 8)
-        ), Int::class.type.list.stringMap)
-    }
 
     data class Post(
             var id: Long? = null,
@@ -51,13 +32,13 @@ class SimpleJSONTest {
         override val enumValues: List<Post>? = null
 
         object Fields {
-            val id = SerializedFieldInfo<Post, Long?>(PostClassInfo, "id", Type<Long?>(Long::class, listOf(), true), false, { it.id as Long? }, listOf())
-            val userId = SerializedFieldInfo<Post, Long>(PostClassInfo, "userId", Type<Long>(Long::class, listOf(), false), false, { it.userId as Long }, listOf())
-            val title = SerializedFieldInfo<Post, String>(PostClassInfo, "title", Type<String>(String::class, listOf(), false), false, { it.title as String }, listOf())
-            val body = SerializedFieldInfo<Post, String>(PostClassInfo, "body", Type<String>(String::class, listOf(), false), false, { it.body as String }, listOf())
+            val id = FieldInfo<Post, Long?>(PostClassInfo, "id", Type<Long?>(Long::class, listOf(), true), false, { it.id as Long? }, listOf())
+            val userId = FieldInfo<Post, Long>(PostClassInfo, "userId", Type<Long>(Long::class, listOf(), false), false, { it.userId as Long }, listOf())
+            val title = FieldInfo<Post, String>(PostClassInfo, "title", Type<String>(String::class, listOf(), false), false, { it.title as String }, listOf())
+            val body = FieldInfo<Post, String>(PostClassInfo, "body", Type<String>(String::class, listOf(), false), false, { it.body as String }, listOf())
         }
 
-        override val fields: List<SerializedFieldInfo<Post, *>> = listOf(Fields.id, Fields.userId, Fields.title, Fields.body)
+        override val fields: List<FieldInfo<Post, *>> = listOf(Fields.id, Fields.userId, Fields.title, Fields.body)
 
         override fun construct(map: Map<String, Any?>): Post {
             //Gather variables
@@ -77,18 +58,39 @@ class SimpleJSONTest {
         }
 
     }
+    
+    val serializer = JsonSerializer(
+            DefaultRegistry + ClassInfoRegistry(PostClassInfo)
+    )
+
+    fun <T : Any> test(value: T, type: Type<T>) {
+        val result = serializer.write(value, type)
+        println(result)
+        val back = serializer.read(result, type)
+    }
+
+    @Test
+    fun test() {
+        test(listOf(1, 2, 3, 4), Int::class.type.list)
+        test(mapOf(
+                "a" to 1,
+                "b" to 2,
+                "c" to 3
+        ), Int::class.type.stringMap)
+        test(mapOf(
+                "a" to listOf(1, 8),
+                "b" to listOf(2, 8),
+                "c" to listOf(3, 8)
+        ), Int::class.type.list.stringMap)
+    }
 
     @Test
     fun reflective() {
-        ClassInfo.register(PostClassInfo)
-
         test(Post(0, 42, "hello"), Post::class.type)
     }
 
     @Test
     fun polymorphic() {
-        ClassInfo.register(PostClassInfo)
-
         test(Post(0, 42, "hello"), Any::class.type)
         test(listOf(Post(0, 42, "hello")), Any::class.type)
         test(8, Any::class.type)
@@ -97,7 +99,6 @@ class SimpleJSONTest {
 
     @Test
     fun extraField() {
-        ClassInfo.register(PostClassInfo)
         val testData = """{
     "userId": 1,
     "id": 1,
@@ -105,13 +106,11 @@ class SimpleJSONTest {
     "title": "sunt aut facere repellat provident occaecati excepturi optio reprehenderit",
     "body": "quia et suscipit\nsuscipit recusandae consequuntur expedita et cum\nreprehenderit molestiae ut ut quas totam\nnostrum rerum est autem sunt rem eveniet architecto"
   }"""
-        JsonSerializer.read(testData, Post::class.type)
+        serializer.read(testData, Post::class.type)
     }
 
     @Test
     fun externalStuff() {
-        ClassInfo.register(PostClassInfo)
-
         val testData = """[
   {
     "userId": 1,
@@ -716,7 +715,7 @@ class SimpleJSONTest {
 ]
 
 """
-        val result = JsonSerializer.read(testData, Post::class.type.list)
+        val result = serializer.read(testData, Post::class.type.list)
         println(result.joinToString("\n"))
     }
 }
