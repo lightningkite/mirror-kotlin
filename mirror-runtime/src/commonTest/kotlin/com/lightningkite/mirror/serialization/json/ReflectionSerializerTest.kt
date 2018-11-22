@@ -1,8 +1,6 @@
 package com.lightningkite.mirror.serialization.json
 
-import com.lightningkite.lokalize.Date
-import com.lightningkite.lokalize.Month
-import com.lightningkite.lokalize.Year
+import com.lightningkite.lokalize.*
 import com.lightningkite.mirror.TestRegistry
 import com.lightningkite.mirror.info.*
 import com.lightningkite.recktangle.Point
@@ -27,6 +25,12 @@ class ReflectionSerializerTest {
     fun testPoint() {
         val point = Point(4f, 8f)
         test(point, Point::class.type)
+    }
+
+    @Test
+    fun testTimeStamp() {
+        val point = TimeStamp.now()
+        test(point, TimeStamp::class.type)
     }
 
     @Test

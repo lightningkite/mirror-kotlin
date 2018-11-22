@@ -2,3 +2,4 @@ com.lightningkite.mirror
 TestRegistry
 
 com.lightningkite.recktangle.Point
+com.lightningkite.lokalize.TimeStamp

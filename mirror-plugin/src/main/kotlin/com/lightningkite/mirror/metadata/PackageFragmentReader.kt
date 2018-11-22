@@ -1,17 +1,11 @@
 package com.lightningkite.mirror.metadata
 
 import com.lightningkite.mirror.*
-import me.eugeniomarletti.kotlin.metadata.classKind
-import me.eugeniomarletti.kotlin.metadata.declaresDefaultValue
-import me.eugeniomarletti.kotlin.metadata.isDataClass
-import me.eugeniomarletti.kotlin.metadata.modality
+import me.eugeniomarletti.kotlin.metadata.*
 import me.eugeniomarletti.kotlin.metadata.shadow.builtins.BuiltInSerializerProtocol
 import me.eugeniomarletti.kotlin.metadata.shadow.builtins.BuiltInsBinaryVersion
 import me.eugeniomarletti.kotlin.metadata.shadow.metadata.ProtoBuf
-import me.eugeniomarletti.kotlin.metadata.shadow.metadata.deserialization.TypeTable
-import me.eugeniomarletti.kotlin.metadata.shadow.metadata.deserialization.returnType
-import me.eugeniomarletti.kotlin.metadata.shadow.metadata.deserialization.type
-import me.eugeniomarletti.kotlin.metadata.shadow.metadata.deserialization.upperBounds
+import me.eugeniomarletti.kotlin.metadata.shadow.metadata.deserialization.*
 import java.io.InputStream
 
 
@@ -65,6 +59,8 @@ class PackageFragmentReader(val fragment: ProtoBuf.PackageFragment) {
 
         val table = TypeTable(typeTable)
 
+        val isInlineClass = Flags.IS_INLINE_CLASS.get(flags)
+
         val info = ReadClassInfo(
                 imports = listOf(),
                 modifiers = when (this.classKind) {
@@ -81,9 +77,11 @@ class PackageFragmentReader(val fragment: ProtoBuf.PackageFragment) {
                     ProtoBuf.Modality.ABSTRACT -> listOf(ReadClassInfo.Modifier.Abstract)
                     ProtoBuf.Modality.SEALED -> listOf(ReadClassInfo.Modifier.Sealed)
                     null -> listOf()
-                } + if (isDataClass) {
+                } + (if (isDataClass) {
                     listOf(ReadClassInfo.Modifier.Data)
-                } else listOf(),
+                } else listOf()) + (if (isInlineClass) {
+                    listOf(ReadClassInfo.Modifier.Inline)
+                } else listOf()),
                 implements = this.supertypeList.map { it.read(table, listOf(this)) },
                 packageName = packageName,
                 owner = fullName.removePrefix(packageName).removeSuffix(name).trim('.').takeUnless { it.isBlank() },

@@ -63,7 +63,7 @@ class SimpleJSONTest {
             DefaultRegistry + ClassInfoRegistry(PostClassInfo)
     )
 
-    fun <T : Any> test(value: T, type: Type<T>) {
+    fun <T> test(value: T, type: Type<T>) {
         val result = serializer.write(value, type)
         println(result)
         val back = serializer.read(result, type)
@@ -82,6 +82,13 @@ class SimpleJSONTest {
                 "b" to listOf(2, 8),
                 "c" to listOf(3, 8)
         ), Int::class.type.list.stringMap)
+    }
+
+    @Test
+    fun nullables() {
+        test<String?>(null, String::class.typeNullable)
+        test<String?>("value", String::class.typeNullable)
+        test(listOf(null, "Has String", null, "another"), String::class.typeNullable.list)
     }
 
     @Test

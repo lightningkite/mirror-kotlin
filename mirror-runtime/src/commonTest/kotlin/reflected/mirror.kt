@@ -6,5 +6,6 @@ import kotlin.reflect.KClass
 
 @SharedImmutable
 val TestRegistry = ClassInfoRegistry(
-    com.lightningkite.recktangle.PointClassInfo
+    com.lightningkite.recktangle.PointClassInfo,
+    com.lightningkite.lokalize.TimeStampClassInfo
 )

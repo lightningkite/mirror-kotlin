@@ -18,7 +18,8 @@ class ReadClassInfo(
         Abstract,
         Data,
         Open,
-        Interface;
+        Interface,
+        Inline;
 
         companion object {
             val map = values().associate { it.name.toLowerCase() to it }
