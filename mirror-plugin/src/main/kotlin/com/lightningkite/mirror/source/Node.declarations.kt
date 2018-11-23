@@ -11,7 +11,10 @@ fun Node.getFileClasses(): List<ReadClassInfo> {
     } ?: listOf()
     return this.children
             .filter { it.type == "topLevelObject" }
-            .mapNotNull { it["classDeclaration"]?.toKxClasses(packageName, imports) }
+            .mapNotNull {
+                it["classDeclaration"]?.toKxClasses(packageName, imports)
+                        ?: it["objectDeclaration"]?.toKxClasses(packageName, imports)
+            }
             .flatMap { it }
 }
 
@@ -64,7 +67,10 @@ fun Node.toKxClasses(packageName: String, imports: List<String>, owner: ReadClas
     )
     val subclasses: List<ReadClassInfo> = this["classBody"]?.children
             ?.filter { it.type == "classMemberDeclaration" }
-            ?.mapNotNull { it["classDeclaration"]?.toKxClasses(packageName, imports, currentClass) }
+            ?.mapNotNull {
+                it["classDeclaration"]?.toKxClasses(packageName, imports, currentClass)
+                        ?: it["objectDeclaration"]?.toKxClasses(packageName, imports, currentClass)
+            }
             ?.flatMap { it }
             ?: listOf()
 

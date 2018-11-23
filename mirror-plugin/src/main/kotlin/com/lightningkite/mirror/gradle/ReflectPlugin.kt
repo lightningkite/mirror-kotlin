@@ -9,11 +9,13 @@ import org.gradle.api.Project
 open class ReflectPlugin : Plugin<Project> {
 
     override fun apply(target: Project) {
-
-        val projectName = target.name.javaify()
-        val groupName = target.group.toString().javaifyWithDots()
-
         val task = target.tasks.create("mirror", ReflectTask::class.java)
+
+        target.tasks.forEach {
+            if(it.name.contains("kotlin", true) && it.name.contains("compile", true)){
+                it.dependsOn(task)
+            }
+        }
     }
 }
 

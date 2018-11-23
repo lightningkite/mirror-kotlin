@@ -1,3 +1,2 @@
-com.lightningkite.mirror.test
-configureMirror
 com.lightningkite.lokalize.TimeStamp
+com.lightningkite.rekwest.server.User.Get

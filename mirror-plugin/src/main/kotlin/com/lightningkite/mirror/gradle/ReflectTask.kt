@@ -7,6 +7,10 @@ import org.gradle.api.tasks.TaskAction
 
 open class ReflectTask() : DefaultTask() {
 
+    init{
+        group = "build"
+    }
+
     @TaskAction
     fun writeReflectiveFiles() {
         reflectTask(

@@ -9,16 +9,8 @@ buildscript {
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:${kotlinVersion}"
         classpath "com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.0"
+        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.+'
     }
-}
-
-repositories {
-    mavenLocal()
-    jcenter()
-    mavenCentral()
-    google()
-    maven { url "https://kotlin.bintray.com/kotlinx" }
-
 }
 
 apply plugin: "java"
@@ -28,8 +20,38 @@ apply plugin: "idea"
 apply plugin: 'java-gradle-plugin'
 apply plugin: 'application'
 apply plugin: 'maven-publish'
+apply plugin: 'com.jfrog.bintray'
+
+bintray {
+    user = System.getenv('BINTRAY_USER')
+    key = System.getenv('BINTRAY_KEY')
+    publish = true
+    pkg {
+        repo = project.group.toString()
+        name = project.name
+        userOrg = "lightningkite"
+        licenses = ["MIT"]
+        def github = "https://github.com/lightningkite/mirror-kotlin"
+        vcsUrl = github
+        websiteUrl = github
+        issueTrackerUrl = github + "/issues"
+        version {
+            name = project.version
+            released = new Date()
+        }
+    }
+}
 
 mainClassName = 'com.lightningkite.mirror.MainKt'
+
+repositories {
+    mavenLocal()
+    jcenter()
+    mavenCentral()
+    google()
+    maven { url "https://kotlin.bintray.com/kotlinx" }
+
+}
 
 gradlePlugin {
     plugins {
