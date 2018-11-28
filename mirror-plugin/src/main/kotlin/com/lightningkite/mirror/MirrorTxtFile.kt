@@ -93,6 +93,7 @@ class MirrorTxtFile(
     fun output(
             declarations: Map<String, ReadClassInfo>
     ){
+        outputDirectory.mkdirs()
         val needed = neededReflections(declarations)
         val reflectionsToWrite = reflectionsToWrite(declarations, needed)
 

@@ -20,7 +20,7 @@ fun reflectTask(directories: List<File>, jarsToInspect: List<File>) {
         val otherLines = lines.filter { !it.contains('=') && it.isNotBlank() }
         MirrorTxtFile(
                 registryName = settings["registryName", "registry", "name"] ?: "com.lightningkite.mirror.GeneratedRegistry",
-                outputDirectory = settings["outputDirectory", "output"]?.let { File(it) } ?: mirrorTxtFile.parentFile,
+                outputDirectory = settings["outputDirectory", "output"]?.let { File(mirrorTxtFile.parentFile, it) } ?: mirrorTxtFile.parentFile,
                 qualifiedNames = otherLines
         )
     }.toList()
