@@ -11,6 +11,7 @@ class MirrorTxtFile(
         val allNames = ArrayList<String>()
         val toCheck = ArrayList<String>()
         val alreadyAdded = hashSetOf(
+                "kotlin.reflect.KClass",
                 "kotlin.Any",
                 "kotlin.Unit",
                 "kotlin.Boolean",
@@ -18,6 +19,10 @@ class MirrorTxtFile(
                 "kotlin.Short",
                 "kotlin.Int",
                 "kotlin.Long",
+                "kotlin.UByte",
+                "kotlin.UShort",
+                "kotlin.UInt",
+                "kotlin.ULong",
                 "kotlin.Float",
                 "kotlin.Double",
                 "kotlin.Number",
@@ -25,6 +30,7 @@ class MirrorTxtFile(
                 "kotlin.String",
                 "kotlin.collections.List",
                 "kotlin.collections.Map",
+                "KClass",
                 "Any",
                 "Unit",
                 "Boolean",
@@ -32,6 +38,10 @@ class MirrorTxtFile(
                 "Short",
                 "Int",
                 "Long",
+                "UByte",
+                "UShort",
+                "UInt",
+                "ULong",
                 "Float",
                 "Double",
                 "Number",
@@ -124,7 +134,7 @@ class MirrorTxtFile(
         |
         |@SharedImmutable
         |val ${registryName.substringAfterLast('.')} = ClassInfoRegistry(
-        |${declarations.asSequence().filter { it.key in needed }.map { it.value.packageName + "." + it.value.reflectionName }.joinToString(",\n    ", "    ")}
+        |${declarations.asSequence().filter { it.key in needed }.map { it.value.reflectionQualifiedName }.joinToString(",\n    ", "    ")}
         |)
     """.trimMargin())
     }
