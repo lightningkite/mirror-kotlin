@@ -1,8 +1,7 @@
 package com.lightningkite.mirror
 
 import com.lightningkite.mirror.metadata.readPackageFragment
-import com.lightningkite.mirror.source.getFileClasses
-import com.lightningkite.mirror.source.kotlinNode
+import com.lightningkite.mirror.source.classes
 import java.io.File
 import java.util.jar.JarFile
 
@@ -42,7 +41,7 @@ fun allDeclarations(directories: List<File>, jarsToInspect: List<File>): Map<Str
             .flatMap { it.walkTopDown() }
             .filter { it.extension == "kt" }
             .flatMap { file ->
-                file.kotlinNode().getFileClasses().asSequence()
+                file.classes().asSequence()
                         .map {
                             it.fromFile = file
                             it

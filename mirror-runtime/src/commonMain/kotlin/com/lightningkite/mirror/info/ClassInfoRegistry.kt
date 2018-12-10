@@ -26,8 +26,7 @@ fun ClassInfo<*>.allImplements(registry: ClassInfoRegistry): Sequence<Type<*>> {
     }.distinct()
 }
 
-data class ImplementsTreeNode(val parent: ImplementsTreeNode? = null, val info: ClassInfo<*>) {
-    val children: ArrayList<ImplementsTreeNode> = ArrayList()
+data class ImplementsTreeNode(val parent: ImplementsTreeNode? = null, val info: ClassInfo<*>, val children: ArrayList<ImplementsTreeNode> = ArrayList()) {
     fun setup(classInfoRegistry: ClassInfoRegistry) {
         for (impl in info.implements) {
             classInfoRegistry[impl.kClass]?.let {
