@@ -49,12 +49,16 @@ kotlin {
     targets {
         fromPreset(presets.jvm, 'jvm')
         fromPreset(presets.js, 'js')
+//        if(org.gradle.internal.os.OperatingSystem.current().isMacOsX()){
+//            fromPreset(presets.iosX64, 'iosx64')
+//            fromPreset(presets.iosArm64, 'ios')
+//        }
     }
     sourceSets {
         commonMain {
             dependencies {
                 api 'org.jetbrains.kotlin:kotlin-stdlib-common'
-                api "org.jetbrains.kotlinx:kotlinx-io:0.1.0-beta-1"
+                api "org.jetbrains.kotlinx:kotlinx-io:0.1.1"
                 api "com.lightningkite:kommon-metadata:${project.version}"
             }
         }
@@ -70,7 +74,7 @@ kotlin {
         jvmMain {
             dependencies {
                 api 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
-                api "org.jetbrains.kotlinx:kotlinx-io-jvm:0.1.0-beta-1"
+                api "org.jetbrains.kotlinx:kotlinx-io-jvm:0.1.1"
                 api "com.lightningkite:kommon-jvm:${project.version}"
             }
         }
@@ -86,7 +90,7 @@ kotlin {
         jsMain {
             dependencies {
                 api 'org.jetbrains.kotlin:kotlin-stdlib-js'
-                api "org.jetbrains.kotlinx:kotlinx-io-js:0.1.0-beta-1"
+                api "org.jetbrains.kotlinx:kotlinx-io-js:0.1.1"
                 api "com.lightningkite:kommon-js:${project.version}"
             }
         }
@@ -96,6 +100,25 @@ kotlin {
 
                 api "com.lightningkite:lokalize-js:${project.version}"
                 api "com.lightningkite:recktangle-js:${project.version}"
+            }
+        }
+
+        iosMain {
+            dependencies {
+            }
+        }
+        iosTest {
+            dependencies {
+            }
+        }
+        iosx64Main {
+            dependencies {
+                dependsOn iosMain
+            }
+        }
+        iosx64Test {
+            dependencies {
+                dependsOn iosTest
             }
         }
     }
@@ -108,3 +131,19 @@ tasks.withType(compileKotlinJs.getClass()) {
         metaInfo = true
     }
 }
+
+//task iosTest {
+//    def device = project.findProperty("iosDevice")?.toString() ?: "iPhone 8"
+//    dependsOn 'linkTestDebugExecutableIosx64'
+//    group = JavaBasePlugin.VERIFICATION_GROUP
+//    description = "Runs tests for target 'ios' on an iOS simulator"
+//
+//    doLast {
+//        def binary = kotlin.targets.iosx64.compilations.test.getBinary('EXECUTABLE', 'DEBUG')
+//        exec {
+//            commandLine 'xcrun', 'simctl', 'spawn', device, binary.absolutePath
+//        }
+//    }
+//}
+//tasks.check.dependsOn(tasks.iosTest)
+
