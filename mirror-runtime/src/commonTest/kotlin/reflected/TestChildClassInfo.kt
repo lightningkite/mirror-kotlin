@@ -12,7 +12,7 @@ object TestChildClassInfo: ClassInfo<TestChild> {
    override val kClass: KClass<TestChild> = TestChild::class
    override val modifiers: List<ClassInfo.Modifier> = listOf()
 
-   override val implements: List<Type<*>> = listOf(Type<TestAnotherInterface>(TestAnotherInterface::class, listOf(), false))
+   override val implements: List<Type<*>> = listOf(Type<TestParent>(TestParent::class, listOf(), false), Type<TestAnotherInterface>(TestAnotherInterface::class, listOf(), false))
 
    override val packageName: String = "com.lightningkite.mirror.info"
    override val owner: KClass<*>? = null

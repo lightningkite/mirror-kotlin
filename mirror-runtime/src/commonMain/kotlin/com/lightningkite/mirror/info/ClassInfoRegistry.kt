@@ -26,11 +26,11 @@ fun ClassInfo<*>.allImplements(registry: ClassInfoRegistry): Sequence<Type<*>> {
     }.distinct()
 }
 
-data class ImplementsTreeNode(val parent: ImplementsTreeNode? = null, val info: ClassInfo<*>, val children: ArrayList<ImplementsTreeNode> = ArrayList()) {
+class ImplementsTreeNode(val parent: ImplementsTreeNode? = null, val info: ClassInfo<*>, val children: ArrayList<ImplementsTreeNode> = ArrayList()) {
     fun setup(classInfoRegistry: ClassInfoRegistry) {
         for (impl in info.implements) {
             classInfoRegistry[impl.kClass]?.let {
-                children.add(ImplementsTreeNode(parent, it).apply { setup(classInfoRegistry) })
+                children.add(ImplementsTreeNode(this, it).apply { setup(classInfoRegistry) })
             }
         }
     }
@@ -40,8 +40,12 @@ data class ImplementsTreeNode(val parent: ImplementsTreeNode? = null, val info: 
             it.children.asSequence()
         }.firstOrNull { it.info.kClass == kClass }
                 ?.let {
-                    generateSequence(it) { it.parent }.toList()
+                    generateSequence(it) { it.parent }.toList().reversed()
                 }
+    }
+
+    override fun toString(): String {
+        return info.qualifiedName + "(" + children.joinToString() + ")"
     }
 }
 

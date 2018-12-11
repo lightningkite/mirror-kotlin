@@ -12,7 +12,7 @@ class TreeTest {
     }
 
     @Test fun testParent(){
-        val tree = registry[TestParent::class]!!.implements
+        val tree = registry[TestChild::class]!!.implementsTree(registry).pathTo(TestInterface::class)
         println(tree)
     }
 }

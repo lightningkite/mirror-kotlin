@@ -48,7 +48,7 @@ class SourceListener : KotlinParserBaseListener() {
         return userType()?.convert() ?: typeReference()!!.convert()
     }
 
-    fun KotlinParser.UserTypeContext.convert(): ReadType {
+    fun KotlinParser.UserTypeContext.convert(typeArgumentsOverride: KotlinParser.TypeArgumentsContext? = null): ReadType {
         val last = this.simpleUserType().last() ?: return ReadType("ERROR")
         val prefix = this.simpleUserType().dropLast(1).joinToString(".") { it.simpleIdentifier().text }.let{
             if(it.isBlank()) it
@@ -56,7 +56,7 @@ class SourceListener : KotlinParserBaseListener() {
         }
         return ReadType(
                 kClass = prefix + last.simpleIdentifier().text,
-                typeArguments = last.typeArguments()?.typeProjection()?.map { it.convert() } ?: listOf(),
+                typeArguments = (typeArgumentsOverride ?: last.typeArguments())?.typeProjection()?.map { it.convert() } ?: listOf(),
                 isNullable = false
         )
     }
@@ -135,7 +135,9 @@ class SourceListener : KotlinParserBaseListener() {
                     }
                 } ?: listOf()).plus(if (ctx.INTERFACE() != null) listOf(ReadClassInfo.Modifier.Interface) else listOf()),
                 implements = ctx.delegationSpecifiers()?.delegationSpecifier()?.mapNotNull {
-                    it.userType()?.convert()
+                    it.userType()?.convert() ?: it.constructorInvocation()?.userType()?.convert(
+                            typeArgumentsOverride = it.constructorInvocation()?.callSuffixLambdaless()?.typeArguments()
+                    )
                 } ?: listOf(),
                 owner = if(ownerChain.isEmpty()) null else ownerChain.joinToString("."),
                 name = ctx.simpleIdentifier().text,

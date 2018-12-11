@@ -283,7 +283,6 @@ statements
 
 statement
     : declaration
-    | assignment
     | expression
     ;
 
@@ -295,12 +294,12 @@ declaration
     | typeAlias)
     ;
 
-assignment
-    : assignableExpression assignmentOperator NL* disjunction
+expression
+    : assignment
     ;
 
-expression
-    : disjunction
+assignment
+    : disjunction (assignmentOperator NL* disjunction)?
     ;
 
 disjunction
