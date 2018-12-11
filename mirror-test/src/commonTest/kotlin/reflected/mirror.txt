@@ -1,3 +1,8 @@
 name = com.lightningkite.mirror.TestRegistry
 
 com.lightningkite.recktangle.Point
+com.lightningkite.lokalize.TimeStamp
+com.lightningkite.mirror.info.TestParent
+com.lightningkite.mirror.info.TestInterface
+com.lightningkite.mirror.info.TestChild
+com.lightningkite.mirror.info.TestAnotherInterface
