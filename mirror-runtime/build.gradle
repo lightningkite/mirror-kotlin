@@ -59,7 +59,7 @@ kotlin {
             dependencies {
                 api 'org.jetbrains.kotlin:kotlin-stdlib-common'
                 api "org.jetbrains.kotlinx:kotlinx-io:0.1.1"
-                api "com.lightningkite:kommon-metadata:${project.version}"
+                api 'com.lightningkite:kommon-metadata:0.0.2'
             }
         }
         commonTest {
@@ -67,15 +67,15 @@ kotlin {
                 api 'org.jetbrains.kotlin:kotlin-test-common'
                 api 'org.jetbrains.kotlin:kotlin-test-annotations-common'
 
-                api "com.lightningkite:lokalize-metadata:${project.version}"
-                api "com.lightningkite:recktangle-metadata:${project.version}"
+                api 'com.lightningkite:lokalize-metadata:0.0.2'
+                api 'com.lightningkite:recktangle-metadata:0.0.2'
             }
         }
         jvmMain {
             dependencies {
                 api 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
                 api "org.jetbrains.kotlinx:kotlinx-io-jvm:0.1.1"
-                api "com.lightningkite:kommon-jvm:${project.version}"
+                api 'com.lightningkite:kommon-jvm:0.0.2'
             }
         }
         jvmTest {
@@ -83,23 +83,23 @@ kotlin {
                 api 'org.jetbrains.kotlin:kotlin-test'
                 api 'org.jetbrains.kotlin:kotlin-test-junit'
 
-                api "com.lightningkite:lokalize-jvm:${project.version}"
-                api "com.lightningkite:recktangle-jvm:${project.version}"
+                api 'com.lightningkite:lokalize-jvm:0.0.2'
+                api 'com.lightningkite:recktangle-jvm:0.0.2'
             }
         }
         jsMain {
             dependencies {
                 api 'org.jetbrains.kotlin:kotlin-stdlib-js'
                 api "org.jetbrains.kotlinx:kotlinx-io-js:0.1.1"
-                api "com.lightningkite:kommon-js:${project.version}"
+                api 'com.lightningkite:kommon-js:0.0.2'
             }
         }
         jsTest {
             dependencies {
                 api 'org.jetbrains.kotlin:kotlin-test-js'
 
-                api "com.lightningkite:lokalize-js:${project.version}"
-                api "com.lightningkite:recktangle-js:${project.version}"
+                api 'com.lightningkite:lokalize-js:0.0.2'
+                api 'com.lightningkite:recktangle-js:0.0.2'
             }
         }
 
