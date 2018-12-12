@@ -22,15 +22,15 @@ class ReflectiveInfoTest {
     @Test
     fun testRoundTripFieldInfo() {
         val type = FieldInfo::class.type
-        test(PointClassInfo.Fields.x, type)
-        test(PointClassInfo.Fields.y, type)
+        test(PointClassInfo.fieldX, type)
+        test(PointClassInfo.fieldY, type)
     }
 
     @Test
     fun testRoundTripFieldInfoSpecific() {
         val type = Type<FieldInfo<Point, *>>(FieldInfo::class, listOf(TypeProjection(Point::class.type)))
-        test(PointClassInfo.Fields.x, type)
-        test(PointClassInfo.Fields.y, type)
+        test(PointClassInfo.fieldX, type)
+        test(PointClassInfo.fieldY, type)
     }
 
     @Test
