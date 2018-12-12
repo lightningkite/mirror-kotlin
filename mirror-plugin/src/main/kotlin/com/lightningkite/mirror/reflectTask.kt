@@ -6,11 +6,13 @@ import java.io.File
 import java.util.jar.JarFile
 
 
-fun reflectTask(directories: List<File>, jarsToInspect: List<File>) {
-    println("Checking source directories: $directories")
+fun reflectTask(directories: List<File>) {
+    val sourceDirectories = directories.filter { it.isDirectory }
+    val jarsToInspect = directories.filter { it.extension == "jar" }
+    println("Checking source directories: $sourceDirectories")
     println("Checking jars: $jarsToInspect")
 
-    val requestFiles = directories.asSequence().flatMap {
+    val requestFiles = sourceDirectories.asSequence().flatMap {
         it.walkTopDown().filter { it.endsWith("mirror.txt") }
     }.map { mirrorTxtFile ->
         val lines = mirrorTxtFile.readLines()
@@ -28,7 +30,7 @@ fun reflectTask(directories: List<File>, jarsToInspect: List<File>) {
 
     println("Requested names: $requestedNames")
 
-    val declarations = allDeclarations(directories, jarsToInspect)
+    val declarations = allDeclarations(sourceDirectories, jarsToInspect)
 
     for (file in requestFiles) {
         file.output(declarations)

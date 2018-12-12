@@ -2,3 +2,4 @@ include ':mirror-plugin'
 include ':mirror-runtime'
 include ':mirror-test'
 
+enableFeaturePreview('GRADLE_METADATA')

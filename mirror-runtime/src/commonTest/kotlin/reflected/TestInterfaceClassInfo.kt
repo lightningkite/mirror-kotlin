@@ -2,7 +2,6 @@
 //AUTOMATICALLY GENERATED AND WILL BE OVERRIDDEN IF THIS MESSAGE IS PRESENT
 package com.lightningkite.mirror.info
 
-
 import com.lightningkite.mirror.info.*
 import kotlin.reflect.KClass
 
@@ -22,9 +21,7 @@ object TestInterfaceClassInfo: ClassInfo<TestInterface> {
    override val annotations: List<AnnotationInfo> = listOf()
    override val enumValues: List<TestInterface>? = null
 
-   object Fields {
-       
-   }
+   
 
    override val fields:List<FieldInfo<TestInterface, *>> = listOf()
 

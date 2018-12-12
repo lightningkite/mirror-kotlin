@@ -6,4 +6,6 @@ open class TestParent : TestInterface
 
 interface TestAnotherInterface
 
-class TestChild() : TestParent(), TestAnotherInterface
+class TestChild(val test: Int = 4) : TestParent(), TestAnotherInterface {
+
+}

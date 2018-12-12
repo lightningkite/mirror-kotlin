@@ -8,12 +8,14 @@ buildscript {
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:${kotlinVersion}"
         classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.+'
+        classpath "com.lightningkite:mirror-plugin:0.0.2"
     }
 }
 
 apply plugin: 'kotlin-multiplatform'
 apply plugin: 'maven-publish'
 apply plugin: 'com.jfrog.bintray'
+apply plugin: 'com.lightningkite.mirror'
 
 bintray {
     user = System.getenv('BINTRAY_USER')
@@ -47,16 +49,16 @@ kotlin {
     targets {
         fromPreset(presets.jvm, 'jvm')
         fromPreset(presets.js, 'js')
-//        if(org.gradle.internal.os.OperatingSystem.current().isMacOsX()){
-//            fromPreset(presets.iosX64, 'iosx64')
-//            fromPreset(presets.iosArm64, 'ios')
-//        }
+        if(org.gradle.internal.os.OperatingSystem.current().isMacOsX()){
+            fromPreset(presets.iosX64, 'iosx64')
+            fromPreset(presets.iosArm64, 'ios')
+        }
     }
     sourceSets {
         commonMain {
             dependencies {
                 api 'org.jetbrains.kotlin:kotlin-stdlib-common'
-                api "org.jetbrains.kotlinx:kotlinx-io:0.1.1"
+//                api "org.jetbrains.kotlinx:kotlinx-io:0.1.1"
                 api 'com.lightningkite:kommon-metadata:0.0.2'
             }
         }
@@ -72,7 +74,7 @@ kotlin {
         jvmMain {
             dependencies {
                 api 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
-                api "org.jetbrains.kotlinx:kotlinx-io-jvm:0.1.1"
+//                api "org.jetbrains.kotlinx:kotlinx-io-jvm:0.1.1"
                 api 'com.lightningkite:kommon-jvm:0.0.2'
             }
         }
@@ -88,7 +90,7 @@ kotlin {
         jsMain {
             dependencies {
                 api 'org.jetbrains.kotlin:kotlin-stdlib-js'
-                api "org.jetbrains.kotlinx:kotlinx-io-js:0.1.1"
+//                api "org.jetbrains.kotlinx:kotlinx-io-js:0.1.1"
                 api 'com.lightningkite:kommon-js:0.0.2'
             }
         }
@@ -103,20 +105,24 @@ kotlin {
 
         iosMain {
             dependencies {
+                api 'com.lightningkite:kommon-ios:0.0.2'
             }
         }
         iosTest {
             dependencies {
+                api 'com.lightningkite:lokalize-ios:0.0.2'
+                api 'com.lightningkite:recktangle-ios:0.0.2'
             }
         }
         iosx64Main {
             dependencies {
-                dependsOn iosMain
+                api 'com.lightningkite:kommon-iosx64:0.0.2'
             }
         }
         iosx64Test {
             dependencies {
-                dependsOn iosTest
+                api 'com.lightningkite:lokalize-iosx64:0.0.2'
+                api 'com.lightningkite:recktangle-iosx64:0.0.2'
             }
         }
     }
@@ -130,18 +136,18 @@ tasks.withType(compileKotlinJs.getClass()) {
     }
 }
 
-//task iosTest {
-//    def device = project.findProperty("iosDevice")?.toString() ?: "iPhone 8"
-//    dependsOn 'linkTestDebugExecutableIosx64'
-//    group = JavaBasePlugin.VERIFICATION_GROUP
-//    description = "Runs tests for target 'ios' on an iOS simulator"
-//
-//    doLast {
-//        def binary = kotlin.targets.iosx64.compilations.test.getBinary('EXECUTABLE', 'DEBUG')
-//        exec {
-//            commandLine 'xcrun', 'simctl', 'spawn', device, binary.absolutePath
-//        }
-//    }
-//}
-//tasks.check.dependsOn(tasks.iosTest)
+task iosTest {
+    def device = project.findProperty("iosDevice")?.toString() ?: "iPhone 8"
+    dependsOn 'linkTestDebugExecutableIosx64'
+    group = JavaBasePlugin.VERIFICATION_GROUP
+    description = "Runs tests for target 'ios' on an iOS simulator"
+
+    doLast {
+        def binary = kotlin.targets.iosx64.compilations.test.getBinary('EXECUTABLE', 'DEBUG')
+        exec {
+            commandLine 'xcrun', 'simctl', 'spawn', device, binary.absolutePath
+        }
+    }
+}
+tasks.check.dependsOn(tasks.iosTest)
 

@@ -2,7 +2,6 @@
 //AUTOMATICALLY GENERATED AND WILL BE OVERRIDDEN IF THIS MESSAGE IS PRESENT
 package com.lightningkite.mirror.info
 
-
 import com.lightningkite.mirror.info.*
 import kotlin.reflect.KClass
 
@@ -22,20 +21,18 @@ object TestChildClassInfo: ClassInfo<TestChild> {
    override val annotations: List<AnnotationInfo> = listOf()
    override val enumValues: List<TestChild>? = null
 
-   object Fields {
-       
-   }
+   val fieldTest = FieldInfo<TestChild, Int>(this, "test", Type<Int>(Int::class, listOf(), false), true, { it.test as Int}, listOf())
 
-   override val fields:List<FieldInfo<TestChild, *>> = listOf()
+   override val fields:List<FieldInfo<TestChild, *>> = listOf(fieldTest)
 
    override fun construct(map: Map<String, Any?>): TestChild {
        //Gather variables
        
            //Handle the optionals
-       
+       val test:Int = map["test"] as? Int ?: 4
        //Finally do the call
        return TestChild(
-           
+           test = test
        )
    }
 

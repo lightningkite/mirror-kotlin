@@ -1,5 +1,6 @@
 package com.lightningkite.mirror.serialization.json
 
+import com.lightningkite.mirror.TestRegistry
 import com.lightningkite.mirror.info.*
 import com.lightningkite.mirror.serialization.DefaultRegistry
 import com.lightningkite.mirror.serialization.SerializationRegistry
@@ -15,52 +16,12 @@ class SimpleJSONTest {
             var body: String = ""
     )
 
-    @Suppress("RemoveExplicitTypeArguments", "UNCHECKED_CAST")
-    object PostClassInfo : ClassInfo<Post> {
-
-        override val kClass: KClass<Post> = Post::class
-        override val modifiers: List<ClassInfo.Modifier> = listOf(ClassInfo.Modifier.Data)
-
-        override val implements: List<Type<*>> = listOf()
-
-        override val packageName: String = "com.lightningkite.kommunicate"
-        override val owner: KClass<*>? = null
-        override val ownerName: String? = null
-
-        override val name: String = "Post"
-        override val annotations: List<AnnotationInfo> = listOf()
-        override val enumValues: List<Post>? = null
-
-        object Fields {
-            val id = FieldInfo<Post, Long?>(PostClassInfo, "id", Type<Long?>(Long::class, listOf(), true), false, { it.id as Long? }, listOf())
-            val userId = FieldInfo<Post, Long>(PostClassInfo, "userId", Type<Long>(Long::class, listOf(), false), false, { it.userId as Long }, listOf())
-            val title = FieldInfo<Post, String>(PostClassInfo, "title", Type<String>(String::class, listOf(), false), false, { it.title as String }, listOf())
-            val body = FieldInfo<Post, String>(PostClassInfo, "body", Type<String>(String::class, listOf(), false), false, { it.body as String }, listOf())
-        }
-
-        override val fields: List<FieldInfo<Post, *>> = listOf(Fields.id, Fields.userId, Fields.title, Fields.body)
-
-        override fun construct(map: Map<String, Any?>): Post {
-            //Gather variables
-            val id: Long? = map["id"] as Long?
-            val userId: Long = map["userId"] as Long
-            val title: String = map["title"] as String
-            val body: String = map["body"] as String
-            //Handle the optionals
-
-            //Finally do the call
-            return Post(
-                    id = id,
-                    userId = userId,
-                    title = title,
-                    body = body
-            )
-        }
-
+    enum class TestEnum {
+        ValueA, ValueB, ValueC
     }
-    
+
     val serializer = JsonSerializer(
-            DefaultRegistry + ClassInfoRegistry(PostClassInfo)
+            DefaultRegistry + TestRegistry
     )
 
     fun <T> test(value: T, type: Type<T>) {
@@ -70,7 +31,7 @@ class SimpleJSONTest {
     }
 
     @Test
-    fun test() {
+    fun basicsTest() {
         test(listOf(1, 2, 3, 4), Int::class.type.list)
         test(mapOf(
                 "a" to 1,
@@ -102,6 +63,19 @@ class SimpleJSONTest {
         test(listOf(Post(0, 42, "hello")), Any::class.type)
         test(8, Any::class.type)
         test("hello", Any::class.type)
+    }
+
+    @Test
+    fun enumTest(){
+        test(TestEnum.ValueA, TestEnum::class.type)
+        test(TestEnum.ValueB, TestEnum::class.type)
+        test(TestEnum.ValueC, TestEnum::class.type)
+    }
+
+    @Test
+    fun reflectiveData(){
+        test(SimpleJSONTestPostClassInfo.fieldId, FieldInfo::class.type)
+        test(TestEnum::class, KClass::class.type)
     }
 
     @Test

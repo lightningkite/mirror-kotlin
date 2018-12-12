@@ -14,8 +14,7 @@ open class ReflectTask() : DefaultTask() {
     @TaskAction
     fun writeReflectiveFiles() {
         reflectTask(
-                directories = listOf(project.file("src")),
-                jarsToInspect = project.configurations.filter { it.isCanBeResolved }.flatMap { it }
+                directories = listOf(project.file("src")) + project.configurations.filter { it.isCanBeResolved }.flatMap { it }
         )
     }
 
