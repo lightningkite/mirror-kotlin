@@ -103,26 +103,28 @@ kotlin {
             }
         }
 
-        iosMain {
-            dependencies {
-                api 'com.lightningkite:kommon-ios:0.0.2'
+        if (org.gradle.internal.os.OperatingSystem.current().isMacOsX()) {
+            iosMain {
+                dependencies {
+                    api 'com.lightningkite:kommon-ios:0.0.2'
+                }
             }
-        }
-        iosTest {
-            dependencies {
-                api 'com.lightningkite:lokalize-ios:0.0.2'
-                api 'com.lightningkite:recktangle-ios:0.0.2'
+            iosTest {
+                dependencies {
+                    api 'com.lightningkite:lokalize-ios:0.0.2'
+                    api 'com.lightningkite:recktangle-ios:0.0.2'
+                }
             }
-        }
-        iosx64Main {
-            dependencies {
-                api 'com.lightningkite:kommon-iosx64:0.0.2'
+            iosx64Main {
+                dependencies {
+                    api 'com.lightningkite:kommon-iosx64:0.0.2'
+                }
             }
-        }
-        iosx64Test {
-            dependencies {
-                api 'com.lightningkite:lokalize-iosx64:0.0.2'
-                api 'com.lightningkite:recktangle-iosx64:0.0.2'
+            iosx64Test {
+                dependencies {
+                    api 'com.lightningkite:lokalize-iosx64:0.0.2'
+                    api 'com.lightningkite:recktangle-iosx64:0.0.2'
+                }
             }
         }
     }
@@ -136,18 +138,19 @@ tasks.withType(compileKotlinJs.getClass()) {
     }
 }
 
-task iosTest {
-    def device = project.findProperty("iosDevice")?.toString() ?: "iPhone 8"
-    dependsOn 'linkTestDebugExecutableIosx64'
-    group = JavaBasePlugin.VERIFICATION_GROUP
-    description = "Runs tests for target 'ios' on an iOS simulator"
+if(org.gradle.internal.os.OperatingSystem.current().isMacOsX()) {
+    task iosTest {
+        def device = project.findProperty("iosDevice")?.toString() ?: "iPhone 8"
+        dependsOn 'linkTestDebugExecutableIosx64'
+        group = JavaBasePlugin.VERIFICATION_GROUP
+        description = "Runs tests for target 'ios' on an iOS simulator"
 
-    doLast {
-        def binary = kotlin.targets.iosx64.compilations.test.getBinary('EXECUTABLE', 'DEBUG')
-        exec {
-            commandLine 'xcrun', 'simctl', 'spawn', device, binary.absolutePath
+        doLast {
+            def binary = kotlin.targets.iosx64.compilations.test.getBinary('EXECUTABLE', 'DEBUG')
+            exec {
+                commandLine 'xcrun', 'simctl', 'spawn', device, binary.absolutePath
+            }
         }
     }
+    tasks.check.dependsOn(tasks.iosTest)
 }
-tasks.check.dependsOn(tasks.iosTest)
-

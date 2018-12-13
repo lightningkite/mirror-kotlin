@@ -2,7 +2,6 @@
 //AUTOMATICALLY GENERATED AND WILL BE OVERRIDDEN IF THIS MESSAGE IS PRESENT
 package com.lightningkite.recktangle
 
-
 import com.lightningkite.mirror.info.*
 import kotlin.reflect.KClass
 
@@ -22,19 +21,17 @@ object PointClassInfo: ClassInfo<Point> {
    override val annotations: List<AnnotationInfo> = listOf()
    override val enumValues: List<Point>? = null
 
-   object Fields {
-       val x = FieldInfo<Point, kotlin.Float>(PointClassInfo, "x", Type<kotlin.Float>(kotlin.Float::class, listOf(), false), true, { it.x as kotlin.Float}, listOf())
-        val y = FieldInfo<Point, kotlin.Float>(PointClassInfo, "y", Type<kotlin.Float>(kotlin.Float::class, listOf(), false), true, { it.y as kotlin.Float}, listOf())
-   }
+   val fieldX = FieldInfo<Point, kotlin.Float>(this, "x", Type<kotlin.Float>(kotlin.Float::class, listOf(), false), true, { it.x as kotlin.Float}, listOf())
+    val fieldY = FieldInfo<Point, kotlin.Float>(this, "y", Type<kotlin.Float>(kotlin.Float::class, listOf(), false), true, { it.y as kotlin.Float}, listOf())
 
-   override val fields:List<FieldInfo<Point, *>> = listOf(Fields.x, Fields.y)
+   override val fields:List<FieldInfo<Point, *>> = listOf(fieldX, fieldY)
 
    override fun construct(map: Map<String, Any?>): Point {
        //Gather variables
        
            //Handle the optionals
-       val x:kotlin.Float = map["x"] as? kotlin.Float ?: (Fields.x.get(Point()) as kotlin.Float)
-        val y:kotlin.Float = map["y"] as? kotlin.Float ?: (Fields.y.get(Point(x = x)) as kotlin.Float)
+       val x:kotlin.Float = map["x"] as? kotlin.Float ?: (fieldX.get(Point()) as kotlin.Float)
+        val y:kotlin.Float = map["y"] as? kotlin.Float ?: (fieldY.get(Point(x = x)) as kotlin.Float)
        //Finally do the call
        return Point(
            x = x,

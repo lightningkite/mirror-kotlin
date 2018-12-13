@@ -2,7 +2,6 @@
 //AUTOMATICALLY GENERATED AND WILL BE OVERRIDDEN IF THIS MESSAGE IS PRESENT
 package com.lightningkite.lokalize
 
-
 import com.lightningkite.mirror.info.*
 import kotlin.reflect.KClass
 
@@ -22,11 +21,9 @@ object TimeStampClassInfo: ClassInfo<TimeStamp> {
    override val annotations: List<AnnotationInfo> = listOf()
    override val enumValues: List<TimeStamp>? = null
 
-   object Fields {
-       val millisecondsSinceEpoch = FieldInfo<TimeStamp, kotlin.Long>(TimeStampClassInfo, "millisecondsSinceEpoch", Type<kotlin.Long>(kotlin.Long::class, listOf(), false), false, { it.millisecondsSinceEpoch as kotlin.Long}, listOf())
-   }
+   val fieldMillisecondsSinceEpoch = FieldInfo<TimeStamp, kotlin.Long>(this, "millisecondsSinceEpoch", Type<kotlin.Long>(kotlin.Long::class, listOf(), false), false, { it.millisecondsSinceEpoch as kotlin.Long}, listOf())
 
-   override val fields:List<FieldInfo<TimeStamp, *>> = listOf(Fields.millisecondsSinceEpoch)
+   override val fields:List<FieldInfo<TimeStamp, *>> = listOf(fieldMillisecondsSinceEpoch)
 
    override fun construct(map: Map<String, Any?>): TimeStamp {
        //Gather variables
