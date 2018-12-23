@@ -2,7 +2,6 @@ package com.lightningkite.mirror.serialization
 
 import com.lightningkite.mirror.info.Type
 import com.lightningkite.mirror.info.type
-import com.lightningkite.mirror.info.typeNullable
 
 object EnumCoderGenerators {
     class EncoderGenerator<OUT>(val encoder: Encoder<OUT>) : Encoder.Generator<OUT> {
@@ -28,6 +27,15 @@ object EnumCoderGenerators {
                 val result = enumValues.find { text.equals(it.name, false) } ?: enumValues.first()
                 result
             }
+        }
+    }
+
+    class DefineGenerator<OUT: Any>(val definer: DefinitionRepository<OUT>) : DefinitionRepository.Generator<OUT> {
+        override val description: String get() = "Enum"
+        override val priority: Float get() = .9f
+        override fun generateDefine(type: Type<*>): OUT? {
+            if(definer.registry.classInfoRegistry[type.kClass]?.enumValues == null) return null
+            return definer.definition(String::class.type)
         }
     }
 }

@@ -72,5 +72,16 @@ val DefaultRegistry = SerializationRegistry(
                         }
                     }
                 }
+        ),
+        defineConfigurators = mapOf(
+                "enum" to { definer: DefinitionRepository<Any> ->
+                    definer.addDefinition(EnumCoderGenerators.DefineGenerator(definer))
+                },
+                "reflective" to { coder: DefinitionRepository<Any> ->
+                    val stringDefine = coder.definition(String::class.type)
+                    coder.addDefinition(KClass::class.type, stringDefine)
+                    coder.addDefinition(ClassInfo::class.type, stringDefine)
+                    coder.addDefinition(FieldInfo::class.type, stringDefine)
+                }
         )
 )
