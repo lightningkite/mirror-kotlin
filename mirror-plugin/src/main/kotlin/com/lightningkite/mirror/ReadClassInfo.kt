@@ -27,7 +27,8 @@ class ReadClassInfo(
         Data,
         Open,
         Interface,
-        Inline;
+        Inline,
+        Object;
 
         companion object {
             val map = values().associate { it.name.toLowerCase() to it }
@@ -66,6 +67,10 @@ class ReadClassInfo(
         if (modifiers.contains(Modifier.Interface) || modifiers.contains(Modifier.Abstract) || modifiers.contains(Modifier.Sealed) || enumValues != null)
             return """
             |   override fun construct(map: Map<String, Any?>): $accessNameWithBound = throw NotImplementedError()
+            """.trimMargin()
+        if (modifiers.contains(Modifier.Object))
+            return """
+            |   override fun construct(map: Map<String, Any?>): $accessNameWithBound = $accessName
             """.trimMargin()
         return """
             |   override fun construct(map: Map<String, Any?>): $accessNameWithBound {

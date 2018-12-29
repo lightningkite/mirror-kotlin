@@ -157,4 +157,52 @@ class SourceListener : KotlinParserBaseListener() {
     override fun exitClassDeclaration(ctx: KotlinParser.ClassDeclarationContext?) {
         ownerChain.removeAt(ownerChain.lastIndex)
     }
+
+    override fun enterObjectDeclaration(ctx: KotlinParser.ObjectDeclarationContext) {
+        classes.add(ReadClassInfo(
+                packageName = currentPackage,
+                imports = imports + multiImports.map { it + ".*" },
+                modifiers = (ctx.modifierList()?.modifier()?.mapNotNull {
+                    it.classModifier()?.let {
+                        when {
+                            it.DATA() != null -> ReadClassInfo.Modifier.Data
+                            it.SEALED() != null -> ReadClassInfo.Modifier.Sealed
+                            else -> null
+                        }
+                    } ?: it.inheritanceModifier()?.let {
+                        when {
+                            it.ABSTRACT() != null -> ReadClassInfo.Modifier.Abstract
+                            it.OPEN() != null -> ReadClassInfo.Modifier.Open
+                            else -> null
+                        }
+                    } ?: it.functionModifier()?.let {
+                        when {
+                            it.INLINE() != null -> ReadClassInfo.Modifier.Inline
+                            else -> null
+                        }
+                    }
+                } ?: listOf()).plus(listOf(ReadClassInfo.Modifier.Object)),
+                implements = ctx.delegationSpecifiers()?.delegationSpecifier()?.mapNotNull {
+                    it.userType()?.convert() ?: it.constructorInvocation()?.userType()?.convert(
+                            typeArgumentsOverride = it.constructorInvocation()?.callSuffixLambdaless()?.typeArguments()
+                    )
+                } ?: listOf(),
+                owner = if(ownerChain.isEmpty()) null else ownerChain.joinToString("."),
+                name = ctx.simpleIdentifier().text,
+                typeParameters = listOf(),
+                enumValues = null,
+                annotations = ctx.modifierList()?.annotations()?.map { it.annotation().convert() } ?: listOf(),
+                fields = ctx.primaryConstructor()?.classParameters()?.classParameter()?.mapNotNull {
+                    if(it.VAL() != null || it.VAR() != null){
+                        it.convert()
+                    } else null
+                } ?: listOf()
+        ))
+        println("Read: ${classes.last().name} -  ${classes.last().owner} - ${classes.last().packageName} - ${classes.last().qualifiedName}")
+        ownerChain.add(ctx.simpleIdentifier().text)
+    }
+
+    override fun exitObjectDeclaration(ctx: KotlinParser.ObjectDeclarationContext?) {
+        ownerChain.removeAt(ownerChain.lastIndex)
+    }
 }

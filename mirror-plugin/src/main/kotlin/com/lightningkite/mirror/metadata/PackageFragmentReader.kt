@@ -69,7 +69,7 @@ class PackageFragmentReader(val fragment: ProtoBuf.PackageFragment) {
                     ProtoBuf.Class.Kind.ENUM_CLASS -> listOf()
                     ProtoBuf.Class.Kind.ENUM_ENTRY -> listOf()
                     ProtoBuf.Class.Kind.ANNOTATION_CLASS -> listOf()
-                    ProtoBuf.Class.Kind.OBJECT -> listOf()
+                    ProtoBuf.Class.Kind.OBJECT -> listOf(ReadClassInfo.Modifier.Object)
                     ProtoBuf.Class.Kind.COMPANION_OBJECT -> listOf()
                 } + when (modality) {
                     ProtoBuf.Modality.FINAL -> listOf()

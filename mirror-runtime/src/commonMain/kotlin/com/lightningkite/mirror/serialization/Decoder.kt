@@ -51,10 +51,7 @@ interface Decoder<IN> {
                 }
             }
 
-    interface Generator<IN> : Comparable<Generator<IN>> {
-        val description: String
-        val priority: Float
-        override fun compareTo(other: Generator<IN>): Int = other.priority.compareTo(priority)
+    interface Generator<IN> : SerializationGenerator {
         fun generateDecoder(type: Type<*>): TypeDecoder<IN, Any?>?
     }
 

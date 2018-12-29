@@ -50,10 +50,7 @@ interface Encoder<OUT> {
                 }
             }
 
-    interface Generator<OUT> : Comparable<Generator<OUT>> {
-        val description: String
-        val priority: Float
-        override fun compareTo(other: Generator<OUT>): Int = other.priority.compareTo(priority)
+    interface Generator<OUT> : SerializationGenerator {
         fun generateEncoder(type: Type<*>): TypeEncoder<OUT, Any?>?
     }
 

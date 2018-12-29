@@ -26,6 +26,7 @@ interface ClassInfo<T : Any> {
         Data,
         Open,
         Interface,
-        Inline
+        Inline,
+        Object
     }
 }
