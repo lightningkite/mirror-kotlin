@@ -16,8 +16,10 @@ val PrimitiveClassInfoRegistry : ClassInfoRegistry = ClassInfoRegistry(
         NumberClassInfo,
         CharClassInfo,
         StringClassInfo,
+        RegexClassInfo,
         ListClassInfo,
-        MapClassInfo
+        MapClassInfo,
+        ComparableClassInfo
 )
 
 object AnyClassInfo : EmptyClassInfo<Any>(Any::class, "kotlin", "Any") {
@@ -43,5 +45,11 @@ object NumberClassInfo : EmptyClassInfo<Number>(Number::class, "kotlin", "Number
 
 object CharClassInfo : EmptyClassInfo<Char>(Char::class, "kotlin", "Char")
 object StringClassInfo : EmptyClassInfo<String>(String::class, "kotlin", "String")
+object RegexClassInfo : EmptyClassInfo<Regex>(Regex::class, "kotlin", "Regex")
 object ListClassInfo : EmptyClassInfo<List<*>>(List::class, "kotlin", "List")
 object MapClassInfo : EmptyClassInfo<Map<*, *>>(Map::class, "kotlin", "Map")
+
+object ComparableClassInfo : EmptyClassInfo<Comparable<*>>(Comparable::class, "kotlin", "Comparable"){
+    override val modifiers: List<ClassInfo.Modifier>
+        get() = listOf(ClassInfo.Modifier.Abstract)
+}

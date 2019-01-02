@@ -135,11 +135,13 @@ class CharIteratorReader(source: CharIterator) : CharIterator() {
     }
 
 
-    fun read(count: Int) = buildString {
+    fun read(count: Int): String {
+        val builder = StringBuilder()
         repeat(count) {
-            if (!hasNext()) throw Exception("Not enough characters")
-            append(nextChar())
+            if (!hasNext()) return builder.toString()
+            builder.append(nextChar())
         }
+        return builder.toString()
     }
 
     inline fun readWhile(condition: (Char) -> Boolean): String {

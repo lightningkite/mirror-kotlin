@@ -26,7 +26,7 @@ class JsonSerializer(override val registry: SerializationRegistry) : StringSeria
             encoder(type).invoke(builder, value)
             return builder.toString()
         } catch (e: Throwable) {
-            throw SerializationException("Issue at position ${builder.length}", e)
+            throw SerializationException("Issue encoding at position ${builder.length}", e)
         }
     }
 
@@ -36,7 +36,7 @@ class JsonSerializer(override val registry: SerializationRegistry) : StringSeria
         return try {
             decoder(type).invoke(reader)
         } catch (e: Throwable) {
-            throw SerializationException("Issue at line ${reader.line}, column ${reader.column}, position ${reader.position}, next: ${reader.read(20)}", e)
+            throw SerializationException("Issue at line ${reader.line}, column ${reader.column}, position ${reader.position}, next: '${reader.read(15)}' while reading '$from'", e)
         }
     }
 
@@ -101,11 +101,11 @@ class JsonSerializer(override val registry: SerializationRegistry) : StringSeria
         addDecoder(Boolean::class.type) {
             when (peek()) {
                 't', 'T' -> {
-                    checkIgnoreCase("true")
+                    checkAndMoveIgnoreCase("true")
                     true
                 }
                 'f', 'F' -> {
-                    checkIgnoreCase("false")
+                    checkAndMoveIgnoreCase("false")
                     true
                 }
                 else -> throw SerializationException("Invalid boolean")
@@ -328,7 +328,7 @@ class JsonSerializer(override val registry: SerializationRegistry) : StringSeria
 
             if (type.nullable) return null
             val stringEncoder = rawEncoder(String::class.type)
-            val lazySubCoders by lazy { registry.classInfoRegistry[type.kClass]!!.fields.associateWith { rawEncoder(it.type as Type<*>) } }
+            val lazySubCoders by lazy { (registry.classInfoRegistry[type.kClass] ?: throw IllegalArgumentException("KClass ${type.kClass} not registered.")).fields.associateWith { rawEncoder(it.type as Type<*>) } }
 
             return { it ->
                 this.append('{')
@@ -356,7 +356,7 @@ class JsonSerializer(override val registry: SerializationRegistry) : StringSeria
         override fun generateDecoder(type: Type<*>): (CharIteratorReader.() -> Any?)? {
             if (type.nullable) return null
             val stringDecoder = decoder(String::class.type)
-            val fields = registry.classInfoRegistry[type.kClass]!!.fields
+            val fields = (registry.classInfoRegistry[type.kClass] ?: throw IllegalArgumentException("KClass ${type.kClass} not registered.")).fields
             val subCoders by lazy { fields.associate { it.name to rawDecoder(it.type as Type<*>) } }
 
             return {
@@ -393,7 +393,7 @@ class JsonSerializer(override val registry: SerializationRegistry) : StringSeria
         override val priority: Float get() = .1f
 
         override fun generateEncoder(type: Type<*>): (Appendable.(value: Any?) -> Unit)? {
-            if (registry.classInfoRegistry[type.kClass]!!.canBeInstantiated) return null
+            if ((registry.classInfoRegistry[type.kClass] ?: throw IllegalArgumentException("KClass ${type.kClass} not registered.")).canBeInstantiated) return null
             val string = rawEncoder(String::class.type)
             return { value ->
                 val underlyingType = when (value) {
@@ -402,7 +402,7 @@ class JsonSerializer(override val registry: SerializationRegistry) : StringSeria
                     else -> value!!::class
                 }
                 append('[')
-                string.invoke(this, registry.kClassToExternalNameRegistry[underlyingType])
+                string.invoke(this, registry.kClassToExternalNameRegistry[underlyingType] ?: "No external name known for $underlyingType")
                 append(',')
                 rawEncoder(underlyingType.type).invoke(this, value)
                 append(']')
@@ -416,7 +416,7 @@ class JsonSerializer(override val registry: SerializationRegistry) : StringSeria
         override val priority: Float get() = .1f
 
         override fun generateDecoder(type: Type<*>): (CharIteratorReader.() -> Any?)? {
-            if (registry.classInfoRegistry[type.kClass]!!.canBeInstantiated) return null
+            if ((registry.classInfoRegistry[type.kClass] ?: throw IllegalArgumentException("KClass ${type.kClass} not registered.")).canBeInstantiated) return null
             val string = rawDecoder(String::class.type)
             return {
                 skipAssert("[")

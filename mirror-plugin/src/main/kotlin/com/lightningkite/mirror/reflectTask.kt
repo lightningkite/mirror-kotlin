@@ -43,6 +43,7 @@ fun allDeclarations(directories: List<File>, jarsToInspect: List<File>): Map<Str
             .flatMap { it.walkTopDown() }
             .filter { it.extension == "kt" }
             .flatMap { file ->
+                println("Reading $file...")
                 file.classes().asSequence()
                         .map {
                             it.fromFile = file
@@ -56,6 +57,7 @@ fun allDeclarations(directories: List<File>, jarsToInspect: List<File>): Map<Str
                 file.entries().asSequence()
                         .filter { it.name.endsWith("kotlin_metadata") }
                         .flatMap { subfile ->
+                            println("Reading: ${subfile.name} from $it")
                             file.getInputStream(subfile).readPackageFragment().read().asSequence()
                         }
             }

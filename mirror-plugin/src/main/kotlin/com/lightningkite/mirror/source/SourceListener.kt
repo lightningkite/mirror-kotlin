@@ -30,7 +30,7 @@ class SourceListener : KotlinParserBaseListener() {
 
     fun KotlinParser.TypeContext.convert(): ReadType {
         nullableType()?.let{
-            return it.typeReference()!!.convert().copy(isNullable = true)
+            return (it.typeReference()?.convert() ?: it.parenthesizedType().type().convert()).copy(isNullable = true)
         }
         typeReference()?.let{
             return it.convert()

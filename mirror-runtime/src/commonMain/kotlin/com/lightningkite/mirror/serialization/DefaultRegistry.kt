@@ -11,6 +11,10 @@ import kotlin.reflect.KClass
 val DefaultRegistry = SerializationRegistry(
         classInfoRegistry = PrimitiveClassInfoRegistry,
         encoderConfigurators = mapOf(
+                "regex" to { coder: Encoder<Any?> ->
+                    val stringEncoder = coder.encoder(String::class.type)
+                    coder.addEncoder(Regex::class.type){ stringEncoder.invoke(this, it.pattern) }
+                },
                 "enum" to { it: Encoder<Any?> ->
                     it.addEncoder(EnumCoderGenerators.EncoderGenerator(it))
                 },
@@ -41,6 +45,10 @@ val DefaultRegistry = SerializationRegistry(
                 }
         ),
         decoderConfigurators = mapOf(
+                "regex" to { coder: Decoder<Any?> ->
+                    val stringCoder = coder.decoder(String::class.type)
+                    coder.addDecoder(Regex::class.type){ Regex(stringCoder.invoke(this)) }
+                },
                 "enum" to { it: Decoder<Any?> ->
                     it.addDecoder(EnumCoderGenerators.DecoderGenerator(it))
                 },
@@ -74,6 +82,10 @@ val DefaultRegistry = SerializationRegistry(
                 }
         ),
         defineConfigurators = mapOf(
+                "regex" to { definer: DefinitionRepository<Any> ->
+                    val stringDefine = definer.definition(String::class.type)
+                    definer.addDefinition(Regex::class.type, stringDefine)
+                },
                 "enum" to { definer: DefinitionRepository<Any> ->
                     definer.addDefinition(EnumCoderGenerators.DefineGenerator(definer))
                 },

@@ -46,6 +46,11 @@ class SimpleJSONTest {
     }
 
     @Test
+    fun defaultingTest() {
+        test(Regex("asdf"), Regex::class.type)
+    }
+
+    @Test
     fun nullables() {
         test<String?>(null, String::class.typeNullable)
         test<String?>("value", String::class.typeNullable)
@@ -63,6 +68,23 @@ class SimpleJSONTest {
         test(listOf(Post(0, 42, "hello")), Any::class.type)
         test(8, Any::class.type)
         test("hello", Any::class.type)
+    }
+
+    @Test
+    fun types(){
+        test(listOf<Any>(
+                Unit,
+                true,
+                false,
+                'c',
+                "string",
+                1.toByte(),
+                1.toShort(),
+                1,
+                1L,
+                1f,
+                1.0
+        ), Any::class.type)
     }
 
     @Test

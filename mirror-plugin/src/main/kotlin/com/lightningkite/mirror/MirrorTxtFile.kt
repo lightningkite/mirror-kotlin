@@ -30,6 +30,7 @@ class MirrorTxtFile(
                 "kotlin.String",
                 "kotlin.collections.List",
                 "kotlin.collections.Map",
+                "kotlin.text.Regex",
                 "KClass",
                 "Any",
                 "Unit",
@@ -48,7 +49,8 @@ class MirrorTxtFile(
                 "Char",
                 "String",
                 "List",
-                "Map"
+                "Map",
+                "Regex"
         )
         toCheck.addAll(qualifiedNames)
         alreadyAdded.addAll(qualifiedNames)
@@ -107,11 +109,14 @@ class MirrorTxtFile(
         val needed = neededReflections(declarations)
         val reflectionsToWrite = reflectionsToWrite(declarations, needed)
 
+        val filesWritten = ArrayList<File>()
+
         //Output the other files
         for (decl in declarations.values) {
             if(decl.qualifiedName !in reflectionsToWrite) continue
             val written = decl.toString()
             File(outputDirectory, decl.reflectionName + ".kt").let{
+                filesWritten.add(it)
                 if(it.exists()){
                     if(it.readText() == written) {
                         println("Checked up-to-date ${decl.reflectionName}...")
@@ -125,7 +130,9 @@ class MirrorTxtFile(
 
         println("Updating ${registryName.substringAfterLast('.')}...")
         //Write the final file
-        File(outputDirectory, registryName.substringAfterLast('.') + ".kt").writeText("""
+        val registryFile = File(outputDirectory, registryName.substringAfterLast('.') + ".kt")
+        filesWritten.add(registryFile)
+        registryFile.writeText("""
         |package ${registryName.substringBeforeLast('.')}
         |
         |import com.lightningkite.kommon.native.SharedImmutable
@@ -137,5 +144,7 @@ class MirrorTxtFile(
         |${declarations.asSequence().filter { it.key in needed }.map { it.value.reflectionQualifiedName }.joinToString(",\n    ", "    ")}
         |)
     """.trimMargin())
+
+        outputDirectory.listFiles().filter { it !in filesWritten && !it.name.startsWith("mirror") }.forEach { it.delete() }
     }
 }

@@ -82,7 +82,7 @@ class PackageFragmentReader(val fragment: ProtoBuf.PackageFragment) {
                 } else listOf()) + (if (isInlineClass) {
                     listOf(ReadClassInfo.Modifier.Inline)
                 } else listOf()),
-                implements = this.supertypeList.map { it.read(table, listOf(this)) },
+                implements = this.supertypes(table).map { it.read(table, listOf(this)) }.filter { it.kClass != "kotlin.io.Serializable" },
                 packageName = packageName,
                 owner = fullName.removePrefix(packageName).removeSuffix(name).trim('.').takeUnless { it.isBlank() },
                 name = name,
@@ -95,6 +95,7 @@ class PackageFragmentReader(val fragment: ProtoBuf.PackageFragment) {
                 annotations = listOf(), //hasAnnotations
                 fields = readFields(this.constructorList.firstOrNull(), this.propertyList, table)
         )
+        println("Read: $name")
         return listOf(info)
     }
 
