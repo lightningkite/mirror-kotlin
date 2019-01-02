@@ -1,12 +1,14 @@
 package com.lightningkite.mirror
 
+import com.fasterxml.jackson.annotation.JsonIgnore
+
 data class ReadType(
-        val kClass: String,
+        val kClass: String = "",
         val typeArguments: List<ReadTypeProjection> = listOf(),
         val isNullable: Boolean = false
 ) {
     val use: String
-        get() = kClass + (if (typeArguments.isNotEmpty())
+        @JsonIgnore get() = kClass + (if (typeArguments.isNotEmpty())
             typeArguments.joinToString(",", "<", ">") { it.use }
         else
             "") + if (isNullable) "?" else ""

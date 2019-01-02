@@ -1,5 +1,7 @@
 package com.lightningkite.mirror
 
+import com.fasterxml.jackson.annotation.JsonIgnore
+
 data class ReadTypeProjection(
         val type: ReadType,
         val variance: Variance
@@ -9,7 +11,7 @@ data class ReadTypeProjection(
     }
 
     val use: String
-        get() = when (variance) {
+        @JsonIgnore get() = when (variance) {
             Variance.IN -> "in " + type.use
             Variance.OUT -> "out " + type.use
             Variance.INVARIANT -> type.use

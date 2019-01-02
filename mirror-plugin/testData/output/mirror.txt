@@ -1,3 +1,4 @@
 com.lightningkite.lokalize.TimeStamp
 test.AnObject
 com.lightningkite.rekwest.server.User.Get
+com.lightningkite.kotlinx.persistence.ChangeEvent

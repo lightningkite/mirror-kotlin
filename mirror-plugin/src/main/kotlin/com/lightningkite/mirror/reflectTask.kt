@@ -1,5 +1,10 @@
 package com.lightningkite.mirror
 
+import com.fasterxml.jackson.core.type.TypeReference
+import com.fasterxml.jackson.databind.DeserializationFeature
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.databind.SerializationFeature
+import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.lightningkite.mirror.metadata.readPackageFragment
 import com.lightningkite.mirror.source.classes
 import java.io.File
@@ -20,8 +25,10 @@ fun reflectTask(directories: List<File>) {
                 .associate { it.substringBefore('=').trim() to it.substringAfterLast('=').trim() }
         val otherLines = lines.filter { !it.contains('=') && it.isNotBlank() }
         MirrorTxtFile(
-                registryName = settings["registryName", "registry", "name"] ?: "com.lightningkite.mirror.GeneratedRegistry",
-                outputDirectory = settings["outputDirectory", "output"]?.let { File(mirrorTxtFile.parentFile, it) } ?: mirrorTxtFile.parentFile,
+                registryName = settings["registryName", "registry", "name"]
+                        ?: "com.lightningkite.mirror.GeneratedRegistry",
+                outputDirectory = settings["outputDirectory", "output"]?.let { File(mirrorTxtFile.parentFile, it) }
+                        ?: mirrorTxtFile.parentFile,
                 qualifiedNames = otherLines
         )
     }.toList()
@@ -37,19 +44,59 @@ fun reflectTask(directories: List<File>) {
     }
 }
 
-fun allDeclarations(directories: List<File>, jarsToInspect: List<File>): Map<String, ReadClassInfo> {
+data class SourceFileRead(
+        val hash: Int,
+        val infos: List<ReadClassInfo>,
+        val version: Int = VERSION
+) {
+    companion object {
+        const val VERSION = 0
+    }
+}
 
+fun allDeclarations(directories: List<File>, jarsToInspect: List<File>): Map<String, ReadClassInfo> {
+    val mapper = ObjectMapper().registerModule(KotlinModule())
+            .disable(DeserializationFeature.FAIL_ON_IGNORED_PROPERTIES)
+            .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+
+    val mirrorCacheFile = File("build/mirror-cache.json")
+    val cacheType =object : TypeReference<Map<String, SourceFileRead>>() {}
+    val previousSourceDeclarations: Map<String, SourceFileRead> = mirrorCacheFile
+            .takeIf { it.exists() }
+            ?.readText()
+            ?.let { mapper.readValue<Map<String, SourceFileRead>>(it, cacheType) }
+            ?: mapOf()
+    val newSourceDeclarations = HashMap<String, SourceFileRead>()
     val sourceDeclarations = directories.asSequence()
             .flatMap { it.walkTopDown() }
             .filter { it.extension == "kt" }
             .flatMap { file ->
-                println("Reading $file...")
-                file.classes().asSequence()
-                        .map {
-                            it.fromFile = file
-                            it
-                        }
+                val hashCode = file.readText().hashCode()
+                val previous = previousSourceDeclarations[file.absolutePath]
+                val decls = if(hashCode == previous?.hash && previous.version == SourceFileRead.VERSION) {
+                    println("Using cached content for $file...")
+                    previous.infos.asSequence()
+                } else {
+                    println("Reading $file...")
+                    file.classes().asSequence()
+                            .map {
+                                it.fromFile = file
+                                it
+                            }
+                }
+                newSourceDeclarations[file.absolutePath] = SourceFileRead(
+                        hash = hashCode,
+                        infos = decls.toList()
+                )
+                decls
             }
+            .toList()
+    //Re-record source declarations
+    mirrorCacheFile.bufferedWriter().use {
+        mapper.writeValue(it, newSourceDeclarations)
+    }
+    println("Cache written to $mirrorCacheFile")
+
 
     val libraryDeclarations = jarsToInspect.asSequence()
             .flatMap {
