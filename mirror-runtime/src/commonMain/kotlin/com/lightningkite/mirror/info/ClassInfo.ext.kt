@@ -13,3 +13,5 @@ val ClassInfo<*>.canBeInstantiated: Boolean
 
 val ClassInfo<*>.localName: String get() = this.ownerName?.let{ "$it.$name" } ?: name
 val ClassInfo<*>.qualifiedName: String get() = "$packageName.$localName"
+
+fun <T : Any> ClassInfo<T>.constructDefault(): T = construct(mapOf())

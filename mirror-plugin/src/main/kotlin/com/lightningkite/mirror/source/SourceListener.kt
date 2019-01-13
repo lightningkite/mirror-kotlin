@@ -29,19 +29,19 @@ class SourceListener : KotlinParserBaseListener() {
     }
 
     fun KotlinParser.TypeContext.convert(): ReadType {
-        nullableType()?.let{
-            return (it.typeReference()?.convert() ?: it.parenthesizedType().type().convert()).copy(isNullable = true)
+        nullableType()?.let {
+            return (it.typeReference()?.convert() ?: it.parenthesizedType().type().convert()).copy(nullable = true)
         }
-        typeReference()?.let{
+        typeReference()?.let {
             return it.convert()
         }
-        parenthesizedType()?.let{
+        parenthesizedType()?.let {
             return it.type().convert()
         }
-        functionType()?.let{
+        functionType()?.let {
             //We can parse this maybe
         }
-        return ReadType("Any", isNullable = true)
+        return ReadType("Any", nullable = true)
     }
 
     fun KotlinParser.TypeReferenceContext.convert(): ReadType {
@@ -50,25 +50,26 @@ class SourceListener : KotlinParserBaseListener() {
 
     fun KotlinParser.UserTypeContext.convert(typeArgumentsOverride: KotlinParser.TypeArgumentsContext? = null): ReadType {
         val last = this.simpleUserType().last() ?: return ReadType("ERROR")
-        val prefix = this.simpleUserType().dropLast(1).joinToString(".") { it.simpleIdentifier().text }.let{
-            if(it.isBlank()) it
+        val prefix = this.simpleUserType().dropLast(1).joinToString(".") { it.simpleIdentifier().text }.let {
+            if (it.isBlank()) it
             else "$it."
         }
         return ReadType(
-                kClass = prefix + last.simpleIdentifier().text,
-                typeArguments = (typeArgumentsOverride ?: last.typeArguments())?.typeProjection()?.map { it.convert() } ?: listOf(),
-                isNullable = false
+                kclass = prefix + last.simpleIdentifier().text,
+                typeArguments = (typeArgumentsOverride ?: last.typeArguments())?.typeProjection()?.map { it.convert() }
+                        ?: listOf(),
+                nullable = false
         )
     }
 
     fun KotlinParser.TypeProjectionContext.convert(): ReadTypeProjection {
-        if(MULT() != null){
-            return ReadTypeProjection(type = ReadType("Any", isNullable = true), variance = ReadTypeProjection.Variance.STAR)
+        if (MULT() != null) {
+            return ReadTypeProjection(type = ReadType("Any", nullable = true), variance = ReadTypeProjection.Variance.STAR)
         }
         return ReadTypeProjection(
                 type = type().convert(),
-                variance = this.typeProjectionModifierList()?.varianceAnnotation()?.first()?.let{
-                    when{
+                variance = this.typeProjectionModifierList()?.varianceAnnotation()?.first()?.let {
+                    when {
                         it.IN() != null -> ReadTypeProjection.Variance.IN
                         it.OUT() != null -> ReadTypeProjection.Variance.OUT
                         else -> ReadTypeProjection.Variance.INVARIANT
@@ -80,12 +81,13 @@ class SourceListener : KotlinParserBaseListener() {
     fun KotlinParser.TypeParameterContext.convert(): ReadTypeParameter {
         return ReadTypeParameter(
                 name = this.simpleIdentifier().text,
-                projection = this.type()?.let{ ReadTypeProjection(type = it.convert(), variance = ReadTypeProjection.Variance.INVARIANT) } ?: ReadTypeProjection(ReadType("Any", isNullable = true), ReadTypeProjection.Variance.INVARIANT)
+                projection = this.type()?.let { ReadTypeProjection(type = it.convert(), variance = ReadTypeProjection.Variance.INVARIANT) }
+                        ?: ReadTypeProjection(ReadType("Any", nullable = true), ReadTypeProjection.Variance.INVARIANT)
         )
     }
 
     fun KotlinParser.AnnotationContext.convert(): AnnotationInfo {
-        this.LabelReference()?.let{
+        this.LabelReference()?.let {
             return AnnotationInfo(
                     name = it.text,
                     arguments = this.valueArguments()?.valueArgument()?.map { it.expression().text } ?: listOf(),
@@ -111,7 +113,7 @@ class SourceListener : KotlinParserBaseListener() {
     }
 
     override fun enterClassDeclaration(ctx: KotlinParser.ClassDeclarationContext) {
-        classes.add(ReadClassInfo(
+        val info = ReadClassInfo(
                 packageName = currentPackage,
                 imports = imports + multiImports.map { it + ".*" },
                 modifiers = (ctx.modifierList()?.modifier()?.mapNotNull {
@@ -133,23 +135,30 @@ class SourceListener : KotlinParserBaseListener() {
                             else -> null
                         }
                     }
-                } ?: listOf()).plus(if (ctx.INTERFACE() != null) listOf(ReadClassInfo.Modifier.Interface) else listOf()),
+                }
+                        ?: listOf()).plus(if (ctx.INTERFACE() != null) listOf(ReadClassInfo.Modifier.Interface) else listOf()),
                 implements = ctx.delegationSpecifiers()?.delegationSpecifier()?.mapNotNull {
                     it.userType()?.convert() ?: it.constructorInvocation()?.userType()?.convert(
                             typeArgumentsOverride = it.constructorInvocation()?.callSuffixLambdaless()?.typeArguments()
                     )
                 } ?: listOf(),
-                owner = if(ownerChain.isEmpty()) null else ownerChain.joinToString("."),
+                owner = if (ownerChain.isEmpty()) null else ownerChain.joinToString("."),
                 name = ctx.simpleIdentifier().text,
                 typeParameters = ctx.typeParameters()?.typeParameter()?.map { it.convert() } ?: listOf(),
                 enumValues = ctx.enumClassBody()?.enumEntries()?.enumEntry()?.map { it.simpleIdentifier().text },
                 annotations = ctx.modifierList()?.annotations()?.map { it.annotation().convert() } ?: listOf(),
                 fields = ctx.primaryConstructor()?.classParameters()?.classParameter()?.mapNotNull {
-                    if(it.VAL() != null || it.VAR() != null){
+                    if (it.VAL() != null || it.VAR() != null) {
                         it.convert()
                     } else null
-                } ?: listOf()
-        ))
+                } ?: listOf(),
+                hasCompanion = ctx.classBody()?.classMemberDeclaration()?.any { it.companionObject() != null }
+                        ?: ctx.enumClassBody()?.classMemberDeclaration()?.any { it.companionObject() != null } ?: false
+        )
+        if(info.fields.any { it.type.kclass.isBlank() }) {
+            throw IllegalStateException()
+        }
+        classes.add(info)
         println("Read: ${classes.last().name} -  ${classes.last().owner} - ${classes.last().packageName} - ${classes.last().qualifiedName}")
         ownerChain.add(ctx.simpleIdentifier().text)
     }
@@ -187,13 +196,13 @@ class SourceListener : KotlinParserBaseListener() {
                             typeArgumentsOverride = it.constructorInvocation()?.callSuffixLambdaless()?.typeArguments()
                     )
                 } ?: listOf(),
-                owner = if(ownerChain.isEmpty()) null else ownerChain.joinToString("."),
+                owner = if (ownerChain.isEmpty()) null else ownerChain.joinToString("."),
                 name = ctx.simpleIdentifier().text,
                 typeParameters = listOf(),
                 enumValues = null,
                 annotations = ctx.modifierList()?.annotations()?.map { it.annotation().convert() } ?: listOf(),
                 fields = ctx.primaryConstructor()?.classParameters()?.classParameter()?.mapNotNull {
-                    if(it.VAL() != null || it.VAR() != null){
+                    if (it.VAL() != null || it.VAR() != null) {
                         it.convert()
                     } else null
                 } ?: listOf()

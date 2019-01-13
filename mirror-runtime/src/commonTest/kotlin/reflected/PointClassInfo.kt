@@ -10,8 +10,9 @@ object PointClassInfo: ClassInfo<Point> {
 
    override val kClass: KClass<Point> = Point::class
    override val modifiers: List<ClassInfo.Modifier> = listOf(ClassInfo.Modifier.Data)
+   override val companion: Any? get() = Point
 
-   override val implements: List<Type<*>> = listOf()
+   override val implements: List<Type<*>> = listOf(Type<kotlin.Any>(kotlin.Any::class, listOf(), false))
 
    override val packageName: String = "com.lightningkite.recktangle"
    override val owner: KClass<*>? = null

@@ -3,8 +3,8 @@ package com.lightningkite.mirror
 import com.fasterxml.jackson.annotation.JsonIgnore
 
 data class ReadTypeProjection(
-        val type: ReadType,
-        val variance: Variance
+        val type: ReadType = ReadType(),
+        val variance: Variance = Variance.INVARIANT
 ) {
     enum class Variance {
         IN, OUT, INVARIANT, STAR

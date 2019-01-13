@@ -64,7 +64,7 @@ class MirrorTxtFile(
                     .recursiveFlatMap {
                         it.typeArguments.asSequence().map { it.type }
                     }
-                    .map { it.kClass }
+                    .map { it.kclass }
                     .filter { it.isNotBlank() }
                     .flatMap { kClass ->
                         if(kClass[0].isUpperCase()){

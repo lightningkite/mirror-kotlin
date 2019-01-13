@@ -22,7 +22,7 @@ interface Encoder<OUT> {
         encoders[type] = action as OUT.(value: Any?) -> Unit
     }
 
-    fun <T : Any> addEncoder(kClass: KClass<T>, action: (Type<*>) -> (TypeEncoder<OUT, T>)?) {
+    fun <T : Any> addEncoder(kClass: KClass<T>, action: (Type<*>) -> (TypeEncoder<OUT, T?>)?) {
         @Suppress("UNCHECKED_CAST")
         kClassEncoders[kClass] = action as (Type<*>) -> (OUT.(value: Any?) -> Unit)?
     }

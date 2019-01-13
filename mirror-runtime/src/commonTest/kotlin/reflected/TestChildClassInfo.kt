@@ -10,6 +10,7 @@ object TestChildClassInfo: ClassInfo<TestChild> {
 
    override val kClass: KClass<TestChild> = TestChild::class
    override val modifiers: List<ClassInfo.Modifier> = listOf()
+   override val companion: Any? get() = null
 
    override val implements: List<Type<*>> = listOf(Type<TestParent>(TestParent::class, listOf(), false), Type<TestAnotherInterface>(TestAnotherInterface::class, listOf(), false))
 
@@ -21,15 +22,15 @@ object TestChildClassInfo: ClassInfo<TestChild> {
    override val annotations: List<AnnotationInfo> = listOf()
    override val enumValues: List<TestChild>? = null
 
-   val fieldTest = FieldInfo<TestChild, Int>(this, "test", Type<Int>(Int::class, listOf(), false), true, { it.test as Int}, listOf())
+   val fieldTest = FieldInfo<TestChild, Int>(this, "test", Type<Int>(Int::class, listOf(), false), false, { it.test as Int}, listOf())
 
    override val fields:List<FieldInfo<TestChild, *>> = listOf(fieldTest)
 
    override fun construct(map: Map<String, Any?>): TestChild {
        //Gather variables
-       
+       val test:Int = map["test"] as Int
            //Handle the optionals
-       val test:Int = map["test"] as? Int ?: 4
+       
        //Finally do the call
        return TestChild(
            test = test

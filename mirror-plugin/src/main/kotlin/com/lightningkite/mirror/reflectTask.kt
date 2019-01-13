@@ -3,7 +3,6 @@ package com.lightningkite.mirror
 import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.lightningkite.mirror.metadata.readPackageFragment
 import com.lightningkite.mirror.source.classes
@@ -59,21 +58,23 @@ fun allDeclarations(directories: List<File>, jarsToInspect: List<File>): Map<Str
             .disable(DeserializationFeature.FAIL_ON_IGNORED_PROPERTIES)
             .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
 
-    val mirrorCacheFile = File("build/mirror-cache.json")
+    val mirrorCacheFile = File("build/mirror-cache-v2.json")
+    mirrorCacheFile.parentFile.mkdirs()
     val cacheType =object : TypeReference<Map<String, SourceFileRead>>() {}
-    val previousSourceDeclarations: Map<String, SourceFileRead> = mirrorCacheFile
+    val previousDeclarations: Map<String, SourceFileRead> = mirrorCacheFile
             .takeIf { it.exists() }
             ?.readText()
             ?.let { mapper.readValue<Map<String, SourceFileRead>>(it, cacheType) }
             ?: mapOf()
     val newSourceDeclarations = HashMap<String, SourceFileRead>()
+
     val sourceDeclarations = directories.asSequence()
             .flatMap { it.walkTopDown() }
             .filter { it.extension == "kt" }
             .flatMap { file ->
-                val hashCode = file.readText().hashCode()
-                val previous = previousSourceDeclarations[file.absolutePath]
-                val decls = if(hashCode == previous?.hash && previous.version == SourceFileRead.VERSION) {
+                val hashCode = file.checksum()
+                val previous = previousDeclarations[file.absolutePath]
+                val decls: Sequence<ReadClassInfo> = if(hashCode == previous?.hash && previous.version == SourceFileRead.VERSION) {
                     println("Using cached content for $file...")
                     previous.infos.asSequence()
                 } else {
@@ -91,24 +92,58 @@ fun allDeclarations(directories: List<File>, jarsToInspect: List<File>): Map<Str
                 decls
             }
             .toList()
+
+    val libraryDeclarations = jarsToInspect.asSequence()
+            .flatMap { file ->
+                val hashCode = file.checksum()
+                val previous = previousDeclarations[file.absolutePath]
+                val decls: List<ReadClassInfo> = if(hashCode == previous?.hash && previous.version == SourceFileRead.VERSION) {
+                    println("Using cached content for $file...")
+                    previous.infos
+                } else {
+                    println("Reading $file...")
+                    val jar = JarFile(file)
+                    jar.entries().asSequence()
+                            .filter { it.name.endsWith("kotlin_metadata") }
+                            .flatMap { subfile ->
+                                println("Reading: ${subfile.name} from $file")
+                                jar.getInputStream(subfile).readPackageFragment().read().asSequence()
+                            }
+                            .map {
+                                it.fromFile = file
+                                it
+                            }
+                            .toList()
+                }
+
+                newSourceDeclarations[file.absolutePath] = SourceFileRead(
+                        hash = hashCode,
+                        infos = decls
+                )
+
+                decls.asSequence()
+            }.toList()
+
     //Re-record source declarations
     mirrorCacheFile.bufferedWriter().use {
         mapper.writeValue(it, newSourceDeclarations)
     }
-    println("Cache written to $mirrorCacheFile")
+    println("Cache written to ${mirrorCacheFile.absolutePath}")
 
-
-    val libraryDeclarations = jarsToInspect.asSequence()
-            .flatMap {
-                val file = JarFile(it)
-                file.entries().asSequence()
-                        .filter { it.name.endsWith("kotlin_metadata") }
-                        .flatMap { subfile ->
-                            println("Reading: ${subfile.name} from $it")
-                            file.getInputStream(subfile).readPackageFragment().read().asSequence()
-                        }
-            }
-
-    return (sourceDeclarations + libraryDeclarations)
+    return (libraryDeclarations + sourceDeclarations)
             .associateBy { it.qualifiedName }
+}
+
+fun File.checksum(): Int {
+    var counter = 0
+    var index = 0
+    this.inputStream().buffered().use {
+        while(true) {
+            index++
+            val nextByte = it.read()
+            if(nextByte == -1) break
+            counter += nextByte * index
+        }
+    }
+    return counter
 }

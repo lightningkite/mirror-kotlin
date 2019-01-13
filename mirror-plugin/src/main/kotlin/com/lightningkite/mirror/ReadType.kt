@@ -3,20 +3,20 @@ package com.lightningkite.mirror
 import com.fasterxml.jackson.annotation.JsonIgnore
 
 data class ReadType(
-        val kClass: String = "",
+        val kclass: String = "",
         val typeArguments: List<ReadTypeProjection> = listOf(),
-        val isNullable: Boolean = false
+        val nullable: Boolean = false
 ) {
     val use: String
-        @JsonIgnore get() = kClass + (if (typeArguments.isNotEmpty())
+        @JsonIgnore get() = kclass + (if (typeArguments.isNotEmpty())
             typeArguments.joinToString(",", "<", ">") { it.use }
         else
-            "") + if (isNullable) "?" else ""
+            "") + if (nullable) "?" else ""
 
-    fun resolveMinimumKClass(owner: ReadClassInfo): String = owner.typeParameters.find { it.name == kClass }?.projection?.type?.kClass
-            ?: kClass
+    fun resolveMinimumKClass(owner: ReadClassInfo): String = owner.typeParameters.find { it.name == kclass }?.projection?.type?.kclass
+            ?: kclass
 
-    fun toString(owner: ReadClassInfo) = "Type<${useMinimumBound(owner)}>(${resolveMinimumKClass(owner)}::class, listOf(${typeArguments.joinToString{it.toString(owner)}}), $isNullable)"
+    fun toString(owner: ReadClassInfo) = "Type<${useMinimumBound(owner)}>(${resolveMinimumKClass(owner)}::class, listOf(${typeArguments.joinToString{it.toString(owner)}}), $nullable)"
 
     override fun toString(): String {
         return ""

@@ -5,6 +5,7 @@ import kotlin.reflect.KClass
 interface ClassInfo<T : Any> {
     val kClass: KClass<T>
     val modifiers: List<Modifier>
+    val companion: Any? get() = null
 
     val implements: List<Type<*>>
 

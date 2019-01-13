@@ -1,7 +1,10 @@
 package com.lightningkite.mirror.metadata
 
 import com.lightningkite.mirror.*
-import me.eugeniomarletti.kotlin.metadata.*
+import me.eugeniomarletti.kotlin.metadata.classKind
+import me.eugeniomarletti.kotlin.metadata.declaresDefaultValue
+import me.eugeniomarletti.kotlin.metadata.isDataClass
+import me.eugeniomarletti.kotlin.metadata.modality
 import me.eugeniomarletti.kotlin.metadata.shadow.builtins.BuiltInSerializerProtocol
 import me.eugeniomarletti.kotlin.metadata.shadow.builtins.BuiltInsBinaryVersion
 import me.eugeniomarletti.kotlin.metadata.shadow.metadata.ProtoBuf
@@ -24,6 +27,8 @@ fun InputStream.readPackageFragment() = PackageFragmentReader(use { stream ->
 }
 )
 
+class SkipException: Exception()
+
 class PackageFragmentReader(val fragment: ProtoBuf.PackageFragment) {
 
     fun hasFullName(name: String) = fragment.qualifiedNames.qualifiedNameList.any {
@@ -40,6 +45,7 @@ class PackageFragmentReader(val fragment: ProtoBuf.PackageFragment) {
             strings.add(current.shortName.resolve())
             current = resolveQualifiedName(current.hasParentQualifiedName(), current.parentQualifiedName)
         }
+        if(strings.isEmpty()) return "EMPTY_QUALIFIED_NAME"
         return strings.asReversed().joinToString(".")
     }
 
@@ -50,53 +56,74 @@ class PackageFragmentReader(val fragment: ProtoBuf.PackageFragment) {
         }
     }
 
+    fun ProtoBuf.Class.calcName(): String? {
+        val fullName = resolveQualifiedName(hasFqName(), fqName)?.resolve() ?: return null
+        return fullName.substringAfterLast('.')
+    }
+
+    fun ProtoBuf.Class.calcQualifiedName(): String? {
+        val fullName = resolveQualifiedName(hasFqName(), fqName)?.resolve() ?: return null
+        return fullName
+    }
+
     fun ProtoBuf.Class.classInfos(): List<ReadClassInfo> {
-        val fullName = resolveQualifiedName(hasFqName(), fqName)?.resolve() ?: return listOf()
-        val packageName = fullName.split('.').takeWhile {
-            it.firstOrNull()?.isLowerCase() ?: false
-        }.joinToString(".")
-        val name = fullName.substringAfterLast('.')
+        try {
+            val fullName = resolveQualifiedName(hasFqName(), fqName)?.resolve() ?: return listOf()
+            val packageName = fullName.split('.').takeWhile {
+                it.firstOrNull()?.isLowerCase() ?: false
+            }.joinToString(".")
+            val name = fullName.substringAfterLast('.')
 
-        val table = TypeTable(typeTable)
+            val table = TypeTable(typeTable)
 
-        val isInlineClass = Flags.IS_INLINE_CLASS.get(flags)
+            val isInlineClass = Flags.IS_INLINE_CLASS.get(flags)
+            val children = nestedClassNameList
 
-        val info = ReadClassInfo(
-                imports = listOf(),
-                modifiers = when (this.classKind) {
-                    ProtoBuf.Class.Kind.CLASS -> listOf()
-                    ProtoBuf.Class.Kind.INTERFACE -> listOf(ReadClassInfo.Modifier.Interface)
-                    ProtoBuf.Class.Kind.ENUM_CLASS -> listOf()
-                    ProtoBuf.Class.Kind.ENUM_ENTRY -> listOf()
-                    ProtoBuf.Class.Kind.ANNOTATION_CLASS -> listOf()
-                    ProtoBuf.Class.Kind.OBJECT -> listOf(ReadClassInfo.Modifier.Object)
-                    ProtoBuf.Class.Kind.COMPANION_OBJECT -> listOf()
-                } + when (modality) {
-                    ProtoBuf.Modality.FINAL -> listOf()
-                    ProtoBuf.Modality.OPEN -> listOf(ReadClassInfo.Modifier.Open)
-                    ProtoBuf.Modality.ABSTRACT -> listOf(ReadClassInfo.Modifier.Abstract)
-                    ProtoBuf.Modality.SEALED -> listOf(ReadClassInfo.Modifier.Sealed)
-                    null -> listOf()
-                } + (if (isDataClass) {
-                    listOf(ReadClassInfo.Modifier.Data)
-                } else listOf()) + (if (isInlineClass) {
-                    listOf(ReadClassInfo.Modifier.Inline)
-                } else listOf()),
-                implements = this.supertypes(table).map { it.read(table, listOf(this)) }.filter { it.kClass != "kotlin.io.Serializable" },
-                packageName = packageName,
-                owner = fullName.removePrefix(packageName).removeSuffix(name).trim('.').takeUnless { it.isBlank() },
-                name = name,
-                typeParameters = typeParameterList.map { it.read(table, listOf(this)) },
-                enumValues = if (classKind == ProtoBuf.Class.Kind.ENUM_CLASS)
-                    enumEntryList.mapNotNull {
-                        resolveString(it.hasName(), it.name)
+            val info = ReadClassInfo(
+                    imports = listOf(),
+                    modifiers = when (this.classKind) {
+                        ProtoBuf.Class.Kind.CLASS -> listOf()
+                        ProtoBuf.Class.Kind.INTERFACE -> listOf(ReadClassInfo.Modifier.Interface)
+                        ProtoBuf.Class.Kind.ENUM_CLASS -> listOf()
+                        ProtoBuf.Class.Kind.ENUM_ENTRY -> listOf()
+                        ProtoBuf.Class.Kind.ANNOTATION_CLASS -> listOf()
+                        ProtoBuf.Class.Kind.OBJECT -> listOf(ReadClassInfo.Modifier.Object)
+                        ProtoBuf.Class.Kind.COMPANION_OBJECT -> listOf()
+                    } + when (modality) {
+                        ProtoBuf.Modality.FINAL -> listOf()
+                        ProtoBuf.Modality.OPEN -> listOf(ReadClassInfo.Modifier.Open)
+                        ProtoBuf.Modality.ABSTRACT -> listOf(ReadClassInfo.Modifier.Abstract)
+                        ProtoBuf.Modality.SEALED -> listOf(ReadClassInfo.Modifier.Sealed)
+                        null -> listOf()
+                    } + (if (isDataClass) {
+                        listOf(ReadClassInfo.Modifier.Data)
+                    } else listOf()) + (if (isInlineClass) {
+                        listOf(ReadClassInfo.Modifier.Inline)
+                    } else listOf()),
+                    implements = this.supertypes(table).map { it.read(table, listOf(this)) }.filter { it.kclass != "kotlin.io.Serializable" },
+                    packageName = packageName,
+                    owner = fullName.removePrefix(packageName).removeSuffix(name).trim('.').takeUnless { it.isBlank() },
+                    name = name,
+                    typeParameters = typeParameterList.map { it.read(table, listOf(this)) },
+                    enumValues = if (classKind == ProtoBuf.Class.Kind.ENUM_CLASS)
+                        enumEntryList.mapNotNull {
+                            resolveString(it.hasName(), it.name)
+                        }
+                    else null,
+                    annotations = listOf(), //hasAnnotations
+                    fields = readFields(this.constructorList.firstOrNull(), this.propertyList, table),
+                    hasCompanion = fragment.class_List.any {
+                        it.classKind == ProtoBuf.Class.Kind.COMPANION_OBJECT && it.hasFqName() && it.fqName in children
                     }
-                else null,
-                annotations = listOf(), //hasAnnotations
-                fields = readFields(this.constructorList.firstOrNull(), this.propertyList, table)
-        )
-        println("Read: $name")
-        return listOf(info)
+            )
+            if (info.fields.any { it.type.kclass.isBlank() }) {
+                throw IllegalStateException()
+            }
+            println("Read: $name")
+            return listOf(info)
+        } catch(e: SkipException) {
+            return listOf()
+        }
     }
 
     fun ProtoBuf.Class.readFields(constructor: ProtoBuf.Constructor?, properties: List<ProtoBuf.Property>, table: TypeTable): List<ReadFieldInfo> {
@@ -121,27 +148,29 @@ class PackageFragmentReader(val fragment: ProtoBuf.PackageFragment) {
     }
 
     fun ProtoBuf.Type.read(typeTable: TypeTable, containingClasses: List<ProtoBuf.Class>): ReadType {
+        val kclassName = resolveString(hasTypeParameterName(), typeParameterName)
+                ?: (if (hasTypeParameter())
+                    containingClasses
+                            .flatMap { it.typeParameterList }
+                            .find { typeParameter == it.id  }
+                            ?.name?.let { resolveString(true, it) }
+                else null)
+                ?: resolveQualifiedName(hasClassName(), className)?.resolve()
+                ?: "PANIC"
+        if(kclassName.isBlank()) throw SkipException()
         return ReadType(
-                kClass = resolveString(hasTypeParameterName(), typeParameterName)
-                        ?: (if (hasTypeParameter())
-                            containingClasses
-                                    .flatMap { it.typeParameterList }
-                                    .find { typeParameter == it.id  }
-                                    ?.name?.let { resolveString(true, it) }
-                        else null)
-                        ?: resolveQualifiedName(hasClassName(), className)?.resolve()
-                        ?: "PANIC",
+                kclass = kclassName,
                 typeArguments = argumentList.map {
                     it.read(typeTable, containingClasses)
                 },
-                isNullable = this.nullable
+                nullable = this.nullable
         )
     }
 
     fun ProtoBuf.Type.Argument.read(typeTable: TypeTable, containingClasses: List<ProtoBuf.Class>): ReadTypeProjection {
         val type = this.type(typeTable)?.read(typeTable, containingClasses)
         return ReadTypeProjection(
-                type = type ?: ReadType("Any", isNullable = true),
+                type = type ?: ReadType("Any", nullable = true),
                 variance = when (this.projection) {
                     ProtoBuf.Type.Argument.Projection.IN -> ReadTypeProjection.Variance.IN
                     ProtoBuf.Type.Argument.Projection.OUT -> ReadTypeProjection.Variance.OUT
@@ -157,7 +186,7 @@ class PackageFragmentReader(val fragment: ProtoBuf.PackageFragment) {
                 name = resolveString(hasName(), name)!!,
                 projection = ReadTypeProjection(
                         type = this.upperBounds(typeTable).firstOrNull()?.read(typeTable, containingClasses)
-                                ?: ReadType("Any", isNullable = true),
+                                ?: ReadType("Any", nullable = true),
                         variance = when (variance) {
                             ProtoBuf.TypeParameter.Variance.IN -> ReadTypeProjection.Variance.IN
                             ProtoBuf.TypeParameter.Variance.OUT -> ReadTypeProjection.Variance.OUT

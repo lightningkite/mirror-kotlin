@@ -75,6 +75,7 @@ dependencies {
     api "me.eugeniomarletti.kotlin.metadata:kotlin-metadata:1.4.0"
     implementation "com.fasterxml.jackson.core:jackson-databind:2.9.6"
     implementation "com.fasterxml.jackson.module:jackson-module-kotlin:2.9.6"
+    testCompile 'junit:junit:4.12'
 }
 
 generateGrammarSource {

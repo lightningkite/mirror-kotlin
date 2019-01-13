@@ -13,7 +13,8 @@ class ReadClassInfo(
         val typeParameters: List<ReadTypeParameter> = listOf(),
         val enumValues: List<String>? = null,
         val annotations: List<AnnotationInfo> = listOf(),
-        val fields: List<ReadFieldInfo> = listOf()
+        val fields: List<ReadFieldInfo> = listOf(),
+        val hasCompanion: Boolean = false
 ) {
 
     var fromFile: File? = null
@@ -65,14 +66,16 @@ class ReadClassInfo(
         @JsonIgnore get() = "$packageName.$accessName"
 
     fun generateConstructor(): String {
-        if (modifiers.contains(Modifier.Interface) || modifiers.contains(Modifier.Abstract) || modifiers.contains(Modifier.Sealed) || enumValues != null)
+        if (modifiers.contains(Modifier.Interface) || modifiers.contains(Modifier.Abstract) || modifiers.contains(Modifier.Sealed) || enumValues != null) {
             return """
-            |   override fun construct(map: Map<String, Any?>): $accessNameWithBound = throw NotImplementedError()
-            """.trimMargin()
-        if (modifiers.contains(Modifier.Object))
+                    |   override fun construct(map: Map<String, Any?>): $accessNameWithBound = throw NotImplementedError()
+                    """.trimMargin()
+        }
+        if (modifiers.contains(Modifier.Object)) {
             return """
-            |   override fun construct(map: Map<String, Any?>): $accessNameWithBound = $accessName
-            """.trimMargin()
+                    |   override fun construct(map: Map<String, Any?>): $accessNameWithBound = $accessName
+                    """.trimMargin()
+        }
         return """
             |   override fun construct(map: Map<String, Any?>): $accessNameWithBound {
             |       //Gather variables
@@ -90,7 +93,7 @@ class ReadClassInfo(
                     if (it.default != null) {
                         //We have a default calculation?  Awesome!
                         "val ${it.name}:${it.type.useMinimumBound(this)} = map[\"${it.name}\"] as? ${it.type.useMinimumBound(this)} ?: ${it.default}"
-                    } else if (it.type.isNullable) {
+                    } else if (it.type.nullable) {
                         //Oh good, let's just use null if it's not there
                         "val ${it.name}:${it.type.useMinimumBound(this)} = map[\"${it.name}\"] as ${it.type.useMinimumBound(this)}"
                     } else {
@@ -114,6 +117,7 @@ class ReadClassInfo(
         |
         |   override val kClass: KClass<$accessNameWithStars> = $accessName::class
         |   override val modifiers: List<ClassInfo.Modifier> = listOf(${modifiers.joinToString { "ClassInfo.Modifier." + it.name }})
+        |   override val companion: Any? get() = ${if(hasCompanion) accessName else "null"}
         |
         |   override val implements: List<Type<*>> = ${implements.joinToString(", ", "listOf(", ")"){it.toString(this)}}
         |

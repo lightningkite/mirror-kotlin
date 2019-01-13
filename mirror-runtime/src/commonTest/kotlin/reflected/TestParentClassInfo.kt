@@ -10,6 +10,7 @@ object TestParentClassInfo: ClassInfo<TestParent> {
 
    override val kClass: KClass<TestParent> = TestParent::class
    override val modifiers: List<ClassInfo.Modifier> = listOf(ClassInfo.Modifier.Open)
+   override val companion: Any? get() = null
 
    override val implements: List<Type<*>> = listOf(Type<TestInterface>(TestInterface::class, listOf(), false))
 

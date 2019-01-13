@@ -12,7 +12,7 @@ val UnsignedClassInfoRegistry : ClassInfoRegistry = ClassInfoRegistry(
         ULongClassInfo
 )
 
-object UByteClassInfo : EmptyClassInfo<UByte>(UByte::class, "kotlin", "UByte")
-object UShortClassInfo : EmptyClassInfo<UShort>(UShort::class, "kotlin", "UShort")
-object UIntClassInfo : EmptyClassInfo<UInt>(UInt::class, "kotlin", "UInt")
-object ULongClassInfo : EmptyClassInfo<ULong>(ULong::class, "kotlin", "ULong")
+object UByteClassInfo : EmptyClassInfo<UByte>(UByte::class, 0U, "kotlin", "UByte")
+object UShortClassInfo : EmptyClassInfo<UShort>(UShort::class, 0U, "kotlin", "UShort")
+object UIntClassInfo : EmptyClassInfo<UInt>(UInt::class, 0U, "kotlin", "UInt")
+object ULongClassInfo : EmptyClassInfo<ULong>(ULong::class, 0U, "kotlin", "ULong")

@@ -22,7 +22,7 @@ interface Decoder<IN> {
         decoders[type] = action as IN.() -> Any?
     }
 
-    fun <T : Any> addDecoder(kClass: KClass<T>, action: (Type<*>) -> TypeDecoder<IN, T>?) {
+    fun <T : Any> addDecoder(kClass: KClass<T>, action: (Type<*>) -> TypeDecoder<IN, T?>?) {
         @Suppress("UNCHECKED_CAST")
         kClassDecoders[kClass] = action as (Type<*>) -> (IN.() -> Any?)?
     }

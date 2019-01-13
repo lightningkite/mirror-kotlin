@@ -26,19 +26,23 @@ val DefaultRegistry = SerializationRegistry(
                                     ?: throw IllegalArgumentException("Can't serialize KClass $it because it's not registered."))
                         }
                     }
-                    coder.addEncoder(ClassInfo::class) { _ ->
-                        return@addEncoder {
-                            stringEncoder.invoke(this, coder.registry.kClassToExternalNameRegistry[it.kClass]
-                                    ?: throw IllegalArgumentException("Can't serialize ClassInfo $it because it's not registered."))
+                    coder.addEncoder(ClassInfo::class) { type ->
+                        if(type.nullable) return@addEncoder null
+                        return@addEncoder { it ->
+                            val value = it!!
+                            stringEncoder.invoke(this, coder.registry.kClassToExternalNameRegistry[value.kClass]
+                                    ?: throw IllegalArgumentException("Can't serialize ClassInfo $value because it's not registered."))
                         }
                     }
                     coder.addEncoder(FieldInfo::class) { type ->
+                        if(type.nullable) return@addEncoder null
                         val ownerType = type.param(0)
-                        return@addEncoder {
-                            val ownerName = (coder.registry.kClassToExternalNameRegistry[it.owner.kClass]
-                                    ?: throw IllegalArgumentException("Can't serialize ClassInfo $it because it's not registered."))
-                            val name = if (it.owner.kClass == ownerType.type.kClass) it.name
-                            else ownerName + "." + it.name
+                        return@addEncoder { it ->
+                            val value = it!!
+                            val ownerName = (coder.registry.kClassToExternalNameRegistry[value.owner.kClass]
+                                    ?: throw IllegalArgumentException("Can't serialize ClassInfo $value because it's not registered."))
+                            val name = if (value.owner.kClass == ownerType.type.kClass) value.name
+                            else ownerName + "." + value.name
                             stringEncoder.invoke(this, name)
                         }
                     }

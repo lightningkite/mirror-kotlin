@@ -10,8 +10,9 @@ object TimeStampClassInfo: ClassInfo<TimeStamp> {
 
    override val kClass: KClass<TimeStamp> = TimeStamp::class
    override val modifiers: List<ClassInfo.Modifier> = listOf(ClassInfo.Modifier.Data)
+   override val companion: Any? get() = TimeStamp
 
-   override val implements: List<Type<*>> = listOf()
+   override val implements: List<Type<*>> = listOf(Type<kotlin.Comparable<com.lightningkite.lokalize.TimeStamp>>(kotlin.Comparable::class, listOf(TypeProjection(Type<com.lightningkite.lokalize.TimeStamp>(com.lightningkite.lokalize.TimeStamp::class, listOf(), false), TypeProjection.Variance.INVARIANT)), false))
 
    override val packageName: String = "com.lightningkite.lokalize"
    override val owner: KClass<*>? = null
