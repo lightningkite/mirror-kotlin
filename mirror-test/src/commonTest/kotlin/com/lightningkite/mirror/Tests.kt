@@ -1,8 +1,8 @@
 package com.lightningkite.mirror
 
-import com.lightningkite.lokalize.Date
+import com.lightningkite.lokalize.time.Date
 import com.lightningkite.lokalize.Month
-import com.lightningkite.lokalize.Year
+import com.lightningkite.lokalize.time.Year
 import com.lightningkite.mirror.info.*
 import com.lightningkite.recktangle.Point
 import com.lightningkite.mirror.serialization.DefaultRegistry

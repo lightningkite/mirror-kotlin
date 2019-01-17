@@ -8,36 +8,36 @@ import kotlin.reflect.KClass
 @Suppress("RemoveExplicitTypeArguments", "UNCHECKED_CAST", "USELESS_CAST")
 object PointClassInfo: ClassInfo<Point> {
 
-   override val kClass: KClass<Point> = Point::class
-   override val modifiers: List<ClassInfo.Modifier> = listOf(ClassInfo.Modifier.Data)
-   override val companion: Any? get() = Point
+    override val kClass: KClass<Point> = Point::class
+    override val modifiers: List<ClassInfo.Modifier> = listOf(ClassInfo.Modifier.Data)
+    override val companion: Any? get() = Point
 
-   override val implements: List<Type<*>> = listOf(Type<kotlin.Any>(kotlin.Any::class, listOf(), false))
+    override val implements: List<Type<*>> = listOf(Type<kotlin.Any>(kotlin.Any::class, listOf(), false))
 
-   override val packageName: String = "com.lightningkite.recktangle"
-   override val owner: KClass<*>? = null
-   override val ownerName: String? = null
+    override val packageName: String = "com.lightningkite.recktangle"
+    override val owner: KClass<*>? = null
+    override val ownerName: String? = null
 
-   override val name: String = "Point"
-   override val annotations: List<AnnotationInfo> = listOf()
-   override val enumValues: List<Point>? = null
+    override val name: String = "Point"
+    override val annotations: List<AnnotationInfo> = listOf()
+    override val enumValues: List<Point>? = null
 
-   val fieldX = FieldInfo<Point, kotlin.Float>(this, "x", Type<kotlin.Float>(kotlin.Float::class, listOf(), false), true, { it.x as kotlin.Float}, listOf())
-    val fieldY = FieldInfo<Point, kotlin.Float>(this, "y", Type<kotlin.Float>(kotlin.Float::class, listOf(), false), true, { it.y as kotlin.Float}, listOf())
+    val fieldX = FieldInfo<Point, kotlin.Float>(this, "x", Type<kotlin.Float>(kotlin.Float::class, listOf(), false), false, { it.x as kotlin.Float}, listOf())
+    val fieldY = FieldInfo<Point, kotlin.Float>(this, "y", Type<kotlin.Float>(kotlin.Float::class, listOf(), false), false, { it.y as kotlin.Float}, listOf())
 
-   override val fields:List<FieldInfo<Point, *>> = listOf(fieldX, fieldY)
+    override val fields:List<FieldInfo<Point, *>> = listOf(fieldX, fieldY)
 
-   override fun construct(map: Map<String, Any?>): Point {
-       //Gather variables
-       
-           //Handle the optionals
-       val x:kotlin.Float = map["x"] as? kotlin.Float ?: (fieldX.get(Point()) as kotlin.Float)
-        val y:kotlin.Float = map["y"] as? kotlin.Float ?: (fieldY.get(Point(x = x)) as kotlin.Float)
-       //Finally do the call
-       return Point(
-           x = x,
+    override fun construct(map: Map<String, Any?>): Point {
+        //Gather variables
+        val x:kotlin.Float = map["x"] as kotlin.Float
+        val y:kotlin.Float = map["y"] as kotlin.Float
+        //Handle the optionals
+        
+        //Finally do the call
+        return Point(
+            x = x,
             y = y
-       )
-   }
+        )
+    }
 
 }

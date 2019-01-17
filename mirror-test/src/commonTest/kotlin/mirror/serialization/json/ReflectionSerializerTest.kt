@@ -1,6 +1,7 @@
 package com.lightningkite.mirror.serialization.json
 
 import com.lightningkite.lokalize.*
+import com.lightningkite.lokalize.time.*
 import com.lightningkite.mirror.TestRegistry
 import com.lightningkite.mirror.info.*
 import com.lightningkite.recktangle.Point
