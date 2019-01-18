@@ -3,7 +3,7 @@ name = com.lightningkite.mirror.TestRegistry
 com.lightningkite.recktangle.Point
 com.lightningkite.mirror.serialization.json.SimpleJSONTest.Post
 com.lightningkite.mirror.serialization.json.SimpleJSONTest.TestEnum
-com.lightningkite.lokalize.TimeStamp
+com.lightningkite.lokalize.time.TimeStamp
 com.lightningkite.mirror.info.TestParent
 com.lightningkite.mirror.info.TestInterface
 com.lightningkite.mirror.info.TestChild
