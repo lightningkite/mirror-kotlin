@@ -1,5 +1,6 @@
 package com.lightningkite.mirror.serialization.json
 
+import com.lightningkite.lokalize.time.TimeStamp
 import com.lightningkite.mirror.TestRegistry
 import com.lightningkite.mirror.info.*
 import com.lightningkite.mirror.serialization.DefaultRegistry
@@ -92,6 +93,11 @@ class SimpleJSONTest {
         test(TestEnum.ValueA, TestEnum::class.type)
         test(TestEnum.ValueB, TestEnum::class.type)
         test(TestEnum.ValueC, TestEnum::class.type)
+    }
+
+    @Test
+    fun inlined() {
+        test(TimeStamp(1248142L), TimeStamp::class.type)
     }
 
     @Test
