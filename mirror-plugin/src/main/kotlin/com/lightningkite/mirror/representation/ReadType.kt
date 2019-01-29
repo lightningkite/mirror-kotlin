@@ -1,4 +1,4 @@
-package com.lightningkite.mirror
+package com.lightningkite.mirror.representation
 
 import com.fasterxml.jackson.annotation.JsonIgnore
 
@@ -13,12 +13,15 @@ data class ReadType(
         else
             "") + if (nullable) "?" else ""
 
-    fun resolveMinimumKClass(owner: ReadClassInfo): String = owner.typeParameters.find { it.name == kclass }?.projection?.type?.kclass
-            ?: kclass
-
-    fun toString(owner: ReadClassInfo) = "Type<${useMinimumBound(owner)}>(${resolveMinimumKClass(owner)}::class, listOf(${typeArguments.joinToString{it.toString(owner)}}), $nullable)"
-
     override fun toString(): String {
-        return ""
+        return (if(typeArguments.isEmpty()) {
+            "${kclass}Mirror"
+        } else {
+            "${kclass}Mirror(${typeArguments.joinToString()})"
+        }).let{
+            if(nullable){
+                it.plus(".nullable")
+            } else it
+        }
     }
 }

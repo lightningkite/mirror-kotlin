@@ -1,6 +1,6 @@
 package com.lightningkite.mirror.source
 
-import com.lightningkite.mirror.*
+import com.lightningkite.mirror.representation.*
 import org.jetbrains.kotlin.KotlinParser
 import org.jetbrains.kotlin.KotlinParserBaseListener
 
@@ -90,7 +90,7 @@ class SourceListener : KotlinParserBaseListener() {
         this.LabelReference()?.let {
             return AnnotationInfo(
                     name = it.text,
-                    arguments = this.valueArguments()?.valueArgument()?.map { it.expression().text } ?: listOf(),
+                    arguments = this.valueArguments()?.valueArgument()?.map { it.text } ?: listOf(),
                     useSiteTarget = null
             )
         }
@@ -98,7 +98,7 @@ class SourceListener : KotlinParserBaseListener() {
         return AnnotationInfo(
                 useSiteTarget = this.annotationUseSiteTarget()?.text,
                 name = unescaped.identifier().text,
-                arguments = unescaped.valueArguments()?.valueArgument()?.map { it.expression().text } ?: listOf()
+                arguments = unescaped.valueArguments()?.valueArgument()?.map { it.text } ?: listOf()
         )
     }
 
@@ -106,7 +106,8 @@ class SourceListener : KotlinParserBaseListener() {
         return ReadFieldInfo(
                 name = this.simpleIdentifier().text,
                 type = this.type().convert(),
-                isOptional = this.expression() != null,
+                optional = this.expression() != null,
+                mutable = this.VAR() != null,
                 annotations = this.modifierList()?.annotations()?.mapNotNull { it.annotation()?.convert() } ?: listOf(),
                 default = this.expression()?.text
         )

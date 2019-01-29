@@ -1,5 +1,7 @@
 package com.lightningkite.mirror
 
+import com.lightningkite.mirror.output.writeMirror
+import com.lightningkite.mirror.representation.ReadClassInfo
 import java.io.File
 
 class MirrorTxtFile(
@@ -114,7 +116,7 @@ class MirrorTxtFile(
         //Output the other files
         for (decl in declarations.values) {
             if(decl.qualifiedName !in reflectionsToWrite) continue
-            val written = decl.toString()
+            val written = buildString { TabWriter(this).writeMirror(decl) }
             File(outputDirectory, decl.reflectionName + ".kt").let{
                 filesWritten.add(it)
                 if(it.exists()){
@@ -135,13 +137,11 @@ class MirrorTxtFile(
         registryFile.writeText("""
         |package ${registryName.substringBeforeLast('.')}
         |
-        |import com.lightningkite.kommon.native.SharedImmutable
         |import com.lightningkite.mirror.info.*
         |import kotlin.reflect.KClass
         |
-        |@SharedImmutable
-        |val ${registryName.substringAfterLast('.')} = ClassInfoRegistry(
-        |${declarations.asSequence().filter { it.key in needed }.map { it.value.reflectionQualifiedName }.joinToString(",\n    ", "    ")}
+        |fun ${registryName.substringAfterLast('.')}() = MirrorClassMirror.register(
+        |${reflectionsToWrite.joinToString(",\n    ", "    ")}
         |)
     """.trimMargin())
 

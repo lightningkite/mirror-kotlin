@@ -1,4 +1,4 @@
-package com.lightningkite.mirror
+package com.lightningkite.mirror.representation
 
 import com.fasterxml.jackson.annotation.JsonIgnore
 
@@ -18,5 +18,4 @@ data class ReadTypeProjection(
             Variance.STAR -> "*"
         }
 
-    fun toString(owner: ReadClassInfo): String = "TypeProjection(${type.toString(owner)}, TypeProjection.Variance.$variance)"
 }

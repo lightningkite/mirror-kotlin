@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.lightningkite.mirror.metadata.readPackageFragment
+import com.lightningkite.mirror.representation.ReadClassInfo
 import com.lightningkite.mirror.source.classes
 import java.io.File
 import java.util.jar.JarFile

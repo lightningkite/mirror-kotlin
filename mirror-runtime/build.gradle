@@ -60,6 +60,7 @@ kotlin {
                 api 'org.jetbrains.kotlin:kotlin-stdlib-common'
 //                api "org.jetbrains.kotlinx:kotlinx-io:0.1.1"
                 api 'com.lightningkite:kommon-metadata:0.0.2'
+                api "org.jetbrains.kotlinx:kotlinx-serialization-runtime:0.10.0"
             }
         }
         commonTest {

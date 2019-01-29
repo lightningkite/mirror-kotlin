@@ -1,12 +1,9 @@
 package com.lightningkite.mirror.request
 
-import com.lightningkite.mirror.info.ClassInfoRegistry
-import com.lightningkite.mirror.info.Type
-import com.lightningkite.mirror.info.allImplements
 import kotlin.reflect.KClass
 
 
-fun Request<*>.permitted(registry: ClassInfoRegistry, user: HasPermissions?): Boolean {
+fun Request<*>.permitted(user: HasPermissions?): Boolean {
     val p = this::class.permissions(registry)
     return if(p.isEmpty()) true
     else p.containsAll(user?.permissions ?: setOf())
