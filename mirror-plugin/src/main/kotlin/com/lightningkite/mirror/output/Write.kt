@@ -3,6 +3,7 @@ package com.lightningkite.mirror.output
 import com.lightningkite.mirror.TabWriter
 import com.lightningkite.mirror.representation.ReadClassInfo
 import com.lightningkite.mirror.representation.ReadClassInfo.Companion.GENERATED_NOTICE
+import com.lightningkite.mirror.representation.ReadFieldInfo
 import com.lightningkite.mirror.representation.minimumBound
 import com.lightningkite.mirror.representation.useMinimumBound
 
@@ -38,6 +39,45 @@ fun TabWriter.writeAnnotation(classInfo: ReadClassInfo) {
         }
     }
     line(")")
+}
+
+fun ReadFieldInfo.toReadString(index: Int): String {
+    return if(!this.type.nullable) {
+        when(val kclass = this.type.kclass){
+            "Unit",
+            "Boolean",
+            "Byte",
+            "Short",
+            "Int",
+            "Long",
+            "Float",
+            "Double",
+            "Char",
+            "String" -> buildString {
+                append(fieldName)
+                append(" = decoderStructure.decode${kclass}Element(this, ")
+                append(index.toString())
+                append(")")
+            }
+            else -> buildString {
+                append(fieldName)
+                append(" = decoderStructure.decodeSerializableElement(this, ")
+                append(index.toString())
+                append(", ")
+                append(type.toString())
+                append(")")
+            }
+        }
+    } else {
+        buildString {
+            append(fieldName)
+            append(" = decoderStructure.decodeSerializableElement(this, ")
+            append(index.toString())
+            append(", ")
+            append(type.toString())
+            append(")")
+        }
+    }
 }
 
 fun TabWriter.writeMirror(classInfo: ReadClassInfo) = with(classInfo) {
@@ -190,31 +230,64 @@ fun TabWriter.writeMirror(classInfo: ReadClassInfo) = with(classInfo) {
         tab {
             //Make a place to enter the values
             for (field in fields) {
-                line("var ${field.name}_set = false")
-                line("var ${field.name}: ${field.type.use}? = null")
+                line("var ${field.fieldName}_set = false")
+                line("var ${field.fieldName}: ${field.type.use}? = null")
             }
 
             //Retrieve the values
+            line {
+                append("val decoderStructure = decoder.beginStructure(this")
+                if(typeParameters.isNotEmpty()){
+                    for(t in typeParameters){
+                        append(", ")
+                        append(t.name + "Mirror")
+                    }
+                }
+                append(")")
+            }
+            line("loop@ while (true) {")
+            tab{
+                line("when (decodeElementIndex(this)) {")
+                tab{
+                    line("CompositeDecoder.READ_ALL -> {")
+                    tab{
+                        //all reads in order
+                        for((index, field) in classInfo.fields.withIndex()){
+                            line(field.toReadString(index))
+                        }
+                    }
+                    line("}")
+                    line("CompositeDecoder.READ_DONE -> break@loop")
+                    //all reads prefixed with # ->
+                    for((index, field) in classInfo.fields.withIndex()){
+                        line("$index -> " + field.toReadString(index))
+                    }
+                    line("else -> {}")
+                }
+                line("}")
+            }
+            line("}")
+            line("decoderStructure.endStructure(this)")
 
             //Handle defaults
-            for ((index, field) in optionalFields.withIndex()) {
+            for ((index, field) in classInfo.fields.withIndex()) {
                 if (field.default != null) {
                     //We have a default calculation?  Awesome!
-                    line("if(!${field.name}_set) {")
+                    line("if(!${field.fieldName}_set) {")
                     tab {
-                        line("${field.name} = ${field.default}")
+                        line("${field.fieldName} = ${field.default}")
                     }
                     line("}")
                 } else if (field.type.nullable) {
                     //Oh good, let's just use null if it's not there
-                } else {
+                } else if(field.optional) {
                     //Well... I guess we'll retrieve it by calling the constructor an extra time.
-                    line("if(!${field.name}_set) {")
+                    line("if(!${field.fieldName}_set) {")
                     tab {
                         val args = requiredFields.asSequence().map { it.name + " = " + it.name } + optionalFields.subList(0, index).asSequence().map { it.name + " = " + it.name }
-                        line("${field.name} = (${field.fieldName}.get($accessNameWithBound(${args.joinToString()})) as ${field.type.useMinimumBound(this)})")
+                        line("${field.fieldName} = ($accessNameWithBound(${args.joinToString()}).${field.fieldName}) as ${field.type.useMinimumBound(this)})")
                         line {
-                            append(field.name)
+                            append(field.fieldName)
                             append(" = ")
                             append(field.fieldName)
                             append(".get(")
@@ -237,6 +310,12 @@ fun TabWriter.writeMirror(classInfo: ReadClassInfo) = with(classInfo) {
                         line("))")
                     }
                     line("}")
+                } else {
+                    line("if(!${field.fieldName}_set) {")
+                    tab{
+                        line("throw MissingFieldException(\"${field.name}\")")
+                    }
+                    line("}")
                 }
             }
 
@@ -250,7 +329,7 @@ fun TabWriter.writeMirror(classInfo: ReadClassInfo) = with(classInfo) {
                     line{
                         append(field.name)
                         append(" = ")
-                        append(field.name)
+                        append(field.fieldName)
                         if(index != fields.lastIndex){
                             append(",")
                         }

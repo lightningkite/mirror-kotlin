@@ -32,7 +32,6 @@ class MirrorTxtFile(
                 "kotlin.String",
                 "kotlin.collections.List",
                 "kotlin.collections.Map",
-                "kotlin.text.Regex",
                 "KClass",
                 "Any",
                 "Unit",
@@ -51,8 +50,7 @@ class MirrorTxtFile(
                 "Char",
                 "String",
                 "List",
-                "Map",
-                "Regex"
+                "Map"
         )
         toCheck.addAll(qualifiedNames)
         alreadyAdded.addAll(qualifiedNames)
@@ -97,12 +95,14 @@ class MirrorTxtFile(
 
     fun reflectionsToWrite(declarations: Map<String, ReadClassInfo>, needed:List<String>):List<String>{
         val classInfoNames = declarations.values.asSequence()
-                .filter { it.name.endsWith("ClassInfo") && it.fromFile?.parentFile != outputDirectory }
+                .filter { it.name.endsWith("Mirror") && it.fromFile?.parentFile != outputDirectory }
                 .map { it.name }
         return needed.filter {
             declarations[it]?.reflectionName !in classInfoNames
         }
     }
+
+    fun neede
 
     fun output(
             declarations: Map<String, ReadClassInfo>

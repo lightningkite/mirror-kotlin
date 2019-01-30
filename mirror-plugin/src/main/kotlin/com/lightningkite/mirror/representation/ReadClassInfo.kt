@@ -88,5 +88,5 @@ class ReadClassInfo(
     val qualifiedName: String
         @JsonIgnore get() = "$packageName.$accessName"
 
-    @JsonIgnore val fullImports = (imports + "com.lightningkite.mirror.info.*" + "kotlin.reflect.KClass").distinct()
+    @JsonIgnore val fullImports = (imports + "com.lightningkite.mirror.info.*" + "kotlin.reflect.KClass" + "kotlinx.serialization.MissingFieldException").distinct()
 }
