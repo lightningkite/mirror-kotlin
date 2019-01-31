@@ -1,5 +1,6 @@
 package com.lightningkite.mirror.info
 
+import kotlinx.serialization.CompositeDecoder
 import kotlinx.serialization.SerialDescriptor
 import kotlinx.serialization.SerialKind
 import kotlinx.serialization.StructureKind
@@ -10,8 +11,7 @@ abstract class MirrorClass<Type : Any> : MirrorType<Type> {
     override val descriptor: SerialDescriptor get() = this
     override val kind: SerialKind get() = StructureKind.CLASS
 
-    abstract val typeParameters: Array<MirrorType<*>>
-    abstract val kClass: KClass<Type>
+    open val typeParameters: Array<MirrorType<*>> get() = arrayOf()
     open val modifiers: Array<Modifier> get() = arrayOf()
     open val owningClass: KClass<*>? get() = null
     open val companion: Any? get() = null
@@ -19,6 +19,7 @@ abstract class MirrorClass<Type : Any> : MirrorType<Type> {
     open val enumValues: Array<Type>? get() = null
     open val implements: Array<MirrorClass<*>> get() = arrayOf()
 
+    abstract val kClass: KClass<Type>
     abstract val packageName: String
     abstract val localName: String
     override val name: String get() = packageName + "." + localName
@@ -30,20 +31,20 @@ abstract class MirrorClass<Type : Any> : MirrorType<Type> {
 
     val fieldsIndex: Map<String, Int> by lazy { fields.withIndex().associate { it.value.name to it.index } }
     override val elementsCount: Int get() = fields.size
-    override fun getElementIndex(name: String): Int = fieldsIndex.getValue(name)
+    override fun getElementIndex(name: String): Int = fieldsIndex[name] ?: CompositeDecoder.UNKNOWN_NAME
     override fun getElementName(index: Int): String = fields[index].name
     override fun getElementAnnotations(index: Int): List<Annotation> = fields[index].annotations
     override fun getElementDescriptor(index: Int): SerialDescriptor = fields[index].type
     override fun getEntityAnnotations(): List<Annotation> = annotations
-    override fun isElementOptional(index: Int): Boolean = fields[index].isOptional
+    override fun isElementOptional(index: Int): Boolean = fields[index].optional
 
     data class Field<Owner, Value>(
             val owner: MirrorClass<*>,
             val name: String,
             val type: MirrorType<Value>,
-            val isOptional: Boolean,
+            val optional: Boolean = false,
             val get: (Owner) -> Value,
-            val set: ((Owner, Value) -> Unit)?,
+            val set: ((Owner, Value) -> Unit)? = null,
             val annotations: List<Annotation> = listOf()
     )
 

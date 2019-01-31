@@ -44,16 +44,6 @@ fun reflectTask(directories: List<File>) {
     }
 }
 
-data class SourceFileRead(
-        val hash: Int,
-        val infos: List<ReadClassInfo>,
-        val version: Int = VERSION
-) {
-    companion object {
-        const val VERSION = 0
-    }
-}
-
 fun allDeclarations(directories: List<File>, jarsToInspect: List<File>): Map<String, ReadClassInfo> {
     val mapper = ObjectMapper().registerModule(KotlinModule())
             .disable(DeserializationFeature.FAIL_ON_IGNORED_PROPERTIES)

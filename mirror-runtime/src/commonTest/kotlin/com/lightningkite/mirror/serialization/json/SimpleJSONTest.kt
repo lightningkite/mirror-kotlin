@@ -1,13 +1,17 @@
 package com.lightningkite.mirror.serialization.json
 
-import com.lightningkite.mirror.TestRegistry
 import com.lightningkite.mirror.info.*
-import com.lightningkite.mirror.serialization.DefaultRegistry
-import com.lightningkite.mirror.serialization.SerializationRegistry
+import com.lightningkite.mirror.registerTest
+import kotlinx.serialization.json.Json
 import kotlin.reflect.KClass
 import kotlin.test.Test
 
 class SimpleJSONTest {
+
+    init{
+        registerDefaults()
+        registerTest()
+    }
 
     data class Post(
             var id: Long? = null,
@@ -20,54 +24,46 @@ class SimpleJSONTest {
         ValueA, ValueB, ValueC
     }
 
-    val serializer = JsonSerializer(
-            DefaultRegistry + TestRegistry
-    )
-
-    fun <T> test(value: T, type: Type<T>) {
-        val result = serializer.write(value, type)
+    fun <T> test(value: T, type: MirrorType<T>): T {
+        val result = Json.stringify(type, value)
         println(result)
-        val back = serializer.read(result, type)
+        val back = Json.parse(type, result)
+        return back
     }
 
     @Test
     fun basicsTest() {
-        test(listOf(1, 2, 3, 4), Int::class.type.list)
+        test(listOf(1, 2, 3, 4), IntMirror.list)
         test(mapOf(
                 "a" to 1,
                 "b" to 2,
                 "c" to 3
-        ), Int::class.type.stringMap)
+        ), StringMirror mapTo IntMirror)
         test(mapOf(
                 "a" to listOf(1, 8),
                 "b" to listOf(2, 8),
                 "c" to listOf(3, 8)
-        ), Int::class.type.list.stringMap)
-    }
-
-    @Test
-    fun defaultingTest() {
-        test(Regex("asdf"), Regex::class.type)
+        ), StringMirror mapTo IntMirror.list)
     }
 
     @Test
     fun nullables() {
-        test<String?>(null, String::class.typeNullable)
-        test<String?>("value", String::class.typeNullable)
-        test(listOf(null, "Has String", null, "another"), String::class.typeNullable.list)
+        test<String?>(null, StringMirror.nullable)
+        test<String?>("value", StringMirror.nullable)
+        test(listOf(null, "Has String", null, "another"), StringMirror.nullable.list)
     }
 
     @Test
     fun reflective() {
-        test(Post(0, 42, "hello"), Post::class.type)
+        test(Post(0, 42, "hello"), SimpleJSONTestPostMirror)
     }
 
     @Test
     fun polymorphic() {
-        test(Post(0, 42, "hello"), Any::class.type)
-        test(listOf(Post(0, 42, "hello")), Any::class.type)
-        test(8, Any::class.type)
-        test("hello", Any::class.type)
+        test(Post(0, 42, "hello"), AnyMirror)
+        test(listOf(Post(0, 42, "hello")), AnyMirror)
+        test(8, AnyMirror)
+        test("hello", AnyMirror)
     }
 
     @Test
@@ -84,20 +80,20 @@ class SimpleJSONTest {
                 1L,
                 1f,
                 1.0
-        ), Any::class.type)
+        ), AnyMirror)
     }
 
     @Test
     fun enumTest(){
-        test(TestEnum.ValueA, TestEnum::class.type)
-        test(TestEnum.ValueB, TestEnum::class.type)
-        test(TestEnum.ValueC, TestEnum::class.type)
+        test(TestEnum.ValueA, SimpleJSONTestTestEnumMirror)
+        test(TestEnum.ValueB, SimpleJSONTestTestEnumMirror)
+        test(TestEnum.ValueC, SimpleJSONTestTestEnumMirror)
     }
 
     @Test
     fun reflectiveData(){
-        test(SimpleJSONTestPostClassInfo.fieldId, FieldInfo::class.type)
-        test(TestEnum::class, KClass::class.type)
+        test(SimpleJSONTestPostMirror.fieldId, MirrorClassFieldMirror)
+        test(SimpleJSONTestTestEnumMirror, MirrorClassMirror)
     }
 
     @Test
@@ -109,7 +105,7 @@ class SimpleJSONTest {
     "title": "sunt aut facere repellat provident occaecati excepturi optio reprehenderit",
     "body": "quia et suscipit\nsuscipit recusandae consequuntur expedita et cum\nreprehenderit molestiae ut ut quas totam\nnostrum rerum est autem sunt rem eveniet architecto"
   }"""
-        serializer.read(testData, Post::class.type)
+        Json.nonstrict.parse(SimpleJSONTestPostMirror, testData)
     }
 
     @Test
@@ -718,7 +714,7 @@ class SimpleJSONTest {
 ]
 
 """
-        val result = serializer.read(testData, Post::class.type.list)
+        val result = Json.parse(SimpleJSONTestPostMirror.list, testData)
         println(result.joinToString("\n"))
     }
 }

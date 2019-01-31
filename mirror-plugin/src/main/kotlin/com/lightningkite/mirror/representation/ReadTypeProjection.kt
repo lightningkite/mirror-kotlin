@@ -18,4 +18,7 @@ data class ReadTypeProjection(
             Variance.STAR -> "*"
         }
 
+    override fun toString(): String {
+        return type.toString()
+    }
 }

@@ -89,7 +89,7 @@ class SourceListener : KotlinParserBaseListener() {
     fun KotlinParser.AnnotationContext.convert(): AnnotationInfo {
         this.LabelReference()?.let {
             return AnnotationInfo(
-                    name = it.text,
+                    name = it.text.trimStart('@'),
                     arguments = this.valueArguments()?.valueArgument()?.map { it.text } ?: listOf(),
                     useSiteTarget = null
             )

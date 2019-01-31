@@ -48,6 +48,7 @@ class ReadClassInfo(
         Open,
         Interface,
         Inline,
+        Annotation,
         Object;
 
         companion object {
@@ -56,7 +57,7 @@ class ReadClassInfo(
     }
 
     val reflectionPackage: String @JsonIgnore get(){
-        return if(packageName.startsWith("kotlin")){
+        return if(packageName.startsWith("kotlin.")){
             "mirror.$packageName"
         } else packageName
     }
@@ -88,5 +89,5 @@ class ReadClassInfo(
     val qualifiedName: String
         @JsonIgnore get() = "$packageName.$accessName"
 
-    @JsonIgnore val fullImports = (imports + "com.lightningkite.mirror.info.*" + "kotlin.reflect.KClass" + "kotlinx.serialization.MissingFieldException").distinct()
+    @JsonIgnore val fullImports = (imports + "com.lightningkite.mirror.info.*" + "kotlin.reflect.KClass" + "kotlinx.serialization.*").distinct()
 }

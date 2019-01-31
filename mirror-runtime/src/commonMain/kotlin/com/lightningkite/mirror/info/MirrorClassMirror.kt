@@ -13,6 +13,13 @@ object MirrorClassMirror : MirrorClass<MirrorClass<*>>() {
             byClass[m.kClass] = m
         }
     }
+    fun retrieve(any: Any): MirrorClass<*>{
+        return byClass[any::class] ?: when (any) {
+            is List<*> -> ListMirror.minimal
+            is Map<*, *> -> MapMirror.minimal
+            else -> throw SerializationException("Cannot serialize ${any::class} because it is not registered.")
+        }
+    }
 
     override val typeParameters: Array<MirrorType<*>> get() = arrayOf()
     override val kClass: KClass<MirrorClass<*>> get() = MirrorClass::class
@@ -23,7 +30,7 @@ object MirrorClassMirror : MirrorClass<MirrorClass<*>>() {
     override val companion: Any? get() = null
     override fun deserialize(decoder: Decoder): MirrorClass<*> {
         val typeName = decoder.decodeString()
-        return byName[typeName] ?: throw SerializationException("Unknown type '$typeName', did you register it?")
+        return byName[typeName] ?: throw SerializationException("Unknown type name '$typeName', did you register it?")
     }
 
     override fun serialize(encoder: Encoder, obj: MirrorClass<*>) = encoder.encodeString(obj.name)

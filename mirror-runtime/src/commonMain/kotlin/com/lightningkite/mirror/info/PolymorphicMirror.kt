@@ -9,10 +9,9 @@ abstract class PolymorphicMirror<T: Any>: MirrorClass<T>() {
                         owner = this,
                         name = "type",
                         type = MirrorClassMirror,
-                        isOptional = false,
+                        optional = false,
                         get = {
-                            MirrorClassMirror.byClass[it::class]
-                                    ?: throw SerializationException("Unknown type '${it::class}', did you register it?")
+                            MirrorClassMirror.retrieve(it)
                         },
                         set = null,
                         annotations = listOf()
@@ -21,7 +20,7 @@ abstract class PolymorphicMirror<T: Any>: MirrorClass<T>() {
                         owner = this,
                         name = "value",
                         type = AnyMirror,
-                        isOptional = false,
+                        optional = false,
                         get = { it },
                         set = null,
                         annotations = listOf()
@@ -54,8 +53,7 @@ abstract class PolymorphicMirror<T: Any>: MirrorClass<T>() {
 
     override fun serialize(encoder: Encoder, obj: T) {
         val struct = encoder.beginStructure(this)
-        val mirror = MirrorClassMirror.byClass[obj::class]
-                ?: throw SerializationException("Unknown type '${obj::class}', did you register it?")
+        val mirror = MirrorClassMirror.retrieve(obj)
         struct.encodeSerializableElement(
                 desc = this,
                 index = 0,

@@ -14,10 +14,14 @@ data class ReadType(
             "") + if (nullable) "?" else ""
 
     override fun toString(): String {
+        val baseMirror = when{
+            kclass.startsWith("kotlin.") -> kclass.substringAfterLast('.') + "Mirror"
+            else -> kclass + "Mirror"
+        }
         return (if(typeArguments.isEmpty()) {
-            "${kclass}Mirror"
+            baseMirror
         } else {
-            "${kclass}Mirror(${typeArguments.joinToString()})"
+            "${baseMirror}(${typeArguments.joinToString()})"
         }).let{
             if(nullable){
                 it.plus(".nullable")
