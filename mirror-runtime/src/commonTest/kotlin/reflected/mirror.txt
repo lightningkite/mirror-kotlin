@@ -8,3 +8,8 @@ com.lightningkite.mirror.info.TestParent
 com.lightningkite.mirror.info.TestInterface
 com.lightningkite.mirror.info.TestChild
 com.lightningkite.mirror.info.TestAnotherInterface
+
+com.lightningkite.mirror.test.Zoo
+com.lightningkite.mirror.test.Attitude
+com.lightningkite.mirror.test.IntData
+com.lightningkite.mirror.test.Tree
