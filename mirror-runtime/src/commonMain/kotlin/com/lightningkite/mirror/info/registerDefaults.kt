@@ -18,6 +18,7 @@ fun registerDefaults() {
             MirrorClassFieldMirror,
             AnyMirror,
             ListMirror.minimal,
-            MapMirror.minimal
+            MapMirror.minimal,
+            SetMirror.minimal
     )
 }
