@@ -20,7 +20,7 @@ fun reflectTask(directories: List<File>) {
     val requestFiles = sourceDirectories.asSequence().flatMap {
         it.walkTopDown().filter { it.endsWith("mirror.txt") }
     }.map { mirrorTxtFile ->
-        val lines = mirrorTxtFile.readLines()
+        val lines = mirrorTxtFile.readLines().map { it.substringBefore("//") }
         val settings = lines.filter { it.contains('=') }
                 .associate { it.substringBefore('=').trim() to it.substringAfterLast('=').trim() }
         val otherLines = lines.filter { !it.contains('=') && it.isNotBlank() }
