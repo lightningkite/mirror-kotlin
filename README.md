@@ -70,6 +70,7 @@ apply plugin: 'com.lightningkite.mirror'
 
 repositories {
     maven { url 'https://dl.bintray.com/lightningkite/com.lightningkite.krosslin' }
+    maven { url "https://kotlin.bintray.com/kotlinx" }
     ...
 }
 ...
