@@ -1,5 +1,6 @@
 name = com.lightningkite.mirror.registerTest
 
+com.lightningkite.lokalize.time.TimeStamp
 com.lightningkite.recktangle.Point
 com.lightningkite.mirror.serialization.json.SimpleJSONTest.Post
 com.lightningkite.mirror.serialization.json.SimpleJSONTest.TestEnum

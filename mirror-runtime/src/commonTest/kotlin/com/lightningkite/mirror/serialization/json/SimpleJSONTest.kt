@@ -1,7 +1,11 @@
 package com.lightningkite.mirror.serialization.json
 
+import com.lightningkite.lokalize.time.TimeStamp
+import com.lightningkite.lokalize.time.TimeStampMirror
 import com.lightningkite.mirror.info.*
 import com.lightningkite.mirror.registerTest
+import com.lightningkite.recktangle.Point
+import com.lightningkite.recktangle.PointMirror
 import kotlinx.serialization.json.Json
 import kotlin.reflect.KClass
 import kotlin.test.Test
@@ -94,6 +98,16 @@ class SimpleJSONTest {
     fun reflectiveData(){
         test(SimpleJSONTestPostMirror.fieldId, MirrorClassFieldMirror)
         test(SimpleJSONTestTestEnumMirror, MirrorClassMirror)
+    }
+
+    @Test
+    fun externalClass() {
+        test(Point(1f, 2f), PointMirror)
+    }
+
+    @Test
+    fun inlinedClass() {
+        test(TimeStamp(41782934718L), TimeStampMirror)
     }
 
     @Test

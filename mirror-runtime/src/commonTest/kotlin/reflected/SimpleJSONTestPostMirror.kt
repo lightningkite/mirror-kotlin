@@ -3,6 +3,8 @@
 package com.lightningkite.mirror.serialization.json
 
 import com.lightningkite.mirror.registerTest
+import com.lightningkite.recktangle.Point
+import com.lightningkite.recktangle.PointMirror
 import kotlinx.serialization.json.Json
 import kotlin.reflect.KClass
 import kotlin.test.Test

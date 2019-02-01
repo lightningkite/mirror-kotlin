@@ -1,20 +1,26 @@
 package com.lightningkite.mirror.info
 
+import com.lightningkite.kommon.atomic.AtomicReference
 import kotlinx.serialization.*
 import kotlin.reflect.KClass
 
 object MirrorClassMirror : MirrorClass<MirrorClass<*>>() {
-    //TODO: Make compatible with native
-    val byName = HashMap<String, MirrorClass<*>>()
-    val byClass = HashMap<KClass<*>, MirrorClass<*>>()
+    class Index(
+            val byName: Map<String, MirrorClass<*>>,
+            val byClass: Map<KClass<*>, MirrorClass<*>>
+    )
+
+    val index = AtomicReference<Index>(Index(mapOf(), mapOf()))
     fun register(vararg mirror: MirrorClass<*>) {
-        for (m in mirror) {
-            byName[m.name] = m
-            byClass[m.kClass] = m
-        }
+        val current = index.value
+        index.value = Index(
+                byName = current.byName + mirror.associateBy { it.name },
+                byClass = current.byClass + mirror.associateBy { it.kClass }
+        )
     }
-    fun retrieve(any: Any): MirrorClass<*>{
-        return byClass[any::class] ?: when (any) {
+
+    fun retrieve(any: Any): MirrorClass<*> {
+        return index.value.byClass[any::class] ?: when (any) {
             is List<*> -> ListMirror.minimal
             is Map<*, *> -> MapMirror.minimal
             else -> throw SerializationException("Cannot serialize ${any::class} because it is not registered.")
@@ -30,7 +36,8 @@ object MirrorClassMirror : MirrorClass<MirrorClass<*>>() {
     override val companion: Any? get() = null
     override fun deserialize(decoder: Decoder): MirrorClass<*> {
         val typeName = decoder.decodeString()
-        return byName[typeName] ?: throw SerializationException("Unknown type name '$typeName', did you register it?")
+        return index.value.byName[typeName]
+                ?: throw SerializationException("Unknown type name '$typeName', did you register it?")
     }
 
     override fun serialize(encoder: Encoder, obj: MirrorClass<*>) = encoder.encodeString(obj.name)
