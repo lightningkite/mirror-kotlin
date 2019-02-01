@@ -43,15 +43,12 @@ repositories {
 
 gradlePlugin {
     plugins {
-        myPlugin {
+        mirrorPlugin {
             id = "com.lightningkite.mirror"
             implementationClass = "com.lightningkite.mirror.gradle.ReflectPlugin"
         }
     }
 }
-
-group 'com.lightningkite'
-version versionsProperties.getProperty(project.name)
 
 
 dependencies {
@@ -75,14 +72,19 @@ compileKotlin.dependsOn generateGrammarSource
 
 
 // Load `bintray.properties` file, if it exists. You can put your bintrayUser and bintrayApiKey values there, that file is ignored by git
-if (Files.exists(Paths.get("$project.rootDir/bintray.properties"))) {
+if (Files.exists(Paths.get("$project.rootDir/local.properties"))) {
     def localProperties = new Properties()
     localProperties.load(new FileInputStream("$project.rootDir/local.properties"))
     localProperties.each { prop -> project.ext.set(prop.key, prop.value) }
 }
-if (Files.exists(Paths.get("$project.rootDir/../bintray.properties"))) {
+if (Files.exists(Paths.get("$project.rootDir/../local.properties"))) {
     def localProperties = new Properties()
     localProperties.load(new FileInputStream("$project.rootDir/../local.properties"))
+    localProperties.each { prop -> project.ext.set(prop.key, prop.value) }
+}
+if (Files.exists(Paths.get("$project.rootDir/../../local.properties"))) {
+    def localProperties = new Properties()
+    localProperties.load(new FileInputStream("$project.rootDir/../../local.properties"))
     localProperties.each { prop -> project.ext.set(prop.key, prop.value) }
 }
 bintray {
@@ -104,5 +106,18 @@ bintray {
             vcsTag = project.version
             released = new Date()
         }
+    }
+}
+
+// This is for easier debugging of bintray uploading problems
+bintrayUpload.doFirst {
+    publications = project.publishing.publications.findAll {
+        !it.name.contains('-test') && it.name != 'kotlinMultiplatform'
+    }.collect {
+        println("Uploading artifact '$it.groupId:$it.artifactId:$it.version' from publication '$it.name'")
+        for (art in it.artifacts) {
+            println("ART: ${art.getFile()}")
+        }
+        it.name
     }
 }

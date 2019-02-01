@@ -2,6 +2,8 @@
 //AUTOMATICALLY GENERATED AND WILL BE OVERRIDDEN IF THIS MESSAGE IS PRESENT
 package com.lightningkite.mirror.serialization.json
 
+import com.lightningkite.lokalize.time.TimeStamp
+import com.lightningkite.lokalize.time.TimeStampMirror
 import com.lightningkite.mirror.registerTest
 import com.lightningkite.recktangle.Point
 import com.lightningkite.recktangle.PointMirror
