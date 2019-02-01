@@ -14,6 +14,5 @@ fun registerTest() = MirrorClassMirror.register(
     com.lightningkite.mirror.info.TestParentMirror,
     com.lightningkite.mirror.serialization.json.SimpleJSONTestTestEnumMirror,
     com.lightningkite.mirror.serialization.json.SimpleJSONTestPostMirror,
-    com.lightningkite.recktangle.PointMirror,
-    com.lightningkite.lokalize.time.TimeStampMirror
+        com.lightningkite.recktangle.PointMirror
 )
