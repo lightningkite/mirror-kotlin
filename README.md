@@ -147,6 +147,12 @@ When using the automatic reflective serializers, only fields that are introduced
 
 Write an implementation of `MirrorClass<T>` for your special object and place it anywhere you'd like inside your codebase *except* the directory where the normal Mirror files are output.
 
+
+## Contributing
+
+I'm happy for contributions!  It should be ready-to-build on your own machine, and I'll happily review PRs.
+
+
 ## Performance VS Plain Serialization
 
 ```
