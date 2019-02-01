@@ -25,7 +25,7 @@ You can then access the serializer and reflective data for a class by writing/im
 
 ## Limitations
 
-- The runtime doesn't work on Kotlin Native yet due to [KT-29635](https://youtrack.jetbrains.com/issue/KT-29635), a bug in the compiler.  May be my own fault, but I can't fix it if I don't know what's wrong.
+- Inline classes don't work on Kotlin Native yet due to [KT-29635](https://youtrack.jetbrains.com/issue/KT-29635), a bug in the compiler.  May be my own fault, but I can't fix it if I don't know what's wrong.
 - You cannot customize the serialized names of fields yet.
 - Annotations don't work the same, because you can't instantiate instances of annotations without cheating by bypassing the compiler.  Instead, when you get the annotations, they will return instances of `AnnotationNameMirror`, which have all of the same fields.
 - You must call some code to set up the polymorphic information, as explained below.
