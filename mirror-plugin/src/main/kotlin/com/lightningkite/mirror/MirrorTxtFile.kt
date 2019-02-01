@@ -1,5 +1,8 @@
 package com.lightningkite.mirror
 
+import com.lightningkite.mirror.output.writeAnnotation
+import com.lightningkite.mirror.output.writeMirror
+import com.lightningkite.mirror.representation.ReadClassInfo
 import java.io.File
 
 class MirrorTxtFile(
@@ -7,8 +10,8 @@ class MirrorTxtFile(
         val outputDirectory: File,
         val qualifiedNames: List<String>
 ) {
-    fun neededReflections(declarations: Map<String, ReadClassInfo>):List<String>{
-        val allNames = ArrayList<String>()
+    fun neededReflections(declarations: Map<String, ReadClassInfo>): List<ReadClassInfo> {
+        val allNames = ArrayList<ReadClassInfo>()
         val toCheck = ArrayList<String>()
         val alreadyAdded = hashSetOf(
                 "kotlin.reflect.KClass",
@@ -30,7 +33,6 @@ class MirrorTxtFile(
                 "kotlin.String",
                 "kotlin.collections.List",
                 "kotlin.collections.Map",
-                "kotlin.text.Regex",
                 "KClass",
                 "Any",
                 "Unit",
@@ -49,15 +51,14 @@ class MirrorTxtFile(
                 "Char",
                 "String",
                 "List",
-                "Map",
-                "Regex"
+                "Map"
         )
         toCheck.addAll(qualifiedNames)
         alreadyAdded.addAll(qualifiedNames)
-        while(toCheck.isNotEmpty()){
+        while (toCheck.isNotEmpty()) {
             val next = toCheck.removeAt(toCheck.lastIndex)
-            allNames.add(next)
             val declaration = declarations[next] ?: continue
+            allNames.add(declaration)
             val otherNames = declaration.fields.asSequence()
                     .map { it.type }
                     .plus(declaration.implements)
@@ -67,11 +68,11 @@ class MirrorTxtFile(
                     .map { it.kclass }
                     .filter { it.isNotBlank() }
                     .flatMap { kClass ->
-                        if(kClass[0].isUpperCase()){
+                        if (kClass[0].isUpperCase()) {
                             //It's a non-qualified name.
                             //We need to find it.
                             val immediate = declaration.imports.asSequence().find { it.endsWith(kClass) }
-                            if(immediate != null){
+                            if (immediate != null) {
                                 sequenceOf(immediate)
                             } else {
                                 declaration.imports.asSequence()
@@ -93,32 +94,77 @@ class MirrorTxtFile(
         return allNames
     }
 
-    fun reflectionsToWrite(declarations: Map<String, ReadClassInfo>, needed:List<String>):List<String>{
+    fun reflectionsToWrite(declarations: Map<String, ReadClassInfo>, needed: List<ReadClassInfo>): List<ReadClassInfo> {
         val classInfoNames = declarations.values.asSequence()
-                .filter { it.name.endsWith("ClassInfo") && it.fromFile?.parentFile != outputDirectory }
+                .filter { it.name.endsWith("Mirror") && it.fromFile?.parentFile != outputDirectory }
                 .map { it.name }
         return needed.filter {
-            declarations[it]?.reflectionName !in classInfoNames
+            it.reflectionName !in classInfoNames
         }
+    }
+
+    fun neededAnnotations(declarations: Map<String, ReadClassInfo>, declarationsToWrite: List<ReadClassInfo>): List<ReadClassInfo> {
+        return declarationsToWrite.asSequence()
+                .flatMap { declaration ->
+                    declaration.annotations.asSequence().flatMap { anno ->
+                        val kClass = anno.name
+                        if (kClass[0].isUpperCase()) {
+                            //It's a non-qualified name.
+                            //We need to find it.
+                            val immediate = declaration.imports.asSequence().find { it.endsWith(kClass) }
+                            if (immediate != null) {
+                                sequenceOf(immediate)
+                            } else {
+                                declaration.imports.asSequence()
+                                        .filter { it.endsWith('*') }
+                                        .map { it.removeSuffix("*").plus(kClass) }
+                                        .plus(declaration.packageName.plus(".").plus(kClass))
+                            }
+                        } else {
+                            //It's probably a qualified name.
+                            //We'll just take it.
+                            sequenceOf(kClass)
+                        }
+                    }
+                }
+                .distinct()
+                .mapNotNull { declarations[it] }
+                .toList()
     }
 
     fun output(
             declarations: Map<String, ReadClassInfo>
-    ){
+    ) {
         outputDirectory.mkdirs()
         val needed = neededReflections(declarations)
         val reflectionsToWrite = reflectionsToWrite(declarations, needed)
+        val neededAnnotations = neededAnnotations(declarations, reflectionsToWrite)
 
         val filesWritten = ArrayList<File>()
 
-        //Output the other files
-        for (decl in declarations.values) {
-            if(decl.qualifiedName !in reflectionsToWrite) continue
-            val written = decl.toString()
-            File(outputDirectory, decl.reflectionName + ".kt").let{
+        //Output the annotation implementations
+        for (decl in neededAnnotations) {
+            val written = buildString { TabWriter(this).writeAnnotation(decl) }
+            File(outputDirectory, decl.reflectionName + ".kt").let {
                 filesWritten.add(it)
-                if(it.exists()){
-                    if(it.readText() == written) {
+                if (it.exists()) {
+                    if (it.readText() == written) {
+                        println("Checked up-to-date ${decl.reflectionName}...")
+                        return@let
+                    }
+                }
+                println("Updating ${decl.reflectionName}...")
+                it.writeText(written)
+            }
+        }
+
+        //Output the mirrors
+        for (decl in reflectionsToWrite) {
+            val written = buildString { TabWriter(this).writeMirror(decl) }
+            File(outputDirectory, decl.reflectionName + ".kt").let {
+                filesWritten.add(it)
+                if (it.exists()) {
+                    if (it.readText() == written) {
                         println("Checked up-to-date ${decl.reflectionName}...")
                         return@let
                     }
@@ -135,13 +181,11 @@ class MirrorTxtFile(
         registryFile.writeText("""
         |package ${registryName.substringBeforeLast('.')}
         |
-        |import com.lightningkite.kommon.native.SharedImmutable
         |import com.lightningkite.mirror.info.*
         |import kotlin.reflect.KClass
         |
-        |@SharedImmutable
-        |val ${registryName.substringAfterLast('.')} = ClassInfoRegistry(
-        |${declarations.asSequence().filter { it.key in needed }.map { it.value.reflectionQualifiedName }.joinToString(",\n    ", "    ")}
+        |fun ${registryName.substringAfterLast('.')}() = MirrorClassMirror.register(
+        |${reflectionsToWrite.joinToString(",\n    ", "    "){it.reflectionQualifiedName}}
         |)
     """.trimMargin())
 

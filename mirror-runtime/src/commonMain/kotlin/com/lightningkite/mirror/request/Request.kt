@@ -1,4 +1,4 @@
-package com.lightningkite.mirror.request
-
-interface Request<T>
-
+//package com.lightningkite.mirror.request
+//
+//interface Request<T>
+//

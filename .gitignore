@@ -4,6 +4,8 @@ mirror-runtime/.gradle
 /build/
 *.iml
 
+local.properties
+
 .gradle
 
 # Ignore Gradle GUI config

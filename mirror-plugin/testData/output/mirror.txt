@@ -2,3 +2,6 @@ com.lightningkite.lokalize.TimeStamp
 test.DefaultsTest
 com.lightningkite.rekwest.server.User.Get
 com.lightningkite.mirror.archive.model.Sort
+kotlin.Pair
+test.Box
+test.AnnotatedClass

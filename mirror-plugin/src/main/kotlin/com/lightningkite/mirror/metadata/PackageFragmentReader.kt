@@ -1,6 +1,10 @@
 package com.lightningkite.mirror.metadata
 
-import com.lightningkite.mirror.*
+import com.lightningkite.mirror.representation.ReadClassInfo
+import com.lightningkite.mirror.representation.ReadFieldInfo
+import com.lightningkite.mirror.representation.ReadType
+import com.lightningkite.mirror.representation.ReadTypeParameter
+import com.lightningkite.mirror.representation.ReadTypeProjection
 import me.eugeniomarletti.kotlin.metadata.classKind
 import me.eugeniomarletti.kotlin.metadata.declaresDefaultValue
 import me.eugeniomarletti.kotlin.metadata.isDataClass
@@ -139,7 +143,7 @@ class PackageFragmentReader(val fragment: ProtoBuf.PackageFragment) {
                 props.add(ReadFieldInfo(
                         name = argName,
                         type = argType,
-                        isOptional = argument.declaresDefaultValue,
+                        optional = argument.declaresDefaultValue,
                         default = null
                 ))
             }
