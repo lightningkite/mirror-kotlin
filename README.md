@@ -108,6 +108,9 @@ kotlin.Pair
 my.packagename.MyCustomClass
 my.packagename.MyCustomEnum
 my.packagename.MyCustomInterface
+
+//Anything the given classes extends/implements or uses in a field is implicitly analyzed as well.
+
 ```
 
 You'll now be able to use the reflective information after running the Gradle `mirror` task like this:
