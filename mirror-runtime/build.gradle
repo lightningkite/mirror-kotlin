@@ -20,7 +20,7 @@ buildscript {
 apply plugin: 'kotlin-multiplatform'
 apply plugin: 'maven-publish'
 apply plugin: 'com.jfrog.bintray'
-apply plugin: 'com.lightningkite.mirror'
+//apply plugin: 'com.lightningkite.mirror'
 apply plugin: 'kotlinx-serialization'
 
 group 'com.lightningkite'
