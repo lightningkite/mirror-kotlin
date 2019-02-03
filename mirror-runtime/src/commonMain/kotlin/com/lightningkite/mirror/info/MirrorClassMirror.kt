@@ -1,7 +1,9 @@
 package com.lightningkite.mirror.info
 
 import com.lightningkite.kommon.atomic.AtomicReference
+import com.lightningkite.kommon.native.freeze
 import kotlinx.serialization.*
+import kotlin.native.concurrent.SharedImmutable
 import kotlin.reflect.KClass
 
 object MirrorClassMirror : MirrorClass<MirrorClass<*>>() {
@@ -10,13 +12,13 @@ object MirrorClassMirror : MirrorClass<MirrorClass<*>>() {
             val byClass: Map<KClass<*>, MirrorClass<*>>
     )
 
-    val index = AtomicReference<Index>(Index(mapOf(), mapOf()))
+    val index = AtomicReference<Index>(Index(mapOf(), mapOf()).freeze())
     fun register(vararg mirror: MirrorClass<*>) {
         val current = index.value
         index.value = Index(
                 byName = current.byName + mirror.associateBy { it.name },
                 byClass = current.byClass + mirror.associateBy { it.kClass }
-        )
+        ).freeze()
     }
 
     fun retrieve(any: Any): MirrorClass<*> {

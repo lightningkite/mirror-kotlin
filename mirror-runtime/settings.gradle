@@ -1,3 +1,0 @@
-rootProject.name = 'mirror-runtime'
-
-enableFeaturePreview('GRADLE_METADATA')

@@ -24,7 +24,7 @@ abstract class MirrorClass<Type : Any> : MirrorType<Type> {
     abstract val localName: String
     override val name: String get() = packageName + "." + localName
 
-    val nullable by lazy { NullableMirrorType(this) }
+    val nullable get() = NullableMirrorType(this)
 
     //Insert fields as `fieldX`
     abstract val fields: Array<Field<Type, *>>
