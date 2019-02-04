@@ -39,6 +39,8 @@ class Platform(
         return newPlat
     }
 
+    fun all(): Sequence<Platform> = sequenceOf(this) + children.asSequence().flatMap { it.all() }
+
     companion object {
         val common = Platform("common", publishName = "metadata", impliedDependencySetup = {
             add("commonMainImplementation", "org.jetbrains.kotlin:kotlin-stdlib-common")
@@ -86,39 +88,100 @@ class Platform(
             }
         }
     }
+
+    override fun hashCode(): Int = name.hashCode()
+    override fun equals(other: Any?): Boolean = other is Platform && other.name == name
 }
 
-class DependencyAddition(val dependencies: DependencyHandler, val type: String, val group: String = "", val artifactStart: String = "", val version: String) {
-    fun Platform.special(dependencyString: String) {
-        if (!this.worksOnMyPlatform()) return
-        dependencies.add("${this.name}$type", dependencyString)
-    }
+class ReleaseContext(
+        val forPlatforms: Array<Platform>,
+        val dependencies: DependencyHandler
+) {
+    val platformsUsed = forPlatforms.asSequence().flatMap { it.all() }.distinctBy { it.name }.toSet()
 
-    fun Platform.expected() {
-        if (!this.worksOnMyPlatform()) return
-        dependencies.add("${this.name}$type", "$group:$artifactStart-${this.publishName}:$version")
-    }
+    class DependencyAddition(
+            val context: ReleaseContext,
+            val type: String,
+            val group: String = "",
+            val artifactStart: String = "",
+            val version: String
+    ) {
+        fun Platform.special(dependencyString: String) {
+            if (!this.worksOnMyPlatform()) return
+            context.dependencies.add("${this.name}$type", dependencyString)
+        }
 
-    fun Platform.expectedWithChildren() {
-        if (!this.worksOnMyPlatform()) return
-        if (this.configure != null) expected()
-        else {
-            children.forEach {
-                it.expectedWithChildren()
-            }
-            if (this == Platform.common) {
-                expected()
+        fun Platform.expected() {
+            if (!this.worksOnMyPlatform()) return
+            context.dependencies.add("${this.name}$type", "$group:$artifactStart-${this.publishName}:$version")
+        }
+
+        fun Platform.expectedWithChildren() {
+            if (!this.worksOnMyPlatform()) return
+            if (this.configure != null) {
+                if (this in context.platformsUsed)
+                    expected()
+            } else {
+                children.forEach {
+                    it.expectedWithChildren()
+                }
+                if (this == Platform.common) {
+                    expected()
+                }
             }
         }
     }
+
+    fun mainImplementation(
+            group: String,
+            artifactStart: String,
+            version: String,
+            action: DependencyAddition.() -> Unit
+    ) = dependency(false, false, group, artifactStart, version, action)
+
+    fun testImplementation(
+            group: String,
+            artifactStart: String,
+            version: String,
+            action: DependencyAddition.() -> Unit
+    ) = dependency(false, true, group, artifactStart, version, action)
+
+    fun mainApi(
+            group: String,
+            artifactStart: String,
+            version: String,
+            action: DependencyAddition.() -> Unit
+    ) = dependency(true, false, group, artifactStart, version, action)
+
+    fun testApi(
+            group: String,
+            artifactStart: String,
+            version: String,
+            action: DependencyAddition.() -> Unit
+    ) = dependency(true, true, group, artifactStart, version, action)
+
+    fun dependency(
+            expose: Boolean = true,
+            testingOnly: Boolean = false,
+            group: String,
+            artifactStart: String,
+            version: String,
+            action: DependencyAddition.() -> Unit
+    ) {
+        DependencyAddition(
+                context = this,
+                type = (if (testingOnly) "Test" else "Main") + (if (expose) "Api" else "Implementation"),
+                group = group,
+                artifactStart = artifactStart,
+                version = version
+        ).apply(action)
+    }
 }
 
-fun DependencyHandler.mainImplementation(group: String, artifactStart: String, version: String, action: DependencyAddition.() -> Unit) = DependencyAddition(this, "MainImplementation", group, artifactStart, version).apply(action)
-fun DependencyHandler.testImplementation(group: String, artifactStart: String, version: String, action: DependencyAddition.() -> Unit) = DependencyAddition(this, "TestImplementation", group, artifactStart, version).apply(action)
-fun DependencyHandler.mainApi(group: String, artifactStart: String, version: String, action: DependencyAddition.() -> Unit) = DependencyAddition(this, "MainApi", group, artifactStart, version).apply(action)
-fun DependencyHandler.testApi(group: String, artifactStart: String, version: String, action: DependencyAddition.() -> Unit) = DependencyAddition(this, "TestApi", group, artifactStart, version).apply(action)
-
-fun KotlinMultiplatformExtension.releaseFor(vararg platforms: Platform) = platforms.forEach { releaseFor(it) }
+fun KotlinMultiplatformExtension.releaseFor(vararg platforms: Platform, action: ReleaseContext.() -> Unit = {}) {
+    platforms.forEach { releaseFor(it) }
+    ReleaseContext(platforms as Array<Platform>, dependencies).apply(action)
+}
 fun KotlinMultiplatformExtension.releaseFor(platform: Platform) {
     if (platform.configure != null) {
         platform.configure.invoke(this)
@@ -220,6 +283,7 @@ val versions = Properties().apply {
 
 buildscript {
     repositories {
+        mavenLocal()
         maven("https://dl.bintray.com/lightningkite/com.lightningkite.krosslin")
     }
     dependencies {
@@ -244,26 +308,40 @@ kotlin {
             Platform.linuxX64,
             Platform.mingwX64,
             Platform.nonNative
-    )
-}
-
-dependencies {
-    mainImplementation("com.lightningkite", "kommon", versions.getProperty("kommon")) {
-        Platform.common.expectedWithChildren()
-    }
-    mainApi("org.jetbrains.kotlinx", "kotlinx-serialization-runtime", versions.getProperty("kotlinx_serialization")) {
-        val v = versions.getProperty("kotlinx_serialization")
-        val start = "org.jetbrains.kotlinx:kotlinx-serialization-runtime"
-        Platform.common.special("$start-common:$v")
-        Platform.jvm.special("$start:$v")
-        Platform.js.special("$start-js:$v")
-        Platform.native.special("$start-native:$v")
-    }
-    testImplementation("com.lightningkite", "lokalize", versions.getProperty("lokalize")) {
-        Platform.common.expectedWithChildren()
-    }
-    testImplementation("com.lightningkite", "recktangle", versions.getProperty("recktangle")) {
-        Platform.common.expectedWithChildren()
+    ) {
+        mainApi(
+                group = "com.lightningkite",
+                artifactStart = "kommon",
+                version = versions.getProperty("kommon")
+        ) {
+            Platform.common.expectedWithChildren()
+        }
+        mainApi(
+                group = "org.jetbrains.kotlinx",
+                artifactStart = "kotlinx-serialization-runtime",
+                version = versions.getProperty("kotlinx_serialization")
+        ) {
+            val v = versions.getProperty("kotlinx_serialization")
+            val start = "org.jetbrains.kotlinx:kotlinx-serialization-runtime"
+            Platform.common.special("$start-common:$v")
+            Platform.jvm.special("$start:$v")
+            Platform.js.special("$start-js:$v")
+            Platform.native.special("$start-native:$v")
+        }
+        testApi(
+                group = "com.lightningkite",
+                artifactStart = "lokalize",
+                version = versions.getProperty("lokalize")
+        ) {
+            Platform.common.expectedWithChildren()
+        }
+        testApi(
+                group = "com.lightningkite",
+                artifactStart = "recktangle",
+                version = versions.getProperty("recktangle")
+        ) {
+            Platform.common.expectedWithChildren()
+        }
     }
 }
 
