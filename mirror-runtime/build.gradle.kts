@@ -34,6 +34,7 @@ val versions = Properties().apply {
 group = "com.lightningkite"
 version = versions.getProperty("mirror")
 
+project.doNotPublishMetadata()
 kotlin {
     sources {
         main {
