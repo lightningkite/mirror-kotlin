@@ -7,13 +7,16 @@ plugins {
 }
 
 buildscript {
+    val versions = java.util.Properties().apply {
+        load(project.file("versions.properties").inputStream())
+    }
     repositories {
         mavenLocal()
         maven("https://dl.bintray.com/lightningkite/com.lightningkite.krosslin")
     }
     dependencies {
         classpath("com.lightningkite:konvenience:+")
-        classpath("com.lightningkite:mirror-plugin:0.1.1")
+        classpath("com.lightningkite:mirror-plugin:${versions.getProperty("mirror")}")
     }
 }
 apply(plugin = "com.lightningkite.mirror")

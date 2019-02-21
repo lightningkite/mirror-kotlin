@@ -4,17 +4,34 @@ package com.lightningkite.mirror.gradle
 import com.lightningkite.mirror.reflectTask
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
+import java.io.File
 
 open class ReflectTask() : DefaultTask() {
 
-    init{
+    init {
         group = "build"
     }
 
     @TaskAction
     fun writeReflectiveFiles() {
+        val files = ArrayList<File>()
+        files.add(project.file("src"))
+        try {
+            for (config in project.configurations) {
+                for (file in config) {
+                    try {
+                        files.add(file)
+                    } catch (e: Throwable) {
+                        e.printStackTrace()
+                    }
+                }
+            }
+        } catch (e: Throwable) {
+            e.printStackTrace()
+        }
+        println("Files: $files")
         reflectTask(
-                directories = listOf(project.file("src")) + project.configurations.filter { it.isCanBeResolved }.flatMap { it }
+                directories = files
         )
     }
 

@@ -13,8 +13,7 @@ buildscript {
     }
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:${versionsProperties.kotlin}"
-        classpath "com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.0"
-        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.+'
+        classpath "com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.4"
     }
 }
 
@@ -58,7 +57,7 @@ compileJava {
 compileKotlin {
     sourceCompatibility = JavaVersion.VERSION_1_8
     targetCompatibility = JavaVersion.VERSION_1_8
-}
+}  
 
 
 dependencies {

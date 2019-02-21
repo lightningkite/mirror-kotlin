@@ -15,11 +15,10 @@ import kotlinx.serialization.*
 
 object SimpleJSONTestTestEnumMirror : MirrorEnum<SimpleJSONTest.TestEnum>() {
     @Suppress("UNCHECKED_CAST")
-    override val kClass: KClass<SimpleJSONTest.TestEnum>
-        get() = SimpleJSONTest.TestEnum::class as KClass<SimpleJSONTest.TestEnum>
+    override val kClass: KClass<SimpleJSONTest.TestEnum> get() = SimpleJSONTest.TestEnum::class as KClass<SimpleJSONTest.TestEnum>
     override val modifiers: Array<Modifier> get() = arrayOf()
     override val packageName: String get() = "com.lightningkite.mirror.serialization.json"
     override val localName: String get() = "SimpleJSONTest.TestEnum"
-    override val enumValues: Array<SimpleJSONTest.TestEnum> get() = arrayOf(SimpleJSONTest.TestEnum.ValueA, SimpleJSONTest.TestEnum.ValueB, SimpleJSONTest.TestEnum.ValueC)
+    override val enumValues: Array<SimpleJSONTest.TestEnum> get() = arrayOf(SimpleJSONTest.TestEnum.ValueA,SimpleJSONTest.TestEnum.ValueB,SimpleJSONTest.TestEnum.ValueC)
     override val owningClass: KClass<*>? get() = SimpleJSONTest::class
 }

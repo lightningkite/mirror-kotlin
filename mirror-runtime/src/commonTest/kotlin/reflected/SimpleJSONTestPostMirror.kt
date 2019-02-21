@@ -15,55 +15,54 @@ import kotlinx.serialization.*
 
 object SimpleJSONTestPostMirror : MirrorClass<SimpleJSONTest.Post>() {
     @Suppress("UNCHECKED_CAST")
-    override val kClass: KClass<SimpleJSONTest.Post>
-        get() = SimpleJSONTest.Post::class as KClass<SimpleJSONTest.Post>
+    override val kClass: KClass<SimpleJSONTest.Post> get() = SimpleJSONTest.Post::class as KClass<SimpleJSONTest.Post>
     override val modifiers: Array<Modifier> get() = arrayOf(Modifier.Data)
     override val packageName: String get() = "com.lightningkite.mirror.serialization.json"
     override val localName: String get() = "SimpleJSONTest.Post"
     override val owningClass: KClass<*>? get() = SimpleJSONTest::class
-
-    val fieldId: Field<SimpleJSONTest.Post, Long?> = Field(
-            owner = this,
-            name = "id",
-            type = LongMirror.nullable,
-            optional = true,
-            get = { it.id },
-            set = { it, value -> it.id = value },
-            annotations = listOf<Annotation>()
+    
+    val fieldId: Field<SimpleJSONTest.Post,Long?> = Field(
+        owner = this,
+        name = "id",
+        type = LongMirror.nullable,
+        optional = true,
+        get = { it.id },
+        set = { it, value -> it.id = value },
+        annotations = listOf<Annotation>()
     )
-
-    val fieldUserId: Field<SimpleJSONTest.Post, Long> = Field(
-            owner = this,
-            name = "userId",
-            type = LongMirror,
-            optional = true,
-            get = { it.userId },
-            set = { it, value -> it.userId = value },
-            annotations = listOf<Annotation>()
+    
+    val fieldUserId: Field<SimpleJSONTest.Post,Long> = Field(
+        owner = this,
+        name = "userId",
+        type = LongMirror,
+        optional = true,
+        get = { it.userId },
+        set = { it, value -> it.userId = value },
+        annotations = listOf<Annotation>()
     )
-
-    val fieldTitle: Field<SimpleJSONTest.Post, String> = Field(
-            owner = this,
-            name = "title",
-            type = StringMirror,
-            optional = true,
-            get = { it.title },
-            set = { it, value -> it.title = value },
-            annotations = listOf<Annotation>()
+    
+    val fieldTitle: Field<SimpleJSONTest.Post,String> = Field(
+        owner = this,
+        name = "title",
+        type = StringMirror,
+        optional = true,
+        get = { it.title },
+        set = { it, value -> it.title = value },
+        annotations = listOf<Annotation>()
     )
-
-    val fieldBody: Field<SimpleJSONTest.Post, String> = Field(
-            owner = this,
-            name = "body",
-            type = StringMirror,
-            optional = true,
-            get = { it.body },
-            set = { it, value -> it.body = value },
-            annotations = listOf<Annotation>()
+    
+    val fieldBody: Field<SimpleJSONTest.Post,String> = Field(
+        owner = this,
+        name = "body",
+        type = StringMirror,
+        optional = true,
+        get = { it.body },
+        set = { it, value -> it.body = value },
+        annotations = listOf<Annotation>()
     )
-
+    
     override val fields: Array<Field<SimpleJSONTest.Post, *>> = arrayOf(fieldId, fieldUserId, fieldTitle, fieldBody)
-
+    
     override fun deserialize(decoder: Decoder): SimpleJSONTest.Post {
         var idSet = false
         var fieldId: Long? = null
@@ -103,31 +102,30 @@ object SimpleJSONTestPostMirror : MirrorClass<SimpleJSONTest.Post>() {
                     fieldBody = decoderStructure.decodeStringElement(this, 3)
                     bodySet = true
                 }
-                else -> {
-                }
+                else -> {}
             }
         }
         decoderStructure.endStructure(this)
-        if (!idSet) {
+        if(!idSet) {
             fieldId = null
         }
-        if (!userIdSet) {
+        if(!userIdSet) {
             fieldUserId = 0
         }
-        if (!titleSet) {
+        if(!titleSet) {
             fieldTitle = ""
         }
-        if (!bodySet) {
+        if(!bodySet) {
             fieldBody = ""
         }
         return SimpleJSONTest.Post(
-                id = fieldId as Long?,
-                userId = fieldUserId as Long,
-                title = fieldTitle as String,
-                body = fieldBody as String
+            id = fieldId as Long?,
+            userId = fieldUserId as Long,
+            title = fieldTitle as String,
+            body = fieldBody as String
         )
     }
-
+    
     override fun serialize(encoder: Encoder, obj: SimpleJSONTest.Post) {
         val encoderStructure = encoder.beginStructure(this)
         encoderStructure.encodeSerializableElement(this, 0, LongMirror.nullable, obj.id)

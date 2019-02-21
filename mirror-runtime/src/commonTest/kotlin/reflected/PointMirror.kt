@@ -8,33 +8,32 @@ import kotlinx.serialization.*
 
 object PointMirror : MirrorClass<Point>() {
     @Suppress("UNCHECKED_CAST")
-    override val kClass: KClass<Point>
-        get() = Point::class as KClass<Point>
+    override val kClass: KClass<Point> get() = Point::class as KClass<Point>
     override val modifiers: Array<Modifier> get() = arrayOf(Modifier.Data)
     override val packageName: String get() = "com.lightningkite.recktangle"
     override val localName: String get() = "Point"
     override val companion: Any? get() = Point.Companion
-
-    val fieldX: Field<Point, kotlin.Float> = Field(
-            owner = this,
-            name = "x",
-            type = FloatMirror,
-            optional = true,
-            get = { it.x },
-            annotations = listOf<Annotation>()
+    
+    val fieldX: Field<Point,kotlin.Float> = Field(
+        owner = this,
+        name = "x",
+        type = FloatMirror,
+        optional = true,
+        get = { it.x },
+        annotations = listOf<Annotation>()
     )
-
-    val fieldY: Field<Point, kotlin.Float> = Field(
-            owner = this,
-            name = "y",
-            type = FloatMirror,
-            optional = true,
-            get = { it.y },
-            annotations = listOf<Annotation>()
+    
+    val fieldY: Field<Point,kotlin.Float> = Field(
+        owner = this,
+        name = "y",
+        type = FloatMirror,
+        optional = true,
+        get = { it.y },
+        annotations = listOf<Annotation>()
     )
-
+    
     override val fields: Array<Field<Point, *>> = arrayOf(fieldX, fieldY)
-
+    
     override fun deserialize(decoder: Decoder): Point {
         var xSet = false
         var fieldX: kotlin.Float? = null
@@ -58,26 +57,25 @@ object PointMirror : MirrorClass<Point>() {
                     fieldY = decoderStructure.decodeFloatElement(this, 1)
                     ySet = true
                 }
-                else -> {
-                }
+                else -> {}
             }
         }
         decoderStructure.endStructure(this)
-        if (!xSet) {
+        if(!xSet) {
             fieldX = Point(
             ).x
         }
-        if (!ySet) {
+        if(!ySet) {
             fieldY = Point(
-                    x = fieldX as kotlin.Float
+                x = fieldX as kotlin.Float
             ).y
         }
         return Point(
-                x = fieldX as kotlin.Float,
-                y = fieldY as kotlin.Float
+            x = fieldX as kotlin.Float,
+            y = fieldY as kotlin.Float
         )
     }
-
+    
     override fun serialize(encoder: Encoder, obj: Point) {
         val encoderStructure = encoder.beginStructure(this)
         encoderStructure.encodeFloatElement(this, 0, obj.x)
