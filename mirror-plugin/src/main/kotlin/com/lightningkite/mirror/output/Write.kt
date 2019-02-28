@@ -1,5 +1,6 @@
 package com.lightningkite.mirror.output
 
+import com.lightningkite.mirror.PolymorphicMirrorName
 import com.lightningkite.mirror.TabWriter
 import com.lightningkite.mirror.representation.ReadClassInfo
 import com.lightningkite.mirror.representation.ReadClassInfo.Companion.GENERATED_NOTICE
@@ -28,24 +29,24 @@ fun TabWriter.writeAnnotation(classInfo: ReadClassInfo) {
                 append(field.name)
                 append(": ")
                 append(field.type.use)
-                if(field.optional) {
+                if (field.optional) {
                     if (field.default != null) {
                         append(" = ")
                         append(field.default)
-                    } else if(field.type.nullable) {
+                    } else if (field.type.nullable) {
                         append(" = null")
-                    } else when(field.type.kclass){
-                        "Unit","kotlin.Unit" -> append(" = Unit")
-                        "Boolean","kotlin.Boolean" -> append(" = false")
-                        "Byte","kotlin.Byte" -> append(" = 0")
-                        "Short","kotlin.Short" -> append(" = 0")
-                        "Int","kotlin.Int" -> append(" = 0")
-                        "Long","kotlin.Long" -> append(" = 0L")
-                        "Float","kotlin.Float" -> append(" = 0f")
-                        "Double","kotlin.Double" -> append(" = 0L")
-                        "Char","kotlin.Char" -> append(" = ' '")
+                    } else when (field.type.kclass) {
+                        "Unit", "kotlin.Unit" -> append(" = Unit")
+                        "Boolean", "kotlin.Boolean" -> append(" = false")
+                        "Byte", "kotlin.Byte" -> append(" = 0")
+                        "Short", "kotlin.Short" -> append(" = 0")
+                        "Int", "kotlin.Int" -> append(" = 0")
+                        "Long", "kotlin.Long" -> append(" = 0L")
+                        "Float", "kotlin.Float" -> append(" = 0f")
+                        "Double", "kotlin.Double" -> append(" = 0L")
+                        "Char", "kotlin.Char" -> append(" = ' '")
                         "String", "kotlin.String" -> append(" = \"\"")
-                        "KClass", "kotlin.reflect.KClass" -> when(classInfo.qualifiedName){
+                        "KClass", "kotlin.reflect.KClass" -> when (classInfo.qualifiedName) {
                             "kotlinx.serialization.Serializable" -> append(" = KSerializer::class")
                         }
                     }
@@ -57,7 +58,7 @@ fun TabWriter.writeAnnotation(classInfo: ReadClassInfo) {
         }
     }
     line("): MirrorAnnotation {")
-    tab{
+    tab {
         line("override val annotationType: KClass<out Annotation> get() = ${classInfo.accessName}::class")
         line("override fun asMap(): Map<String, Any?> = mapOf(")
         tab {
@@ -79,17 +80,17 @@ fun TabWriter.writeAnnotation(classInfo: ReadClassInfo) {
 }
 
 fun ReadFieldInfo.toReadString(index: Int): String {
-    return if(!this.type.nullable) {
-        when(val kclass = this.type.kclass){
-            "Unit","kotlin.Unit",
-            "Boolean","kotlin.Boolean",
-            "Byte","kotlin.Byte",
-            "Short","kotlin.Short",
-            "Int","kotlin.Int",
-            "Long","kotlin.Long",
-            "Float","kotlin.Float",
-            "Double","kotlin.Double",
-            "Char","kotlin.Char",
+    return if (!this.type.nullable) {
+        when (val kclass = this.type.kclass) {
+            "Unit", "kotlin.Unit",
+            "Boolean", "kotlin.Boolean",
+            "Byte", "kotlin.Byte",
+            "Short", "kotlin.Short",
+            "Int", "kotlin.Int",
+            "Long", "kotlin.Long",
+            "Float", "kotlin.Float",
+            "Double", "kotlin.Double",
+            "Char", "kotlin.Char",
             "String", "kotlin.String" -> buildString {
                 append(fieldName)
                 append(" = decoderStructure.decode${kclass.removePrefix("kotlin.")}Element(this, ")
@@ -119,21 +120,21 @@ fun ReadFieldInfo.toReadString(index: Int): String {
 
 fun ReadFieldInfo.toWriteString(index: Int): String {
     // encodeSerializableElement(this@PairClassInfo, 0, typeA, obj.first)
-    return if(!this.type.nullable) {
-        when(val kclass = this.type.kclass){
-            "Unit","kotlin.Unit" -> buildString {
+    return if (!this.type.nullable) {
+        when (val kclass = this.type.kclass) {
+            "Unit", "kotlin.Unit" -> buildString {
                 append("encoderStructure.encodeUnitElement(this, ")
                 append(index.toString())
                 append(")")
             }
-            "Boolean","kotlin.Boolean",
-            "Byte","kotlin.Byte",
-            "Short","kotlin.Short",
-            "Int","kotlin.Int",
-            "Long","kotlin.Long",
-            "Float","kotlin.Float",
-            "Double","kotlin.Double",
-            "Char","kotlin.Char",
+            "Boolean", "kotlin.Boolean",
+            "Byte", "kotlin.Byte",
+            "Short", "kotlin.Short",
+            "Int", "kotlin.Int",
+            "Long", "kotlin.Long",
+            "Float", "kotlin.Float",
+            "Double", "kotlin.Double",
+            "Char", "kotlin.Char",
             "String", "kotlin.String" -> buildString {
                 append("encoderStructure.encode${kclass.removePrefix("kotlin.")}Element(this, ")
                 append(index.toString())
@@ -164,6 +165,25 @@ fun ReadFieldInfo.toWriteString(index: Int): String {
     }
 }
 
+fun ReadClassInfo.fullImportsWithMirrors(): List<String> {
+    val i = ArrayList(fullImports)
+    val mirrors = implements.map { it.kclass } +
+            fields.map { it.type.kclass } +
+            fields.flatMap { it.annotations.map { it.name } } +
+            annotations.map { it.name }
+    for (m in mirrors) {
+        val matching = i.find { it.endsWith(m) }
+        if (matching != null) {
+            if (matching.startsWith("kotlin.")) {
+                i.add("mirror." + matching + "Mirror")
+            } else {
+                i.add(matching + "Mirror")
+            }
+        }
+    }
+    return i.distinct()
+}
+
 fun TabWriter.writeMirror(classInfo: ReadClassInfo) = when {
     ReadClassInfo.Modifier.Abstract in classInfo.modifiers ||
             ReadClassInfo.Modifier.Sealed in classInfo.modifiers ||
@@ -180,7 +200,7 @@ fun TabWriter.writeInterfaceMirror(classInfo: ReadClassInfo) = with(classInfo) {
     line("//$GENERATED_NOTICE")
     line("package ${classInfo.reflectionPackage}")
     line()
-    for (import in classInfo.fullImports) {
+    for (import in classInfo.fullImportsWithMirrors()) {
         line("import $import")
     }
     line()
@@ -206,7 +226,7 @@ fun TabWriter.writeInterfaceMirror(classInfo: ReadClassInfo) = with(classInfo) {
             }
         }
         line {
-            append(") : PolymorphicMirror<")
+            append(") : $PolymorphicMirrorName<")
             append(classInfo.accessNameWithArguments)
             append(">() {")
         }
@@ -234,7 +254,7 @@ fun TabWriter.writeInterfaceMirror(classInfo: ReadClassInfo) = with(classInfo) {
         line {
             append("object ")
             append(reflectionName)
-            append(" : PolymorphicMirror<")
+            append(" : $PolymorphicMirrorName<")
             append(classInfo.accessName)
             append(">() {")
         }
@@ -259,6 +279,7 @@ fun TabWriter.writeInterfaceMirror(classInfo: ReadClassInfo) = with(classInfo) {
             append(")")
         }
 
+        line("override val implements: Array<MirrorClass<*>> get() = arrayOf(${classInfo.implements.joinToString()})")
         line("override val packageName: String get() = \"${classInfo.packageName}\"")
         line("override val localName: String get() = \"${classInfo.accessName}\"")
         if (classInfo.owner != null) {
@@ -286,7 +307,7 @@ fun TabWriter.writeEnumMirror(classInfo: ReadClassInfo) = with(classInfo) {
     line("//$GENERATED_NOTICE")
     line("package ${classInfo.reflectionPackage}")
     line()
-    for (import in classInfo.fullImports) {
+    for (import in classInfo.fullImportsWithMirrors()) {
         line("import $import")
     }
     line()
@@ -371,11 +392,11 @@ fun TabWriter.writeEnumMirror(classInfo: ReadClassInfo) = with(classInfo) {
             append("override val enumValues: Array<")
             append(classInfo.accessNameWithArguments)
             append("> get() = arrayOf(")
-            for((index, value) in classInfo.enumValues!!.withIndex()){
+            for ((index, value) in classInfo.enumValues!!.withIndex()) {
                 append(accessName)
                 append(".")
                 append(value)
-                if(index != classInfo.enumValues.lastIndex){
+                if (index != classInfo.enumValues.lastIndex) {
                     append(",")
                 }
             }
@@ -406,9 +427,11 @@ fun TabWriter.writeNormalMirror(classInfo: ReadClassInfo) = with(classInfo) {
     line("//$GENERATED_NOTICE")
     line("package ${classInfo.reflectionPackage}")
     line()
-    for (import in classInfo.fullImports) {
+    for (import in classInfo.fullImportsWithMirrors()) {
         line("import $import")
     }
+    //Additional mirrors loaded here
+
     line()
     if (typeParameters.isNotEmpty()) {
         line {
@@ -487,6 +510,7 @@ fun TabWriter.writeNormalMirror(classInfo: ReadClassInfo) = with(classInfo) {
 
         line("override val packageName: String get() = \"${classInfo.packageName}\"")
         line("override val localName: String get() = \"${classInfo.accessName}\"")
+        line("override val implements: Array<MirrorClass<*>> get() = arrayOf(${classInfo.implements.joinToString()})")
         if (classInfo.owner != null) {
             line("override val owningClass: KClass<*>? get() = ${classInfo.owner}::class")
         }
@@ -557,8 +581,8 @@ fun TabWriter.writeNormalMirror(classInfo: ReadClassInfo) = with(classInfo) {
             //Retrieve the values
             line {
                 append("val decoderStructure = decoder.beginStructure(this")
-                if(typeParameters.isNotEmpty()){
-                    for(t in typeParameters){
+                if (typeParameters.isNotEmpty()) {
+                    for (t in typeParameters) {
                         append(", ")
                         append(t.name + "Mirror")
                     }
@@ -566,13 +590,13 @@ fun TabWriter.writeNormalMirror(classInfo: ReadClassInfo) = with(classInfo) {
                 append(")")
             }
             line("loop@ while (true) {")
-            tab{
+            tab {
                 line("when (decoderStructure.decodeElementIndex(this)) {")
-                tab{
+                tab {
                     line("CompositeDecoder.READ_ALL -> {")
-                    tab{
+                    tab {
                         //all reads in order
-                        for((index, field) in classInfo.fields.withIndex()){
+                        for ((index, field) in classInfo.fields.withIndex()) {
                             line(field.toReadString(index))
                             line("${field.name}Set = true")
                         }
@@ -580,7 +604,7 @@ fun TabWriter.writeNormalMirror(classInfo: ReadClassInfo) = with(classInfo) {
                     line("}")
                     line("CompositeDecoder.READ_DONE -> break@loop")
                     //all reads prefixed with # ->
-                    for((index, field) in classInfo.fields.withIndex()){
+                    for ((index, field) in classInfo.fields.withIndex()) {
                         line("$index -> {")
                         tab {
                             line(field.toReadString(index))
@@ -606,7 +630,7 @@ fun TabWriter.writeNormalMirror(classInfo: ReadClassInfo) = with(classInfo) {
                     line("}")
                 } else if (field.type.nullable) {
                     //Oh good, let's just use null if it's not there
-                } else if(field.optional) {
+                } else if (field.optional) {
                     //Well... I guess we'll retrieve it by calling the constructor an extra time.
                     line("if(!${field.name}Set) {")
                     tab {
@@ -618,20 +642,20 @@ fun TabWriter.writeNormalMirror(classInfo: ReadClassInfo) = with(classInfo) {
                         }
                         tab {
                             val fieldsSoFar = requiredFields + optionalFields.subList(0, index)
-                            for((subindex, subfield) in fieldsSoFar.withIndex()){
-                                line{
+                            for ((subindex, subfield) in fieldsSoFar.withIndex()) {
+                                line {
                                     append(subfield.name)
                                     append(" = ")
                                     append(subfield.fieldName)
                                     append(" as ")
                                     append(subfield.type.use)
-                                    if(subindex != fieldsSoFar.lastIndex){
+                                    if (subindex != fieldsSoFar.lastIndex) {
                                         append(",")
                                     }
                                 }
                             }
                         }
-                        line{
+                        line {
                             append(").")
                             append(field.name)
                         }
@@ -639,7 +663,7 @@ fun TabWriter.writeNormalMirror(classInfo: ReadClassInfo) = with(classInfo) {
                     line("}")
                 } else {
                     line("if(!${field.name}Set) {")
-                    tab{
+                    tab {
                         line("throw MissingFieldException(\"${field.name}\")")
                     }
                     line("}")
@@ -653,14 +677,14 @@ fun TabWriter.writeNormalMirror(classInfo: ReadClassInfo) = with(classInfo) {
                 append("(")
             }
             tab {
-                for((index, field) in fields.withIndex()){
-                    line{
+                for ((index, field) in fields.withIndex()) {
+                    line {
                         append(field.name)
                         append(" = ")
                         append(field.fieldName)
                         append(" as ")
                         append(field.type.use)
-                        if(index != fields.lastIndex){
+                        if (index != fields.lastIndex) {
                             append(",")
                         }
                     }
@@ -673,7 +697,7 @@ fun TabWriter.writeNormalMirror(classInfo: ReadClassInfo) = with(classInfo) {
 
         line()
 
-        line{
+        line {
             append("override fun serialize(encoder: Encoder, obj: ")
             append(classInfo.accessNameWithArguments)
             append(") {")
@@ -681,15 +705,15 @@ fun TabWriter.writeNormalMirror(classInfo: ReadClassInfo) = with(classInfo) {
         tab {
             line {
                 append("val encoderStructure = encoder.beginStructure(this")
-                if(typeParameters.isNotEmpty()){
-                    for(t in typeParameters){
+                if (typeParameters.isNotEmpty()) {
+                    for (t in typeParameters) {
                         append(", ")
                         append(t.name + "Mirror")
                     }
                 }
                 append(")")
             }
-            for((index, field) in classInfo.fields.withIndex()){
+            for ((index, field) in classInfo.fields.withIndex()) {
                 line(field.toWriteString(index))
             }
             line("encoderStructure.endStructure(this)")

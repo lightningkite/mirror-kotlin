@@ -12,6 +12,7 @@ object DefaultsTestMirror : MirrorClass<DefaultsTest>() {
     override val modifiers: Array<Modifier> get() = arrayOf(Modifier.Data)
     override val packageName: String get() = "test"
     override val localName: String get() = "DefaultsTest"
+    override val implements: Array<MirrorClass<*>> get() = arrayOf()
     
     val fieldX: Field<DefaultsTest,Int> = Field(
         owner = this,

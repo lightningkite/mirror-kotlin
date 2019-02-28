@@ -12,6 +12,7 @@ object PointMirror : MirrorClass<Point>() {
     override val modifiers: Array<Modifier> get() = arrayOf(Modifier.Data)
     override val packageName: String get() = "com.lightningkite.recktangle"
     override val localName: String get() = "Point"
+    override val implements: Array<MirrorClass<*>> get() = arrayOf(AnyMirror)
     override val companion: Any? get() = Point.Companion
     
     val fieldX: Field<Point,kotlin.Float> = Field(

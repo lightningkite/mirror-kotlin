@@ -12,6 +12,7 @@ object AnnotatedClassMirror : MirrorClass<AnnotatedClass>() {
     override val modifiers: Array<Modifier> get() = arrayOf(Modifier.Data)
     override val packageName: String get() = "test"
     override val localName: String get() = "AnnotatedClass"
+    override val implements: Array<MirrorClass<*>> get() = arrayOf()
     override val annotations: List<Annotation> = listOf(CustomAnnotationMirror())
     
     val fieldY: Field<AnnotatedClass,String> = Field(

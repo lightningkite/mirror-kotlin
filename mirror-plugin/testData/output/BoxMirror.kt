@@ -20,6 +20,7 @@ class BoxMirror<T: Number>(
     override val modifiers: Array<Modifier> get() = arrayOf(Modifier.Data)
     override val packageName: String get() = "test"
     override val localName: String get() = "Box"
+    override val implements: Array<MirrorClass<*>> get() = arrayOf(TestInterfaceMirror)
     
     val fieldValue: Field<Box<T>,T> = Field(
         owner = this,

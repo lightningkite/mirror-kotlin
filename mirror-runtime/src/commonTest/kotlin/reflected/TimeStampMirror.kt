@@ -12,6 +12,7 @@ object TimeStampMirror : MirrorClass<TimeStamp>() {
     override val modifiers: Array<Modifier> get() = arrayOf(Modifier.Inline)
     override val packageName: String get() = "com.lightningkite.lokalize.time"
     override val localName: String get() = "TimeStamp"
+    override val implements: Array<MirrorClass<*>> get() = arrayOf(ComparableMirror(com.lightningkite.lokalize.time.TimeStampMirror))
     override val companion: Any? get() = TimeStamp.Companion
     
     val fieldMillisecondsSinceEpoch: Field<TimeStamp,kotlin.Long> = Field(

@@ -1,0 +1,4 @@
+name = com.lightningkite.mirror.server.registerMirrorServerTest
+com.lightningkite.mirror.server.test.ThrowExceptionRequest
+com.lightningkite.mirror.server.test.PingRequest
+com.lightningkite.mirror.request.RemoteExceptionData

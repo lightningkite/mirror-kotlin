@@ -184,8 +184,8 @@ class MirrorTxtFile(
         |import com.lightningkite.mirror.info.*
         |import kotlin.reflect.KClass
         |
-        |fun ${registryName.substringAfterLast('.')}() = MirrorClassMirror.register(
-        |${reflectionsToWrite.joinToString(",\n    ", "    "){it.reflectionQualifiedName}}
+        |fun ${registryName.substringAfterLast('.')}() = MirrorRegistry.register(
+        |${reflectionsToWrite.joinToString(",\n    ", "    ") { it.reflectionQualifiedNameMin }}
         |)
     """.trimMargin())
 

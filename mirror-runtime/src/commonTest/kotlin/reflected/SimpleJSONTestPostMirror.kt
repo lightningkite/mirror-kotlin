@@ -19,6 +19,7 @@ object SimpleJSONTestPostMirror : MirrorClass<SimpleJSONTest.Post>() {
     override val modifiers: Array<Modifier> get() = arrayOf(Modifier.Data)
     override val packageName: String get() = "com.lightningkite.mirror.serialization.json"
     override val localName: String get() = "SimpleJSONTest.Post"
+    override val implements: Array<MirrorClass<*>> get() = arrayOf()
     override val owningClass: KClass<*>? get() = SimpleJSONTest::class
     
     val fieldId: Field<SimpleJSONTest.Post,Long?> = Field(

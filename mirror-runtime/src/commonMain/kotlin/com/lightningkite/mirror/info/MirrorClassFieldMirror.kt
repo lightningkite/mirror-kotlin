@@ -15,7 +15,7 @@ object MirrorClassFieldMirror: MirrorClass<MirrorClass.Field<*, *>>() {
         val text = decoder.decodeString()
         val ownerName = text.substringBeforeLast('.')
         val fieldName = text.substringAfterLast('.')
-        val owner = MirrorClassMirror.index.value.byName[ownerName]
+        val owner = MirrorRegistry[ownerName]
                 ?: throw SerializationException("Unknown type name '$ownerName', did you register it?")
         val fieldIndex = owner.fieldsIndex[fieldName] ?: throw SerializationException("Type '$ownerName' has no field $fieldName")
         return owner.fields[fieldIndex]

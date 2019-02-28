@@ -2,7 +2,7 @@ package com.lightningkite.mirror.info
 
 import kotlinx.serialization.*
 
-abstract class PolymorphicMirror<T: Any>: MirrorClass<T>() {
+abstract class PolymorphicMirror<T : Any> : MirrorClass<T>() {
     override val fields: Array<Field<T, *>>
         get() = arrayOf(
                 Field(
@@ -11,7 +11,7 @@ abstract class PolymorphicMirror<T: Any>: MirrorClass<T>() {
                         type = MirrorClassMirror,
                         optional = false,
                         get = {
-                            MirrorClassMirror.retrieve(it)
+                            MirrorRegistry.retrieve(it)
                         },
                         set = null,
                         annotations = listOf()
@@ -53,7 +53,7 @@ abstract class PolymorphicMirror<T: Any>: MirrorClass<T>() {
 
     override fun serialize(encoder: Encoder, obj: T) {
         val struct = encoder.beginStructure(this)
-        val mirror = MirrorClassMirror.retrieve(obj)
+        val mirror = MirrorRegistry.retrieve(obj)
         struct.encodeSerializableElement(
                 desc = this,
                 index = 0,
