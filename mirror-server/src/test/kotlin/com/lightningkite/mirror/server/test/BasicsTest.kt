@@ -56,7 +56,6 @@ class BasicsTest {
             val converter = MirrorStringSerializerConverter(serializer, ContentType.Application.Json)
             register(converter.contentType, converter)
         }
-        PartData
         install(StatusPages) {
             status(HttpStatusCode.NotFound) {
                 call.respond("Nothing here")

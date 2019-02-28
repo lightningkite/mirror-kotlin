@@ -1,5 +1,6 @@
 include ':mirror-plugin'
 include ':mirror-runtime'
+include ':mirror-ktor'
 include ':mirror-server'
 
 enableFeaturePreview('GRADLE_METADATA')
