@@ -24,6 +24,9 @@ fun reflectTask(directories: List<File>) {
         val settings = lines.filter { it.contains('=') }
                 .associate { it.substringBefore('=').trim() to it.substringAfterLast('=').trim() }
         val otherLines = lines.filter { !it.contains('=') && it.isNotBlank() }
+        settings["polymorphicMirror"]?.let {
+            PolymorphicMirrorName = it
+        }
         settings["polymorphicSerializer"]?.let {
             PolymorphicMirrorName = it
         }
