@@ -1,0 +1,12 @@
+name = com.lightningkite.mirror.info.__ignore_register_annotations
+
+com.lightningkite.mirror.info.MaxSize
+com.lightningkite.mirror.info.Indexed
+com.lightningkite.mirror.info.ForceUnique
+com.lightningkite.mirror.info.Subtype
+com.lightningkite.mirror.info.NiceName
+com.lightningkite.mirror.info.Description
+com.lightningkite.mirror.info.Ignore
+com.lightningkite.mirror.info.Mutates
+com.lightningkite.mirror.info.ExternalName
+com.lightningkite.mirror.info.ThrowsTypes

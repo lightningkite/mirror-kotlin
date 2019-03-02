@@ -55,7 +55,7 @@ fun allDeclarations(directories: List<File>, jarsToInspect: List<File>): Map<Str
             .disable(DeserializationFeature.FAIL_ON_IGNORED_PROPERTIES)
             .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
 
-    val mirrorCacheFile = File("build/mirror-cache-v2.json")
+    val mirrorCacheFile = File("build/mirror-cache.json")
     mirrorCacheFile.parentFile.mkdirs()
     val cacheType =object : TypeReference<Map<String, SourceFileRead>>() {}
     val previousDeclarations: Map<String, SourceFileRead> = mirrorCacheFile

@@ -1,0 +1,5 @@
+name = com.lightningkite.mirror.request.registerRequests
+
+com.lightningkite.mirror.request.Request
+com.lightningkite.mirror.request.RemoteExceptionData
+com.lightningkite.mirror.request.RemoteResult

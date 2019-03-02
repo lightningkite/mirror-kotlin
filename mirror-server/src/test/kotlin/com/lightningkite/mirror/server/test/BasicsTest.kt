@@ -5,12 +5,13 @@ import com.lightningkite.kommon.exception.stackTraceString
 import com.lightningkite.mirror.KtorRequestHandlerFactory
 import com.lightningkite.mirror.MirrorStringSerializerConverter
 import com.lightningkite.mirror.PrincipalWrapper
-import com.lightningkite.mirror.info.ListMirror
-import com.lightningkite.mirror.info.MirrorRegistry
-import com.lightningkite.mirror.info.StringMirror
+import com.lightningkite.mirror.info.*
 import com.lightningkite.mirror.mirrorRequest
 import com.lightningkite.mirror.request.RemoteExceptionData
 import com.lightningkite.mirror.request.Request
+import com.lightningkite.mirror.request.RequestMirror
+import com.lightningkite.mirror.request.RemoteResultMirror
+import com.lightningkite.mirror.request.registerRequests
 import com.lightningkite.mirror.server.registerMirrorServerTest
 import io.ktor.application.Application
 import kotlinx.serialization.json.Json
@@ -39,6 +40,7 @@ class BasicsTest {
     val serializer = Json()
 
     init {
+        registerRequests()
         registerMirrorServerTest()
         with(handler) {
             ThrowExceptionRequest::class.invocation = {
@@ -84,7 +86,7 @@ class BasicsTest {
     fun throwing() = withTestApplication(setupTestApplication) {
         println("Beginning test")
         with(handleRequest(HttpMethod.Post, "/request") {
-            val body = serializer.stringify(MirrorRegistry[Request::class]!!, ThrowExceptionRequest())
+            val body = serializer.stringify(RequestMirror.minimal, ThrowExceptionRequest() as Request<Any?>)
             println(body)
             addHeader(HttpHeaders.ContentType, ContentType.Application.Json.toString())
             addHeader(HttpHeaders.Accept, ContentType.Application.Json.toString())
@@ -92,7 +94,7 @@ class BasicsTest {
         }) {
             println("out: " + response.status())
             println("out: " + response.content)
-            val out = serializer.parse(MirrorRegistry[RemoteExceptionData::class]!!, response.content ?: "")
+            val out = serializer.parse(RemoteResultMirror(UnitMirror), response.content ?: "")
             println("out: " + out)
         }
     }
@@ -101,7 +103,7 @@ class BasicsTest {
     fun pinging() = withTestApplication(setupTestApplication) {
         println("Beginning test")
         with(handleRequest(HttpMethod.Post, "/request") {
-            val body = serializer.stringify(MirrorRegistry[Request::class]!!, PingRequest("Joseph"))
+            val body = serializer.stringify(RequestMirror.minimal, PingRequest("Joseph") as Request<Any?>)
             println(body)
             addHeader(HttpHeaders.ContentType, ContentType.Application.Json.toString())
             addHeader(HttpHeaders.Accept, ContentType.Application.Json.toString())
@@ -109,7 +111,7 @@ class BasicsTest {
         }) {
             println("out: " + response.status())
             println("out: " + response.content)
-            val out = serializer.parse(StringMirror, response.content ?: "")
+            val out = serializer.parse(RemoteResultMirror(StringMirror), response.content ?: "")
             println("out: " + out)
         }
     }

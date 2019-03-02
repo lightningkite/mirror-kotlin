@@ -122,6 +122,7 @@ class SourceListener : KotlinParserBaseListener() {
                         when {
                             it.DATA() != null -> ReadClassInfo.Modifier.Data
                             it.SEALED() != null -> ReadClassInfo.Modifier.Sealed
+                            it.ANNOTATION() != null -> ReadClassInfo.Modifier.Annotation
                             else -> null
                         }
                     } ?: it.inheritanceModifier()?.let {

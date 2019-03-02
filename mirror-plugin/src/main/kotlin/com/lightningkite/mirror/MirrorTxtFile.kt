@@ -138,28 +138,12 @@ class MirrorTxtFile(
         outputDirectory.mkdirs()
         val needed = neededReflections(declarations)
         val reflectionsToWrite = reflectionsToWrite(declarations, needed)
-        val neededAnnotations = neededAnnotations(declarations, reflectionsToWrite)
+        val allReflectionsToWrite = neededAnnotations(declarations, reflectionsToWrite) + reflectionsToWrite
 
         val filesWritten = ArrayList<File>()
 
-        //Output the annotation implementations
-        for (decl in neededAnnotations) {
-            val written = buildString { TabWriter(this).writeAnnotation(decl) }
-            File(outputDirectory, decl.reflectionName + ".kt").let {
-                filesWritten.add(it)
-                if (it.exists()) {
-                    if (it.readText() == written) {
-                        println("Checked up-to-date ${decl.reflectionName}...")
-                        return@let
-                    }
-                }
-                println("Updating ${decl.reflectionName}...")
-                it.writeText(written)
-            }
-        }
-
         //Output the mirrors
-        for (decl in reflectionsToWrite) {
+        for (decl in allReflectionsToWrite) {
             val written = buildString { TabWriter(this).writeMirror(decl) }
             File(outputDirectory, decl.reflectionName + ".kt").let {
                 filesWritten.add(it)
@@ -185,7 +169,7 @@ class MirrorTxtFile(
         |import kotlin.reflect.KClass
         |
         |fun ${registryName.substringAfterLast('.')}() = MirrorRegistry.register(
-        |${reflectionsToWrite.joinToString(",\n    ", "    ") { it.reflectionQualifiedNameMin }}
+        |${allReflectionsToWrite.filter { ReadClassInfo.Modifier.Annotation !in it.modifiers }.joinToString(",\n    ", "    ") { it.reflectionQualifiedNameMin }}
         |)
     """.trimMargin())
 

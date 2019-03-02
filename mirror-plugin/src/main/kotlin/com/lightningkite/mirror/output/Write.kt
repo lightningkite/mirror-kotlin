@@ -18,7 +18,11 @@ fun TabWriter.writeAnnotation(classInfo: ReadClassInfo) {
     }
     line()
     line {
-        append("data class ")
+        if (classInfo.fields.isNotEmpty()) {
+            append("data class ")
+        } else {
+            append("class ")
+        }
         append(classInfo.accessName)
         append("Mirror(")
     }
@@ -185,6 +189,7 @@ fun ReadClassInfo.fullImportsWithMirrors(): List<String> {
 }
 
 fun TabWriter.writeMirror(classInfo: ReadClassInfo) = when {
+    ReadClassInfo.Modifier.Annotation in classInfo.modifiers -> writeAnnotation(classInfo)
     ReadClassInfo.Modifier.Abstract in classInfo.modifiers ||
             ReadClassInfo.Modifier.Sealed in classInfo.modifiers ||
             ReadClassInfo.Modifier.Interface in classInfo.modifiers -> {

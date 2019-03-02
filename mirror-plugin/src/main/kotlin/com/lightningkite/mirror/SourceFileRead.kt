@@ -8,6 +8,6 @@ data class SourceFileRead(
         val version: Int = VERSION
 ) {
     companion object {
-        const val VERSION = 3
+        const val VERSION = 4
     }
 }
