@@ -7,7 +7,7 @@ import kotlin.reflect.KClass
 import kotlinx.serialization.*
 
 class IndexedMirror(
-) : MirrorAnnotation {
+): MirrorAnnotation {
     override val annotationType: KClass<out Annotation> get() = Indexed::class
     override fun asMap(): Map<String, Any?> = mapOf(
     )

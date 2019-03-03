@@ -7,10 +7,10 @@ import kotlin.reflect.KClass
 import kotlinx.serialization.*
 
 data class IgnoreMirror(
-        val forIdentifiers: Array<String>
-) : MirrorAnnotation {
+    val forIdentifiers: Array<String>
+): MirrorAnnotation {
     override val annotationType: KClass<out Annotation> get() = Ignore::class
     override fun asMap(): Map<String, Any?> = mapOf(
-            "forIdentifiers" to forIdentifiers
+        "forIdentifiers" to forIdentifiers
     )
 }

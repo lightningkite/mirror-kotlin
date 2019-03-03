@@ -7,10 +7,10 @@ import kotlin.reflect.KClass
 import kotlinx.serialization.*
 
 data class SubtypeMirror(
-        val detail: String
-) : MirrorAnnotation {
+    val detail: String
+): MirrorAnnotation {
     override val annotationType: KClass<out Annotation> get() = Subtype::class
     override fun asMap(): Map<String, Any?> = mapOf(
-            "detail" to detail
+        "detail" to detail
     )
 }

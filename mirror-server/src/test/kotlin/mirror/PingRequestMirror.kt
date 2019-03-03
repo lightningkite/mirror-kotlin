@@ -11,24 +11,23 @@ import com.lightningkite.mirror.request.RequestMirror
 
 object PingRequestMirror : MirrorClass<PingRequest>() {
     @Suppress("UNCHECKED_CAST")
-    override val kClass: KClass<PingRequest>
-        get() = PingRequest::class as KClass<PingRequest>
+    override val kClass: KClass<PingRequest> get() = PingRequest::class as KClass<PingRequest>
     override val modifiers: Array<Modifier> get() = arrayOf()
     override val packageName: String get() = "com.lightningkite.mirror.server.test"
     override val localName: String get() = "PingRequest"
     override val implements: Array<MirrorClass<*>> get() = arrayOf(RequestMirror(StringMirror))
-
-    val fieldName: Field<PingRequest, String> = Field(
-            owner = this,
-            name = "name",
-            type = StringMirror,
-            optional = false,
-            get = { it.name },
-            annotations = listOf<Annotation>()
+    
+    val fieldName: Field<PingRequest,String> = Field(
+        owner = this,
+        name = "name",
+        type = StringMirror,
+        optional = false,
+        get = { it.name },
+        annotations = listOf<Annotation>()
     )
-
+    
     override val fields: Array<Field<PingRequest, *>> = arrayOf(fieldName)
-
+    
     override fun deserialize(decoder: Decoder): PingRequest {
         var nameSet = false
         var fieldName: String? = null
@@ -44,19 +43,18 @@ object PingRequestMirror : MirrorClass<PingRequest>() {
                     fieldName = decoderStructure.decodeStringElement(this, 0)
                     nameSet = true
                 }
-                else -> {
-                }
+                else -> {}
             }
         }
         decoderStructure.endStructure(this)
-        if (!nameSet) {
+        if(!nameSet) {
             throw MissingFieldException("name")
         }
         return PingRequest(
-                name = fieldName as String
+            name = fieldName as String
         )
     }
-
+    
     override fun serialize(encoder: Encoder, obj: PingRequest) {
         val encoderStructure = encoder.beginStructure(this)
         encoderStructure.encodeStringElement(this, 0, obj.name)

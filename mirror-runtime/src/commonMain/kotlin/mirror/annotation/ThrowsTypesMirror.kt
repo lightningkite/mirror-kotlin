@@ -7,10 +7,10 @@ import kotlin.reflect.KClass
 import kotlinx.serialization.*
 
 data class ThrowsTypesMirror(
-        val exceptionTypes: String
-) : MirrorAnnotation {
+    val exceptionTypes: String
+): MirrorAnnotation {
     override val annotationType: KClass<out Annotation> get() = ThrowsTypes::class
     override fun asMap(): Map<String, Any?> = mapOf(
-            "exceptionTypes" to exceptionTypes
+        "exceptionTypes" to exceptionTypes
     )
 }

@@ -7,10 +7,10 @@ import kotlin.reflect.KClass
 import kotlinx.serialization.*
 
 data class DescriptionMirror(
-        val description: String
-) : MirrorAnnotation {
+    val description: String
+): MirrorAnnotation {
     override val annotationType: KClass<out Annotation> get() = Description::class
     override fun asMap(): Map<String, Any?> = mapOf(
-            "description" to description
+        "description" to description
     )
 }

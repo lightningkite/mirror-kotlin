@@ -7,7 +7,7 @@ import kotlin.reflect.KClass
 import kotlinx.serialization.*
 
 class MutatesMirror(
-) : MirrorAnnotation {
+): MirrorAnnotation {
     override val annotationType: KClass<out Annotation> get() = Mutates::class
     override fun asMap(): Map<String, Any?> = mapOf(
     )

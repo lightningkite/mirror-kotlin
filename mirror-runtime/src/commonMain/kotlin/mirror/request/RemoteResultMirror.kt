@@ -6,43 +6,42 @@ import com.lightningkite.mirror.info.*
 import kotlin.reflect.KClass
 import kotlinx.serialization.*
 
-class RemoteResultMirror<T : Any?>(
-        val TMirror: MirrorType<T>
+class RemoteResultMirror<T: Any?>(
+    val TMirror: MirrorType<T>
 ) : MirrorClass<RemoteResult<T>>() {
-
+    
     companion object {
         val minimal = RemoteResultMirror(AnyMirror.nullable)
     }
-
+    
     override val typeParameters: Array<MirrorType<*>> get() = arrayOf(TMirror)
     @Suppress("UNCHECKED_CAST")
-    override val kClass: KClass<RemoteResult<T>>
-        get() = RemoteResult::class as KClass<RemoteResult<T>>
+    override val kClass: KClass<RemoteResult<T>> get() = RemoteResult::class as KClass<RemoteResult<T>>
     override val modifiers: Array<Modifier> get() = arrayOf(Modifier.Data)
     override val packageName: String get() = "com.lightningkite.mirror.request"
     override val localName: String get() = "RemoteResult"
     override val implements: Array<MirrorClass<*>> get() = arrayOf()
-
-    val fieldResultOrNull: Field<RemoteResult<T>, T?> = Field(
-            owner = this,
-            name = "resultOrNull",
-            type = TMirror.nullable,
-            optional = true,
-            get = { it.resultOrNull },
-            annotations = listOf<Annotation>()
+    
+    val fieldResultOrNull: Field<RemoteResult<T>,T?> = Field(
+        owner = this,
+        name = "resultOrNull",
+        type = TMirror.nullable,
+        optional = true,
+        get = { it.resultOrNull },
+        annotations = listOf<Annotation>()
     )
-
-    val fieldException: Field<RemoteResult<T>, RemoteExceptionData?> = Field(
-            owner = this,
-            name = "exception",
-            type = RemoteExceptionDataMirror.nullable,
-            optional = true,
-            get = { it.exception },
-            annotations = listOf<Annotation>()
+    
+    val fieldException: Field<RemoteResult<T>,RemoteExceptionData?> = Field(
+        owner = this,
+        name = "exception",
+        type = RemoteExceptionDataMirror.nullable,
+        optional = true,
+        get = { it.exception },
+        annotations = listOf<Annotation>()
     )
-
+    
     override val fields: Array<Field<RemoteResult<T>, *>> = arrayOf(fieldResultOrNull, fieldException)
-
+    
     override fun deserialize(decoder: Decoder): RemoteResult<T> {
         var resultOrNullSet = false
         var fieldResultOrNull: T? = null
@@ -66,23 +65,22 @@ class RemoteResultMirror<T : Any?>(
                     fieldException = decoderStructure.decodeSerializableElement(this, 1, RemoteExceptionDataMirror.nullable)
                     exceptionSet = true
                 }
-                else -> {
-                }
+                else -> {}
             }
         }
         decoderStructure.endStructure(this)
-        if (!resultOrNullSet) {
+        if(!resultOrNullSet) {
             fieldResultOrNull = null
         }
-        if (!exceptionSet) {
+        if(!exceptionSet) {
             fieldException = null
         }
         return RemoteResult<T>(
-                resultOrNull = fieldResultOrNull as T?,
-                exception = fieldException as RemoteExceptionData?
+            resultOrNull = fieldResultOrNull as T?,
+            exception = fieldException as RemoteExceptionData?
         )
     }
-
+    
     override fun serialize(encoder: Encoder, obj: RemoteResult<T>) {
         val encoderStructure = encoder.beginStructure(this, TMirror)
         encoderStructure.encodeSerializableElement(this, 0, TMirror.nullable, obj.resultOrNull)

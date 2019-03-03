@@ -8,55 +8,54 @@ import kotlinx.serialization.*
 
 object RemoteExceptionDataMirror : MirrorClass<RemoteExceptionData>() {
     @Suppress("UNCHECKED_CAST")
-    override val kClass: KClass<RemoteExceptionData>
-        get() = RemoteExceptionData::class as KClass<RemoteExceptionData>
+    override val kClass: KClass<RemoteExceptionData> get() = RemoteExceptionData::class as KClass<RemoteExceptionData>
     override val modifiers: Array<Modifier> get() = arrayOf()
     override val packageName: String get() = "com.lightningkite.mirror.request"
     override val localName: String get() = "RemoteExceptionData"
     override val implements: Array<MirrorClass<*>> get() = arrayOf()
-
-    val fieldType: Field<RemoteExceptionData, String> = Field(
-            owner = this,
-            name = "type",
-            type = StringMirror,
-            optional = true,
-            get = { it.type },
-            set = { it, value -> it.type = value },
-            annotations = listOf<Annotation>()
+    
+    val fieldType: Field<RemoteExceptionData,String> = Field(
+        owner = this,
+        name = "type",
+        type = StringMirror,
+        optional = true,
+        get = { it.type },
+        set = { it, value -> it.type = value },
+        annotations = listOf<Annotation>()
     )
-
-    val fieldMessage: Field<RemoteExceptionData, String> = Field(
-            owner = this,
-            name = "message",
-            type = StringMirror,
-            optional = true,
-            get = { it.message },
-            set = { it, value -> it.message = value },
-            annotations = listOf<Annotation>()
+    
+    val fieldMessage: Field<RemoteExceptionData,String> = Field(
+        owner = this,
+        name = "message",
+        type = StringMirror,
+        optional = true,
+        get = { it.message },
+        set = { it, value -> it.message = value },
+        annotations = listOf<Annotation>()
     )
-
-    val fieldTrace: Field<RemoteExceptionData, String> = Field(
-            owner = this,
-            name = "trace",
-            type = StringMirror,
-            optional = true,
-            get = { it.trace },
-            set = { it, value -> it.trace = value },
-            annotations = listOf<Annotation>()
+    
+    val fieldTrace: Field<RemoteExceptionData,String> = Field(
+        owner = this,
+        name = "trace",
+        type = StringMirror,
+        optional = true,
+        get = { it.trace },
+        set = { it, value -> it.trace = value },
+        annotations = listOf<Annotation>()
     )
-
-    val fieldData: Field<RemoteExceptionData, Any?> = Field(
-            owner = this,
-            name = "data",
-            type = AnyMirror.nullable,
-            optional = true,
-            get = { it.data },
-            set = { it, value -> it.data = value },
-            annotations = listOf<Annotation>()
+    
+    val fieldData: Field<RemoteExceptionData,Any?> = Field(
+        owner = this,
+        name = "data",
+        type = AnyMirror.nullable,
+        optional = true,
+        get = { it.data },
+        set = { it, value -> it.data = value },
+        annotations = listOf<Annotation>()
     )
-
+    
     override val fields: Array<Field<RemoteExceptionData, *>> = arrayOf(fieldType, fieldMessage, fieldTrace, fieldData)
-
+    
     override fun deserialize(decoder: Decoder): RemoteExceptionData {
         var typeSet = false
         var fieldType: String? = null
@@ -96,31 +95,30 @@ object RemoteExceptionDataMirror : MirrorClass<RemoteExceptionData>() {
                     fieldData = decoderStructure.decodeSerializableElement(this, 3, AnyMirror.nullable)
                     dataSet = true
                 }
-                else -> {
-                }
+                else -> {}
             }
         }
         decoderStructure.endStructure(this)
-        if (!typeSet) {
+        if(!typeSet) {
             fieldType = ""
         }
-        if (!messageSet) {
+        if(!messageSet) {
             fieldMessage = ""
         }
-        if (!traceSet) {
+        if(!traceSet) {
             fieldTrace = ""
         }
-        if (!dataSet) {
+        if(!dataSet) {
             fieldData = null
         }
         return RemoteExceptionData(
-                type = fieldType as String,
-                message = fieldMessage as String,
-                trace = fieldTrace as String,
-                data = fieldData as Any?
+            type = fieldType as String,
+            message = fieldMessage as String,
+            trace = fieldTrace as String,
+            data = fieldData as Any?
         )
     }
-
+    
     override fun serialize(encoder: Encoder, obj: RemoteExceptionData) {
         val encoderStructure = encoder.beginStructure(this)
         encoderStructure.encodeStringElement(this, 0, obj.type)

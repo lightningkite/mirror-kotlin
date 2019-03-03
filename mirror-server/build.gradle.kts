@@ -44,6 +44,7 @@ dependencies {
 //    compile("com.lightningkite:mirror-runtime:${versions.getProperty("mirror")}")
     compile(project(":kommon"))
     compile(project(":mirror-runtime"))
+    compile(project(":mirror-ktor"))
     compile("io.ktor:ktor-server-core:${versions.getProperty("ktor")}")
     compile("io.ktor:ktor-auth:${versions.getProperty("ktor")}")
     compile("io.ktor:ktor-websockets:${versions.getProperty("ktor")}")

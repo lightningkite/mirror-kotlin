@@ -25,7 +25,6 @@ class HttpClientRequestHandler(
                     value = request,
                     contentType = contentType
             )
-            contentType(contentType)
             accept(contentType)
         }
         @Suppress("UNCHECKED_CAST") val raw = serializer.ktorResponse(

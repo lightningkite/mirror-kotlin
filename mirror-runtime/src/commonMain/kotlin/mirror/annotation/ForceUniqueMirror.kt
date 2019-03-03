@@ -7,7 +7,7 @@ import kotlin.reflect.KClass
 import kotlinx.serialization.*
 
 class ForceUniqueMirror(
-) : MirrorAnnotation {
+): MirrorAnnotation {
     override val annotationType: KClass<out Annotation> get() = ForceUnique::class
     override fun asMap(): Map<String, Any?> = mapOf(
     )

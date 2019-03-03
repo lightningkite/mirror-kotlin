@@ -7,10 +7,10 @@ import kotlin.reflect.KClass
 import kotlinx.serialization.*
 
 data class MaxSizeMirror(
-        val length: Int
-) : MirrorAnnotation {
+    val length: Int
+): MirrorAnnotation {
     override val annotationType: KClass<out Annotation> get() = MaxSize::class
     override fun asMap(): Map<String, Any?> = mapOf(
-            "length" to length
+        "length" to length
     )
 }

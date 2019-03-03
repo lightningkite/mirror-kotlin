@@ -12,16 +12,15 @@ import com.lightningkite.mirror.info.ThrowsTypesMirror
 
 object ThrowExceptionRequestMirror : MirrorClass<ThrowExceptionRequest>() {
     @Suppress("UNCHECKED_CAST")
-    override val kClass: KClass<ThrowExceptionRequest>
-        get() = ThrowExceptionRequest::class as KClass<ThrowExceptionRequest>
+    override val kClass: KClass<ThrowExceptionRequest> get() = ThrowExceptionRequest::class as KClass<ThrowExceptionRequest>
     override val modifiers: Array<Modifier> get() = arrayOf()
     override val packageName: String get() = "com.lightningkite.mirror.server.test"
     override val localName: String get() = "ThrowExceptionRequest"
     override val implements: Array<MirrorClass<*>> get() = arrayOf(RequestMirror(UnitMirror))
     override val annotations: List<Annotation> = listOf(ThrowsTypesMirror("ForbiddenException"))
-
+    
     override val fields: Array<Field<ThrowExceptionRequest, *>> = arrayOf()
-
+    
     override fun deserialize(decoder: Decoder): ThrowExceptionRequest {
         val decoderStructure = decoder.beginStructure(this)
         loop@ while (true) {
@@ -29,15 +28,14 @@ object ThrowExceptionRequestMirror : MirrorClass<ThrowExceptionRequest>() {
                 CompositeDecoder.READ_ALL -> {
                 }
                 CompositeDecoder.READ_DONE -> break@loop
-                else -> {
-                }
+                else -> {}
             }
         }
         decoderStructure.endStructure(this)
         return ThrowExceptionRequest(
         )
     }
-
+    
     override fun serialize(encoder: Encoder, obj: ThrowExceptionRequest) {
         val encoderStructure = encoder.beginStructure(this)
         encoderStructure.endStructure(this)
