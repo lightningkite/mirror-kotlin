@@ -16,6 +16,7 @@ class ReadClassInfo(
         val fields: List<ReadFieldInfo> = listOf(),
         val hasCompanion: Boolean = false
 ) {
+    val mirrorAnnotations get() = annotations.filter { it.name != "Suppress" }
 
     var fromFile: File? = null
 

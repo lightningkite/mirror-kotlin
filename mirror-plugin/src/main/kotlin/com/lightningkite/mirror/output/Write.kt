@@ -188,15 +188,19 @@ fun ReadClassInfo.fullImportsWithMirrors(): List<String> {
     return i.distinct()
 }
 
-fun TabWriter.writeMirror(classInfo: ReadClassInfo) = when {
-    ReadClassInfo.Modifier.Annotation in classInfo.modifiers -> writeAnnotation(classInfo)
-    ReadClassInfo.Modifier.Abstract in classInfo.modifiers ||
-            ReadClassInfo.Modifier.Sealed in classInfo.modifiers ||
-            ReadClassInfo.Modifier.Interface in classInfo.modifiers -> {
-        writeInterfaceMirror(classInfo)
+fun TabWriter.writeMirror(classInfo: ReadClassInfo) {
+    println("Writing ${classInfo.qualifiedName}")
+    return when {
+        ReadClassInfo.Modifier.Object in classInfo.modifiers -> writeObjectMirror(classInfo)
+        ReadClassInfo.Modifier.Annotation in classInfo.modifiers -> writeAnnotation(classInfo)
+        ReadClassInfo.Modifier.Abstract in classInfo.modifiers ||
+                ReadClassInfo.Modifier.Sealed in classInfo.modifiers ||
+                ReadClassInfo.Modifier.Interface in classInfo.modifiers -> {
+            writeInterfaceMirror(classInfo)
+        }
+        classInfo.enumValues != null -> writeEnumMirror(classInfo)
+        else -> writeNormalMirror(classInfo)
     }
-    classInfo.enumValues != null -> writeEnumMirror(classInfo)
-    else -> writeNormalMirror(classInfo)
 }
 
 fun TabWriter.writeInterfaceMirror(classInfo: ReadClassInfo) = with(classInfo) {
@@ -293,10 +297,10 @@ fun TabWriter.writeInterfaceMirror(classInfo: ReadClassInfo) = with(classInfo) {
         if (classInfo.hasCompanion) {
             line("override val companion: Any? get() = ${classInfo.accessName}.Companion")
         }
-        if (classInfo.annotations.isNotEmpty()) {
+        if (classInfo.mirrorAnnotations.isNotEmpty()) {
             line {
                 append("override val annotations: List<Annotation> = listOf(")
-                append(classInfo.annotations.joinToString { it.name + "Mirror" + "(" + it.arguments.joinToString() + ")" })
+                append(classInfo.mirrorAnnotations.joinToString { it.name + "Mirror" + "(" + it.arguments.joinToString() + ")" })
                 append(")")
             }
         }
@@ -413,10 +417,10 @@ fun TabWriter.writeEnumMirror(classInfo: ReadClassInfo) = with(classInfo) {
         if (classInfo.hasCompanion) {
             line("override val companion: Any? get() = ${classInfo.accessName}.Companion")
         }
-        if (classInfo.annotations.isNotEmpty()) {
+        if (classInfo.mirrorAnnotations.isNotEmpty()) {
             line {
                 append("override val annotations: List<Annotation> = listOf(")
-                append(classInfo.annotations.joinToString { it.name + "Mirror" + "(" + it.arguments.joinToString() + ")" })
+                append(classInfo.mirrorAnnotations.joinToString { it.name + "Mirror" + "(" + it.arguments.joinToString() + ")" })
                 append(")")
             }
         }
@@ -442,7 +446,7 @@ fun TabWriter.writeNormalMirror(classInfo: ReadClassInfo) = with(classInfo) {
         line {
             append("class ")
             append(reflectionName)
-            append(typeParameters.joinToString(", ", "<", ">") { it.name + ": " + it.projection.useMinimumBound(classInfo) })
+            append(typeParameters.joinToString(", ", "<", ">") { it.name + ": " + it.projection.use })
             append("(")
         }
         tab {
@@ -522,10 +526,10 @@ fun TabWriter.writeNormalMirror(classInfo: ReadClassInfo) = with(classInfo) {
         if (classInfo.hasCompanion) {
             line("override val companion: Any? get() = ${classInfo.accessName}.Companion")
         }
-        if (classInfo.annotations.isNotEmpty()) {
+        if (classInfo.mirrorAnnotations.isNotEmpty()) {
             line {
                 append("override val annotations: List<Annotation> = listOf(")
-                append(classInfo.annotations.joinToString { it.name + "Mirror" + "(" + it.arguments.joinToString() + ")" })
+                append(classInfo.mirrorAnnotations.joinToString { it.name + "Mirror" + "(" + it.arguments.joinToString() + ")" })
                 append(")")
             }
         }
@@ -553,7 +557,7 @@ fun TabWriter.writeNormalMirror(classInfo: ReadClassInfo) = with(classInfo) {
                 }
                 line {
                     append("annotations = listOf<Annotation>(")
-                    append(classInfo.annotations.joinToString { it.name + "Mirror" + "(" + it.arguments.joinToString() + ")" })
+                    append(classInfo.mirrorAnnotations.joinToString { it.name + "Mirror" + "(" + it.arguments.joinToString() + ")" })
                     append(")")
                 }
             }
@@ -605,6 +609,7 @@ fun TabWriter.writeNormalMirror(classInfo: ReadClassInfo) = with(classInfo) {
                             line(field.toReadString(index))
                             line("${field.name}Set = true")
                         }
+                        line("break@loop")
                     }
                     line("}")
                     line("CompositeDecoder.READ_DONE -> break@loop")
@@ -724,6 +729,68 @@ fun TabWriter.writeNormalMirror(classInfo: ReadClassInfo) = with(classInfo) {
             line("encoderStructure.endStructure(this)")
         }
         line("}")
+    }
+
+    line("}")
+}
+
+fun TabWriter.writeObjectMirror(classInfo: ReadClassInfo) = with(classInfo) {
+
+    line("//Generated by Lightning Kite's Mirror plugin")
+    line("//$GENERATED_NOTICE")
+    line("package ${classInfo.reflectionPackage}")
+    line()
+    for (import in classInfo.fullImportsWithMirrors()) {
+        line("import $import")
+    }
+    //Additional mirrors loaded here
+
+    line()
+    line {
+        append("object ")
+        append(reflectionName)
+        append(" : MirrorObject<")
+        append(classInfo.accessName)
+        append(">(")
+        append(classInfo.accessName)
+        append(") {")
+    }
+
+    tab {
+
+        line("""@Suppress("UNCHECKED_CAST")""")
+        line {
+            append("override val kClass: KClass<")
+            append(classInfo.accessNameWithArguments)
+            append("> get() = ")
+            append(classInfo.accessName)
+            append("::class as KClass<")
+            append(classInfo.accessNameWithArguments)
+            append(">")
+        }
+
+        line {
+            append("override val modifiers: Array<Modifier> get() = arrayOf(")
+            append(modifiers.joinToString { "Modifier." + it.name })
+            append(")")
+        }
+
+        line("override val packageName: String get() = \"${classInfo.packageName}\"")
+        line("override val localName: String get() = \"${classInfo.accessName}\"")
+        line("override val implements: Array<MirrorClass<*>> get() = arrayOf(${classInfo.implements.joinToString()})")
+        if (classInfo.owner != null) {
+            line("override val owningClass: KClass<*>? get() = ${classInfo.owner}::class")
+        }
+        if (classInfo.mirrorAnnotations.isNotEmpty()) {
+            line {
+                append("override val annotations: List<Annotation> = listOf(")
+                append(classInfo.mirrorAnnotations.joinToString { it.name + "Mirror" + "(" + it.arguments.joinToString() + ")" })
+                append(")")
+            }
+        }
+
+        line()
+
     }
 
     line("}")

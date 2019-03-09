@@ -15,7 +15,7 @@ class HttpClientRequestHandler(
         val url: String,
         val serializer: SerialFormat,
         val contentType: ContentType = serializer.contentTypeOrFail()
-) : RequestHandler {
+) : Request.Handler {
     override suspend fun <T> invoke(request: Request<T>): T {
         val result = client.call(url) {
             method = HttpMethod.Post

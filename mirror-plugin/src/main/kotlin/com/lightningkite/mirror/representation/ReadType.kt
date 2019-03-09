@@ -18,10 +18,14 @@ data class ReadType(
             kclass.startsWith("kotlin.") -> kclass.substringAfterLast('.') + "Mirror"
             else -> kclass + "Mirror"
         }
+        val fixedBaseMirror = baseMirror.split('.').let {
+            val firstClassIndex = it.indexOfFirst { it.firstOrNull()?.isUpperCase() == true }
+            it.subList(0, firstClassIndex + 1).joinToString(".") + it.subList(firstClassIndex + 1, it.size).joinToString("")
+        }
         return (if(typeArguments.isEmpty()) {
-            baseMirror
+            fixedBaseMirror
         } else {
-            "${baseMirror}(${typeArguments.joinToString()})"
+            "${fixedBaseMirror}(${typeArguments.joinToString()})"
         }).let{
             if(nullable){
                 it.plus(".nullable")

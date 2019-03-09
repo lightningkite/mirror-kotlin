@@ -48,6 +48,7 @@ object PointMirror : MirrorClass<Point>() {
                     xSet = true
                     fieldY = decoderStructure.decodeFloatElement(this, 1)
                     ySet = true
+                    break@loop
                 }
                 CompositeDecoder.READ_DONE -> break@loop
                 0 -> {

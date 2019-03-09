@@ -26,6 +26,7 @@ object ThrowExceptionRequestMirror : MirrorClass<ThrowExceptionRequest>() {
         loop@ while (true) {
             when (decoderStructure.decodeElementIndex(this)) {
                 CompositeDecoder.READ_ALL -> {
+                    break@loop
                 }
                 CompositeDecoder.READ_DONE -> break@loop
                 else -> {}

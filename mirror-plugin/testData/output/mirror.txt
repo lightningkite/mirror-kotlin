@@ -2,3 +2,4 @@ test.DefaultsTest
 kotlin.Pair
 test.Box
 test.AnnotatedClass
+com.lightningkite.mirror.archive.model.*

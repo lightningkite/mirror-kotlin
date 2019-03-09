@@ -55,6 +55,18 @@ class MirrorTxtFile(
         )
         toCheck.addAll(qualifiedNames)
         alreadyAdded.addAll(qualifiedNames)
+        qualifiedNames.asSequence()
+                .filter { it.endsWith('*') }
+                .map { it.removeSuffix("*") }
+                .forEach { pattern ->
+                    declarations.keys.asSequence()
+                            .filter { !it.endsWith("Mirror") }
+                            .filter { it.startsWith(pattern) }
+                            .forEach {
+                                toCheck.add(it)
+                            }
+                }
+
         while (toCheck.isNotEmpty()) {
             val next = toCheck.removeAt(toCheck.lastIndex)
             val declaration = declarations[next] ?: continue

@@ -55,6 +55,7 @@ class RemoteResultMirror<T: Any?>(
                     resultOrNullSet = true
                     fieldException = decoderStructure.decodeSerializableElement(this, 1, RemoteExceptionDataMirror.nullable)
                     exceptionSet = true
+                    break@loop
                 }
                 CompositeDecoder.READ_DONE -> break@loop
                 0 -> {

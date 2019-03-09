@@ -2,13 +2,13 @@ package com.lightningkite.mirror.server.test
 
 import com.lightningkite.kommon.exception.ForbiddenException
 import com.lightningkite.kommon.exception.stackTraceString
-import com.lightningkite.mirror.KtorRequestHandlerFactory
 import com.lightningkite.mirror.MirrorStringSerializerConverter
 import com.lightningkite.mirror.PrincipalWrapper
 import com.lightningkite.mirror.info.*
-import com.lightningkite.mirror.mirrorRequest
+import com.lightningkite.mirror.expose
 import com.lightningkite.mirror.request.RemoteExceptionData
 import com.lightningkite.mirror.request.Request
+import com.lightningkite.mirror.request.LocalRequestHandler
 import com.lightningkite.mirror.request.RequestMirror
 import com.lightningkite.mirror.request.RemoteResultMirror
 import com.lightningkite.mirror.request.registerRequests
@@ -46,12 +46,12 @@ import org.junit.Before
 import java.util.concurrent.TimeUnit
 
 class KtorBasicsTest {
-    val handler = KtorRequestHandlerFactory<Unit>().apply {
-        ThrowExceptionRequest::class.invocation = {
+    val handler = LocalRequestHandler().apply {
+        invocation(ThrowExceptionRequest::class) {
             println("I'm going to die here.")
             throw ForbiddenException("NOPE")
         }
-        PingRequest::class.invocation = {
+        invocation(PingRequest::class) {
             "Hello, $name!"
         }
     }
@@ -75,19 +75,12 @@ class KtorBasicsTest {
                 call.respond("Throwing error:\n ${it.stackTraceString()}")
             }
         }
-        install(Authentication) {
-            basic {
-                validate {
-                    PrincipalWrapper(Unit)
-                }
-            }
-        }
         routing {
             println("Setting up server function")
             get("hello") {
                 call.respondText("HYPE", ContentType.Text.Plain, HttpStatusCode.Accepted)
             }
-            mirrorRequest(handler, "request", false)
+            expose(handler, "request", false)
         }
     }
 

@@ -37,6 +37,7 @@ object PingRequestMirror : MirrorClass<PingRequest>() {
                 CompositeDecoder.READ_ALL -> {
                     fieldName = decoderStructure.decodeStringElement(this, 0)
                     nameSet = true
+                    break@loop
                 }
                 CompositeDecoder.READ_DONE -> break@loop
                 0 -> {

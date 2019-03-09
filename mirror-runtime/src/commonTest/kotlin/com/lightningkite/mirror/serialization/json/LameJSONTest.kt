@@ -2,6 +2,7 @@ package com.lightningkite.mirror.serialization.json
 
 import com.lightningkite.lokalize.time.TimeStamp
 import com.lightningkite.lokalize.time.TimeStampMirror
+import com.lightningkite.mirror.fastjson.LameJson
 import com.lightningkite.mirror.info.*
 import com.lightningkite.mirror.registerTest
 import com.lightningkite.mirror.test.Post
@@ -10,19 +11,19 @@ import com.lightningkite.mirror.test.TestEnum
 import com.lightningkite.mirror.test.TestEnumMirror
 import com.lightningkite.recktangle.Point
 import com.lightningkite.recktangle.PointMirror
-import kotlinx.serialization.json.Json
 import kotlin.test.Test
 
-class SimpleJSONTest {
+class LameJSONTest {
 
-    init{
+    init {
+        registerDefaults()
         registerTest()
     }
 
     fun <T> test(value: T, type: MirrorType<T>): T {
-        val result = Json.stringify(type, value)
+        val result = LameJson.stringify(type, value)
         println(result)
-        val back = Json.parse(type, result)
+        val back = LameJson.parse(type, result)
         return back
     }
 
@@ -62,7 +63,7 @@ class SimpleJSONTest {
     }
 
     @Test
-    fun types(){
+    fun types() {
         test(listOf<Any>(
                 Unit,
                 true,
@@ -79,14 +80,14 @@ class SimpleJSONTest {
     }
 
     @Test
-    fun enumTest(){
+    fun enumTest() {
         test(TestEnum.ValueA, TestEnumMirror)
         test(TestEnum.ValueB, TestEnumMirror)
         test(TestEnum.ValueC, TestEnumMirror)
     }
 
     @Test
-    fun reflectiveData(){
+    fun reflectiveData() {
         test(PostMirror.fieldId, MirrorClassFieldMirror)
         test(TestEnumMirror, MirrorClassMirror)
     }
@@ -110,7 +111,7 @@ class SimpleJSONTest {
     "title": "sunt aut facere repellat provident occaecati excepturi optio reprehenderit",
     "body": "quia et suscipit\nsuscipit recusandae consequuntur expedita et cum\nreprehenderit molestiae ut ut quas totam\nnostrum rerum est autem sunt rem eveniet architecto"
   }"""
-        Json.nonstrict.parse(PostMirror, testData)
+        LameJson.parse(PostMirror, testData)
     }
 
     @Test
@@ -719,7 +720,7 @@ class SimpleJSONTest {
 ]
 
 """
-        val result = Json.parse(PostMirror.list, testData)
+        val result = LameJson.parse(PostMirror.list, testData)
         println(result.joinToString("\n"))
     }
 }

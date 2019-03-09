@@ -47,6 +47,6 @@ fun ReadType.minimumBound(owner: ReadClassInfo, resolutions: Map<String, Int> = 
             val type = owner.typeParameters.find { it.name == this.kclass }!!.projection.type
             type.minimumBound(owner, resolutions + (this.kclass to resolutions.getOrDefault(this.kclass, 0) + 1))
         }
-    } else this.copy(typeArguments = typeArguments.map { ReadTypeProjection(it.minimumBound(owner)) })
+    } else this.copy(typeArguments = typeArguments.map { ReadTypeProjection(it.minimumBound(owner, resolutions)) })
 }
 

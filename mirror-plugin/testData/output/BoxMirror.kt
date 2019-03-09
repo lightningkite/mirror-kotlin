@@ -42,6 +42,7 @@ class BoxMirror<T: Number>(
                 CompositeDecoder.READ_ALL -> {
                     fieldValue = decoderStructure.decodeSerializableElement(this, 0, TMirror)
                     valueSet = true
+                    break@loop
                 }
                 CompositeDecoder.READ_DONE -> break@loop
                 0 -> {

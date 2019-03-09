@@ -14,13 +14,13 @@ import io.ktor.routing.post
 import io.ktor.util.pipeline.ContextDsl
 
 @ContextDsl
-fun <USER> Route.mirrorRequest(handler: KtorRequestHandlerFactory<USER>, path: String, suppressStackTrace: Boolean = true): Route {
+fun Route.expose(handler: Request.Handler, path: String, suppressStackTrace: Boolean = true): Route {
     return post(path) { _ ->
         try {
             val sf: Request<*> = call.receive<Request<*>>(Request::class)
             val respondType = RemoteResultMirror(sf.returnType as MirrorType<Any?>)
             try {
-                val result = handler.user(call.unwrappedPrincipal<USER>()).invoke(sf)
+                val result = handler.invoke(sf)
                 @Suppress("UNCHECKED_CAST")
                 call.respond<RemoteResult<Any?>>(
                         status = HttpStatusCode.OK,

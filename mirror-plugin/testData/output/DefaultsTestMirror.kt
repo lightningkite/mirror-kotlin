@@ -75,6 +75,7 @@ object DefaultsTestMirror : MirrorClass<DefaultsTest>() {
                     noDefaultSet = true
                     fieldZ = decoderStructure.decodeStringElement(this, 3)
                     zSet = true
+                    break@loop
                 }
                 CompositeDecoder.READ_DONE -> break@loop
                 0 -> {

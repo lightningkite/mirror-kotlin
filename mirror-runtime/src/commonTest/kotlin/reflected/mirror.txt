@@ -1,14 +1,14 @@
 name = com.lightningkite.mirror.registerTest
 
 com.lightningkite.recktangle.Point
-com.lightningkite.mirror.serialization.json.SimpleJSONTest.Post
-com.lightningkite.mirror.serialization.json.SimpleJSONTest.TestEnum
+com.lightningkite.mirror.test.Post
+com.lightningkite.mirror.test.TestEnum
 com.lightningkite.lokalize.time.TimeStamp
-//com.lightningkite.mirror.info.TestParent
-//com.lightningkite.mirror.info.TestInterface
-//com.lightningkite.mirror.info.TestChild
-//com.lightningkite.mirror.info.TestAnotherInterface
-//com.lightningkite.mirror.serialization.json.Zoo
-//com.lightningkite.mirror.serialization.json.Attitude
-//com.lightningkite.mirror.serialization.json.IntData
-//com.lightningkite.mirror.serialization.json.Tree
+com.lightningkite.mirror.info.TestParent
+com.lightningkite.mirror.info.TestInterface
+com.lightningkite.mirror.info.TestChild
+com.lightningkite.mirror.info.TestAnotherInterface
+com.lightningkite.mirror.test.Zoo
+com.lightningkite.mirror.test.Attitude
+com.lightningkite.mirror.test.IntData
+com.lightningkite.mirror.test.Tree

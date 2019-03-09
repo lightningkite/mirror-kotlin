@@ -35,6 +35,7 @@ object AnnotatedClassMirror : MirrorClass<AnnotatedClass>() {
                 CompositeDecoder.READ_ALL -> {
                     fieldY = decoderStructure.decodeStringElement(this, 0)
                     ySet = true
+                    break@loop
                 }
                 CompositeDecoder.READ_DONE -> break@loop
                 0 -> {

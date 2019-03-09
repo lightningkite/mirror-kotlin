@@ -77,6 +77,7 @@ object RemoteExceptionDataMirror : MirrorClass<RemoteExceptionData>() {
                     traceSet = true
                     fieldData = decoderStructure.decodeSerializableElement(this, 3, AnyMirror.nullable)
                     dataSet = true
+                    break@loop
                 }
                 CompositeDecoder.READ_DONE -> break@loop
                 0 -> {

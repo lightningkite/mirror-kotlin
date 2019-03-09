@@ -35,6 +35,7 @@ object TimeStampMirror : MirrorClass<TimeStamp>() {
                 CompositeDecoder.READ_ALL -> {
                     fieldMillisecondsSinceEpoch = decoderStructure.decodeLongElement(this, 0)
                     millisecondsSinceEpochSet = true
+                    break@loop
                 }
                 CompositeDecoder.READ_DONE -> break@loop
                 0 -> {
