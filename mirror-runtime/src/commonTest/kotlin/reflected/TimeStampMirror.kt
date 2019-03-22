@@ -17,6 +17,7 @@ object TimeStampMirror : MirrorClass<TimeStamp>() {
     
     val fieldMillisecondsSinceEpoch: Field<TimeStamp,kotlin.Long> = Field(
         owner = this,
+            index = 0,
         name = "millisecondsSinceEpoch",
         type = LongMirror,
         optional = false,

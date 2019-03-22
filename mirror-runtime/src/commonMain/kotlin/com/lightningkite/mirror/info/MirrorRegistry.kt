@@ -54,7 +54,7 @@ object MirrorRegistry {
                 DoubleMirror,
                 CharMirror,
                 StringMirror,
-                MirrorClassMirror,
+                MirrorClassMirror.minimal,
                 MirrorClassFieldMirror.minimal,
                 AnyMirror,
                 ListMirror.minimal,

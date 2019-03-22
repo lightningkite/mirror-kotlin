@@ -17,6 +17,7 @@ object PointMirror : MirrorClass<Point>() {
     
     val fieldX: Field<Point,kotlin.Float> = Field(
         owner = this,
+            index = 0,
         name = "x",
         type = FloatMirror,
         optional = true,
@@ -26,6 +27,7 @@ object PointMirror : MirrorClass<Point>() {
     
     val fieldY: Field<Point,kotlin.Float> = Field(
         owner = this,
+            index = 1,
         name = "y",
         type = FloatMirror,
         optional = true,

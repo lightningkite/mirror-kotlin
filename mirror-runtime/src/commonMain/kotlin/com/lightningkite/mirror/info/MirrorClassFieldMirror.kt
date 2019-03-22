@@ -13,7 +13,7 @@ class MirrorClassFieldMirror<Owner, Value>(
         val minimal = MirrorClassFieldMirror(AnyMirror, AnyMirror.nullable)
     }
 
-    override val typeParameters: Array<MirrorType<*>> get() = arrayOf()
+    override val typeParameters: Array<MirrorType<*>> get() = arrayOf(OwnerMirror, ValueMirror)
     override val kClass: KClass<MirrorClass.Field<Owner, Value>> get() = Field::class as KClass<Field<Owner, Value>>
     override val packageName: String get() = "com.lightningkite.mirror.info"
     override val localName: String get() = "MirrorClass.Field"

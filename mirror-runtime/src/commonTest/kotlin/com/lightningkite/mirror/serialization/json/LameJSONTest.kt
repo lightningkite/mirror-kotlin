@@ -88,8 +88,8 @@ class LameJSONTest {
 
     @Test
     fun reflectiveData() {
-        test(PostMirror.fieldId, MirrorClassFieldMirror)
-        test(TestEnumMirror, MirrorClassMirror)
+        test(PostMirror.fieldId, MirrorClassFieldMirror(PostMirror, LongMirror.nullable))
+        test(TestEnumMirror, MirrorClassMirror(TestEnumMirror))
     }
 
     @Test

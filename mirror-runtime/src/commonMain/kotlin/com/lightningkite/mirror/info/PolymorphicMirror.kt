@@ -7,17 +7,20 @@ abstract class PolymorphicMirror<T : Any> : MirrorClass<T>() {
         get() = arrayOf(
                 Field(
                         owner = this,
+                        index = 0,
                         name = "type",
-                        type = MirrorClassMirror,
+                        type = MirrorClassMirror.minimal,
                         optional = false,
                         get = {
-                            MirrorRegistry.retrieve(it)
+                            @Suppress("UNCHECKED_CAST")
+                            MirrorRegistry.retrieve(it) as MirrorClass<Any>
                         },
                         set = null,
                         annotations = listOf()
                 ),
                 Field(
                         owner = this,
+                        index = 1,
                         name = "value",
                         type = AnyMirror,
                         optional = false,
@@ -35,12 +38,12 @@ abstract class PolymorphicMirror<T : Any> : MirrorClass<T>() {
                 @Suppress("UNCHECKED_CAST")
                 when (decodeElementIndex(this@PolymorphicMirror)) {
                     CompositeDecoder.READ_ALL -> {
-                        mirror = decodeSerializableElement(this@PolymorphicMirror, 0, MirrorClassMirror)
+                        mirror = decodeSerializableElement(this@PolymorphicMirror, 0, MirrorClassMirror.minimal)
                         value = decodeSerializableElement(this@PolymorphicMirror, 1, mirror!!) as T
                         break@loop
                     }
                     CompositeDecoder.READ_DONE -> break@loop
-                    0 -> mirror = decodeSerializableElement(this@PolymorphicMirror, 0, MirrorClassMirror)
+                    0 -> mirror = decodeSerializableElement(this@PolymorphicMirror, 0, MirrorClassMirror.minimal)
                     1 -> value = decodeSerializableElement(this@PolymorphicMirror, 1, mirror!!) as T
                     else -> {
                     }
@@ -54,11 +57,12 @@ abstract class PolymorphicMirror<T : Any> : MirrorClass<T>() {
     override fun serialize(encoder: Encoder, obj: T) {
         val struct = encoder.beginStructure(this)
         val mirror = MirrorRegistry.retrieve(obj)
+        @Suppress("UNCHECKED_CAST")
         struct.encodeSerializableElement(
                 desc = this,
                 index = 0,
-                serializer = MirrorClassMirror,
-                value = mirror
+                serializer = MirrorClassMirror.minimal,
+                value = mirror as MirrorClass<Any>
         )
         @Suppress("UNCHECKED_CAST")
         struct.encodeSerializableElement(

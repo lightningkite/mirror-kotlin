@@ -536,7 +536,7 @@ fun TabWriter.writeNormalMirror(classInfo: ReadClassInfo) = with(classInfo) {
 
         line()
 
-        for (field in classInfo.fields) {
+        classInfo.fields.forEachIndexed { index, field ->
             line {
                 append("val ")
                 append(field.fieldName)
@@ -548,6 +548,7 @@ fun TabWriter.writeNormalMirror(classInfo: ReadClassInfo) = with(classInfo) {
             }
             tab {
                 line("owner = this,")
+                line("index = $index,")
                 line("name = \"${field.name}\",")
                 line("type = ${field.type},")
                 line("optional = ${field.optional},")

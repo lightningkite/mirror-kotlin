@@ -40,13 +40,16 @@ abstract class MirrorClass<Type : Any> : MirrorType<Type> {
 
     data class Field<Owner, Value>(
             val owner: MirrorClass<*>,
+            val index: Int,
             val name: String,
             val type: MirrorType<Value>,
             val optional: Boolean = false,
             val get: (Owner) -> Value,
             val set: ((Owner, Value) -> Unit)? = null,
             val annotations: List<Annotation> = listOf()
-    )
+    ) {
+        override fun toString(): String = "${owner.name}.$name"
+    }
 
     enum class Modifier {
         Sealed,

@@ -16,6 +16,7 @@ object RemoteExceptionDataMirror : MirrorClass<RemoteExceptionData>() {
     
     val fieldType: Field<RemoteExceptionData,String> = Field(
         owner = this,
+            index = 0,
         name = "type",
         type = StringMirror,
         optional = true,
@@ -26,6 +27,7 @@ object RemoteExceptionDataMirror : MirrorClass<RemoteExceptionData>() {
     
     val fieldMessage: Field<RemoteExceptionData,String> = Field(
         owner = this,
+            index = 1,
         name = "message",
         type = StringMirror,
         optional = true,
@@ -36,6 +38,7 @@ object RemoteExceptionDataMirror : MirrorClass<RemoteExceptionData>() {
     
     val fieldTrace: Field<RemoteExceptionData,String> = Field(
         owner = this,
+            index = 2,
         name = "trace",
         type = StringMirror,
         optional = true,
@@ -46,6 +49,7 @@ object RemoteExceptionDataMirror : MirrorClass<RemoteExceptionData>() {
     
     val fieldData: Field<RemoteExceptionData,Any?> = Field(
         owner = this,
+            index = 3,
         name = "data",
         type = AnyMirror.nullable,
         optional = true,

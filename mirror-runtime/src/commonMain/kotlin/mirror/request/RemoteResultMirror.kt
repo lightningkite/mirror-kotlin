@@ -24,6 +24,7 @@ class RemoteResultMirror<T: Any?>(
     
     val fieldResultOrNull: Field<RemoteResult<T>,T?> = Field(
         owner = this,
+            index = 0,
         name = "resultOrNull",
         type = TMirror.nullable,
         optional = true,
@@ -33,6 +34,7 @@ class RemoteResultMirror<T: Any?>(
     
     val fieldException: Field<RemoteResult<T>,RemoteExceptionData?> = Field(
         owner = this,
+            index = 1,
         name = "exception",
         type = RemoteExceptionDataMirror.nullable,
         optional = true,

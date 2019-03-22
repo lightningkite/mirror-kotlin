@@ -15,7 +15,7 @@ buildscript {
         maven("https://dl.bintray.com/lightningkite/com.lightningkite.krosslin")
     }
     dependencies {
-        classpath("com.lightningkite:konvenience:0.0.8")
+        classpath("com.lightningkite:konvenience:+")
         classpath("com.lightningkite:mirror-plugin:${versions.getProperty("mirror")}")
     }
 }
