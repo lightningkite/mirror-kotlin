@@ -6,8 +6,12 @@ data class ReadTypeProjection(
         val type: ReadType = ReadType(),
         val variance: Variance = Variance.INVARIANT
 ) {
-    enum class Variance {
-        IN, OUT, INVARIANT, STAR
+    enum class Variance(val prefix: String) {
+        IN("in "),
+        OUT("out "),
+        INVARIANT(""),
+        STAR("");
+
     }
 
     val use: String

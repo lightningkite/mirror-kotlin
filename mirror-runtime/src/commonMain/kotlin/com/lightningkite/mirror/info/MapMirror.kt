@@ -6,16 +6,16 @@ import kotlinx.serialization.map
 import kotlin.reflect.KClass
 
 data class MapMirror<K, V>(
-        val typeK: MirrorType<K>,
-        val typeV: MirrorType<V>
+        val KMirror: MirrorType<K>,
+        val VMirror: MirrorType<V>
 ) : MirrorClass<Map<K, V>>(),
-        KSerializer<Map<K, V>> by (typeK to typeV).map,
-        SerialDescriptor by (typeK to typeV).map.descriptor {
+        KSerializer<Map<K, V>> by (KMirror to VMirror).map,
+        SerialDescriptor by (KMirror to VMirror).map.descriptor {
     companion object {
         val minimal = MapMirror(AnyMirror.nullable, AnyMirror.nullable)
     }
 
-    override val typeParameters: Array<MirrorType<*>> get() = arrayOf(typeK, typeV)
+    override val typeParameters: Array<MirrorType<*>> get() = arrayOf(KMirror, VMirror)
     override val kClass: KClass<Map<K, V>> get() = Map::class as KClass<Map<K, V>>
     override val packageName: String get() = "kotlin.collections"
     override val localName: String get() = "Map"

@@ -58,7 +58,7 @@ class ReadClassInfo(
     }
 
     val reflectionPackage: String @JsonIgnore get(){
-        return if(packageName.startsWith("kotlin.")){
+        return if (packageName.startsWith("kotlin")) {
             "mirror.$packageName"
         } else packageName
     }

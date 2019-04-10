@@ -1,0 +1,8 @@
+name = com.lightningkite.mirror.request.registerKotlin
+
+kotlin.Pair
+kotlin.Triple
+kotlin.Map.Entry
+kotlin.Comparator
+kotlin.Comparable
+kotlin.Number

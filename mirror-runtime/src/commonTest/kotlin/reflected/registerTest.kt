@@ -12,8 +12,6 @@ fun registerTest() = MirrorRegistry.register(
         com.lightningkite.mirror.info.TestChildMirror,
         com.lightningkite.mirror.info.TestInterfaceMirror,
         com.lightningkite.mirror.info.TestParentMirror,
-    com.lightningkite.lokalize.time.TimeStampMirror,
         com.lightningkite.mirror.test.TestEnumMirror,
-        com.lightningkite.mirror.test.PostMirror,
-    com.lightningkite.recktangle.PointMirror
+        com.lightningkite.mirror.test.PostMirror
 )

@@ -446,7 +446,7 @@ fun TabWriter.writeNormalMirror(classInfo: ReadClassInfo) = with(classInfo) {
         line {
             append("class ")
             append(reflectionName)
-            append(typeParameters.joinToString(", ", "<", ">") { it.name + ": " + it.projection.use })
+            append(typeParameters.joinToString(", ", "<", ">") { it.name + ": " + it.projection.useMinimumBound(classInfo) })
             append("(")
         }
         tab {

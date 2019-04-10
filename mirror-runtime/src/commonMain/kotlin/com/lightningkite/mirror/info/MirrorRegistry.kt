@@ -64,3 +64,6 @@ object MirrorRegistry {
         )
     }
 }
+
+val <T : Any> KClass<T>.type get() = MirrorRegistry[this]!!
+val <T : Any> KClass<T>.typeOrNull get() = MirrorRegistry[this]
