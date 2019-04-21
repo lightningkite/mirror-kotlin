@@ -67,7 +67,7 @@ fun allDeclarations(directories: List<File>, jarsToInspect: List<File>): Map<Str
 
     val sourceDeclarations = directories.asSequence()
             .flatMap { it.walkTopDown() }
-            .filter { it.extension == "kt" }
+            .filter { it.extension == "kt" && !it.name.endsWith(".mirror.kt") }
             .flatMap { file ->
                 val hashCode = file.checksum()
                 val previous = previousDeclarations[file.absolutePath]
@@ -91,6 +91,13 @@ fun allDeclarations(directories: List<File>, jarsToInspect: List<File>): Map<Str
             .toList()
 
     val libraryDeclarations = jarsToInspect.asSequence()
+            .filter {
+                if(!it.exists()){
+                    println("WARNING!!!: Jar $it does not exist!")
+                    return@filter false
+                }
+                true
+            }
             .flatMap { file ->
                 val hashCode = file.checksum()
                 val previous = previousDeclarations[file.absolutePath]

@@ -19,6 +19,7 @@ object PingRequestMirror : MirrorClass<PingRequest>() {
     
     val fieldName: Field<PingRequest,String> = Field(
         owner = this,
+        index = 0,
         name = "name",
         type = StringMirror,
         optional = false,

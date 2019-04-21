@@ -11,6 +11,11 @@ class MirrorTxtFile(
         val qualifiedNames: List<String>
 ) {
     fun neededReflections(declarations: Map<String, ReadClassInfo>): List<ReadClassInfo> {
+        val reflectionHandledNames = declarations.values.asSequence()
+                .filter { it.name.endsWith("Mirror") && it.fromFile?.parentFile != outputDirectory }
+                .map { it.qualifiedName }
+                .toSet()
+
         val allNames = ArrayList<ReadClassInfo>()
         val toCheck = ArrayList<String>()
         val alreadyAdded = hashSetOf(
@@ -70,6 +75,7 @@ class MirrorTxtFile(
         while (toCheck.isNotEmpty()) {
             val next = toCheck.removeAt(toCheck.lastIndex)
             val declaration = declarations[next] ?: continue
+            if(declaration.reflectionQualifiedName in reflectionHandledNames) continue
             allNames.add(declaration)
             val otherNames = declaration.fields.asSequence()
                     .map { it.type }
@@ -83,14 +89,28 @@ class MirrorTxtFile(
                         if (kClass[0].isUpperCase()) {
                             //It's a non-qualified name.
                             //We need to find it.
-                            val immediate = declaration.imports.asSequence().find { it.endsWith(kClass) }
-                            if (immediate != null) {
-                                sequenceOf(immediate)
+                            if(kClass.contains('.')){
+                                val pre = kClass.substringBefore('.')
+                                val post = kClass.substringAfter('.')
+                                val immediate = declaration.imports.asSequence().find { it.endsWith(pre) }
+                                if (immediate != null) {
+                                    sequenceOf("$immediate.$post")
+                                } else {
+                                    declaration.imports.asSequence()
+                                            .filter { it.endsWith('*') }
+                                            .map { it.removeSuffix("*").plus(kClass) }
+                                            .plus(declaration.packageName.plus(".").plus(kClass))
+                                }
                             } else {
-                                declaration.imports.asSequence()
-                                        .filter { it.endsWith('*') }
-                                        .map { it.removeSuffix("*").plus(kClass) }
-                                        .plus(declaration.packageName.plus(".").plus(kClass))
+                                val immediate = declaration.imports.asSequence().find { it.endsWith(kClass) }
+                                if (immediate != null) {
+                                    sequenceOf(immediate)
+                                } else {
+                                    declaration.imports.asSequence()
+                                            .filter { it.endsWith('*') }
+                                            .map { it.removeSuffix("*").plus(kClass) }
+                                            .plus(declaration.packageName.plus(".").plus(kClass))
+                                }
                             }
                         } else {
                             //It's probably a qualified name.
@@ -106,16 +126,10 @@ class MirrorTxtFile(
         return allNames
     }
 
-    fun reflectionsToWrite(declarations: Map<String, ReadClassInfo>, needed: List<ReadClassInfo>): List<ReadClassInfo> {
-        val classInfoNames = declarations.values.asSequence()
-                .filter { it.name.endsWith("Mirror") && it.fromFile?.parentFile != outputDirectory }
-                .map { it.name }
-        return needed.filter {
-            it.reflectionName !in classInfoNames
-        }
-    }
-
     fun neededAnnotations(declarations: Map<String, ReadClassInfo>, declarationsToWrite: List<ReadClassInfo>): List<ReadClassInfo> {
+        val handledNames = declarations.values.asSequence()
+                .filter { it.name.endsWith("Mirror") && it.fromFile?.parentFile != outputDirectory }
+                .map { it.qualifiedName }
         return declarationsToWrite.asSequence()
                 .flatMap { declaration ->
                     declaration.annotations.asSequence().flatMap { anno ->
@@ -141,6 +155,7 @@ class MirrorTxtFile(
                 }
                 .distinct()
                 .mapNotNull { declarations[it] }
+                .filter { it.reflectionQualifiedName !in handledNames }
                 .toList()
     }
 
@@ -148,8 +163,7 @@ class MirrorTxtFile(
             declarations: Map<String, ReadClassInfo>
     ) {
         outputDirectory.mkdirs()
-        val needed = neededReflections(declarations)
-        val reflectionsToWrite = reflectionsToWrite(declarations, needed)
+        val reflectionsToWrite = neededReflections(declarations)
         val allReflectionsToWrite = neededAnnotations(declarations, reflectionsToWrite) + reflectionsToWrite
 
         val filesWritten = ArrayList<File>()
@@ -157,7 +171,7 @@ class MirrorTxtFile(
         //Output the mirrors
         for (decl in allReflectionsToWrite) {
             val written = buildString { TabWriter(this).writeMirror(decl) }
-            File(outputDirectory, decl.reflectionName + ".kt").let {
+            File(outputDirectory, decl.accessName + ".mirror.kt").let {
                 filesWritten.add(it)
                 if (it.exists()) {
                     if (it.readText() == written) {
@@ -177,6 +191,8 @@ class MirrorTxtFile(
         registryFile.writeText("""
         |package ${registryName.substringBeforeLast('.')}
         |
+        |//${ReadClassInfo.GENERATED_NOTICE}
+        |
         |import com.lightningkite.mirror.info.*
         |import kotlin.reflect.KClass
         |
@@ -185,6 +201,6 @@ class MirrorTxtFile(
         |)
     """.trimMargin())
 
-        outputDirectory.listFiles().filter { it !in filesWritten && !it.name.startsWith("mirror") }.forEach { it.delete() }
+        outputDirectory.listFiles().filter { it !in filesWritten && (it.readText().contains(ReadClassInfo.GENERATED_NOTICE)) }.forEach { it.delete() }
     }
 }

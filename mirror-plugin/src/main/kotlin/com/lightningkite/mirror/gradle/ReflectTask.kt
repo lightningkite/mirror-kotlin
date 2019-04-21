@@ -18,18 +18,21 @@ open class ReflectTask() : DefaultTask() {
         files.add(project.file("src"))
         try {
             for (config in project.configurations) {
-                for (file in config) {
-                    try {
-                        files.add(file)
-                    } catch (e: Throwable) {
-                        e.printStackTrace()
+                if(!config.name.contains("common", true)) continue
+                try {
+                    for (file in config) {
+                        try {
+                            files.add(file)
+                        } catch (e: Throwable) {
+                            e.printStackTrace()
+                        }
                     }
+                } catch (e: Throwable) {
                 }
             }
         } catch (e: Throwable) {
-            e.printStackTrace()
         }
-        println("Files: $files")
+        println("Files: ${files.joinToString("\n")}")
         reflectTask(
                 directories = files
         )

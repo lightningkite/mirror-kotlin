@@ -38,4 +38,4 @@ annotation class ExternalName(val name: String)
 
 @Target(AnnotationTarget.CLASS, AnnotationTarget.FUNCTION)
 @Retention(AnnotationRetention.RUNTIME)
-annotation class ThrowsTypes(vararg val exceptionTypes: String)
+annotation class ThrowsTypes(val exceptionTypes: Array<String>)

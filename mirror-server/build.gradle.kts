@@ -40,19 +40,18 @@ group = "com.lightningkite"
 version = versions.getProperty("mirror")
 
 dependencies {
-    compile(kotlin("stdlib"))
+    implementation(kotlin("stdlib"))
 //    compile("com.lightningkite:mirror-runtime:${versions.getProperty("mirror")}")
-    compile(project(":kommon"))
-    compile(project(":mirror-runtime"))
-    compile(project(":mirror-ktor"))
-    compile("io.ktor:ktor-server-core:${versions.getProperty("ktor")}")
-    compile("io.ktor:ktor-auth:${versions.getProperty("ktor")}")
-    compile("io.ktor:ktor-websockets:${versions.getProperty("ktor")}")
-    compile("me.gosimple:nbvcxz:1.4.2")
-    testCompile("io.ktor:ktor-server-netty:${versions.getProperty("ktor")}")
-    testCompile("io.ktor:ktor-server-cio:${versions.getProperty("ktor")}")
-    testCompile("io.ktor:ktor-auth-jwt:${versions.getProperty("ktor")}")
-    testCompile("io.ktor:ktor-server-test-host:${versions.getProperty("ktor")}")
+    implementation(project(":kommon"))
+    implementation(project(":mirror-runtime"))
+    implementation(project(":mirror-ktor"))
+    implementation("io.ktor:ktor-server-core:${versions.getProperty("ktor")}")
+    implementation("io.ktor:ktor-auth:${versions.getProperty("ktor")}")
+    implementation("io.ktor:ktor-websockets:${versions.getProperty("ktor")}")
+    testApi("io.ktor:ktor-server-netty:${versions.getProperty("ktor")}")
+    testApi("io.ktor:ktor-server-cio:${versions.getProperty("ktor")}")
+    testApi("io.ktor:ktor-auth-jwt:${versions.getProperty("ktor")}")
+    testApi("io.ktor:ktor-server-test-host:${versions.getProperty("ktor")}")
 }
 
 publishing {

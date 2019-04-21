@@ -21,7 +21,7 @@ class MirrorBinarySerializerConverter(
         val request: ApplicationReceiveRequest = context.subject
         val type = context.context.receiveMirrorType ?: MirrorRegistry[request.type] ?: return null
         val bytes = request.value.let { it as ByteReadChannel }.toInputStream().use {
-            it.readAllBytes()
+            it.readBytes()
         }
         return format.load(type, bytes)
     }

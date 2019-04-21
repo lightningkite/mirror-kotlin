@@ -175,13 +175,18 @@ fun ReadClassInfo.fullImportsWithMirrors(): List<String> {
             fields.map { it.type.kclass } +
             fields.flatMap { it.annotations.map { it.name } } +
             annotations.map { it.name }
-    for (m in mirrors) {
-        val matching = i.find { it.endsWith(m) }
+    for (mirror in mirrors) {
+        if(mirror[0].isLowerCase()) continue
+        val search = mirror.substringBefore('.', mirror)
+        val postOwner = mirror.substringAfter('.', "")
+        val append = if(postOwner.isEmpty()) "" else postOwner.filter { it.isLetterOrDigit() }
+
+        val matching = i.find { it.endsWith(search) }
         if (matching != null) {
             if (matching.startsWith("kotlin.")) {
-                i.add("mirror." + matching + "Mirror")
+                i.add("mirror." + matching + append + "Mirror")
             } else {
-                i.add(matching + "Mirror")
+                i.add(matching + append + "Mirror")
             }
         }
     }
@@ -217,7 +222,7 @@ fun TabWriter.writeInterfaceMirror(classInfo: ReadClassInfo) = with(classInfo) {
         line {
             append("class ")
             append(reflectionName)
-            append(typeParameters.joinToString(", ", "<", ">") { it.name + ": " + it.projection.useMinimumBound(classInfo) })
+            append(typeParameters.joinToString(", ", "<", ">") { it.name + ": " + it.projection.type.use })
             append("(")
         }
         tab {
@@ -324,7 +329,7 @@ fun TabWriter.writeEnumMirror(classInfo: ReadClassInfo) = with(classInfo) {
         line {
             append("class ")
             append(reflectionName)
-            append(typeParameters.joinToString(", ", "<", ">") { it.name + ": " + it.projection.useMinimumBound(classInfo) })
+            append(typeParameters.joinToString(", ", "<", ">") { it.name + ": " + it.projection.type.use })
             append("(")
         }
         tab {
@@ -446,7 +451,7 @@ fun TabWriter.writeNormalMirror(classInfo: ReadClassInfo) = with(classInfo) {
         line {
             append("class ")
             append(reflectionName)
-            append(typeParameters.joinToString(", ", "<", ">") { it.name + ": " + it.projection.useMinimumBound(classInfo) })
+            append(typeParameters.joinToString(", ", "<", ">") { it.name + ": " + it.projection.type.use })
             append("(")
         }
         tab {
