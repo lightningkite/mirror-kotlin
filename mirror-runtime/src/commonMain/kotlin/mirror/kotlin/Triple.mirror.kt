@@ -5,6 +5,7 @@ package mirror.kotlin
 import com.lightningkite.mirror.info.*
 import kotlin.reflect.KClass
 import kotlinx.serialization.*
+import mirror.kotlin.*
 
 data class TripleMirror<A: Any?, B: Any?, C: Any?>(
     val AMirror: MirrorType<A>,

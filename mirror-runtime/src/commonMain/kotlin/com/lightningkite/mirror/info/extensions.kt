@@ -14,15 +14,15 @@ val <Type> MirrorType<Type>.nullable: MirrorType<Type?>
 
 val MirrorClass<*>.allImplements: Sequence<MirrorClass<*>> get() = implements.asSequence().flatMap { sequenceOf(it) + it.allImplements }
 
-fun MirrorType<*>.satisfies(other: MirrorType<*>): MirrorType<*>? {
+fun MirrorType<*>.satisfies(other: MirrorType<*>): MirrorClass<*>? {
     if (!other.isNullable && this.isNullable) return null
-    if(other.base == AnyMirror) return this
+    if(other.base == AnyMirror) return this.base
 
     val mirrorCompanion = this.base.mirrorClassCompanion ?: return null
 
     val bk = other.base.kClass
     val similar = this.base.allImplements.find { it.base.kClass == bk } ?: return null
-    if (similar == other) return this
+    if (similar == other) return this.base
     if (similar.typeParameters.none { it is TypeArgumentMirrorType }) return null
 
     val params = mirrorCompanion.minimal.typeParameters.toList().mapNotNull { it as? TypeArgumentMirrorType }.toTypedArray()

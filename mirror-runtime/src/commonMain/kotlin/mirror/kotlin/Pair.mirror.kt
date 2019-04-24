@@ -5,6 +5,7 @@ package mirror.kotlin
 import com.lightningkite.mirror.info.*
 import kotlin.reflect.KClass
 import kotlinx.serialization.*
+import mirror.kotlin.*
 
 data class PairMirror<A: Any?, B: Any?>(
     val AMirror: MirrorType<A>,

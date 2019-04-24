@@ -44,7 +44,7 @@ object MirrorRegistry {
         }
     }
 
-    fun allSatisfying(type: MirrorType<*>): List<MirrorType<*>> {
+    fun allSatisfying(type: MirrorType<*>): List<MirrorClass<*>> {
         return index.value.byName.values.mapNotNull { it.satisfies(type) }
     }
 

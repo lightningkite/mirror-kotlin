@@ -5,6 +5,7 @@ package com.lightningkite.mirror.request
 import com.lightningkite.mirror.info.*
 import kotlin.reflect.KClass
 import kotlinx.serialization.*
+import mirror.kotlin.*
 
 data class RemoteResultMirror<T: Any?>(
     val TMirror: MirrorType<T>

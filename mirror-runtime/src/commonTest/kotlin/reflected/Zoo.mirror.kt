@@ -6,6 +6,7 @@ import kotlinx.serialization.Serializable
 import com.lightningkite.mirror.info.*
 import kotlin.reflect.KClass
 import kotlinx.serialization.*
+import mirror.kotlin.*
 import kotlinx.serialization.SerializableMirror
 
 object ZooMirror : MirrorClass<Zoo>() {

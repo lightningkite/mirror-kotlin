@@ -5,6 +5,7 @@ package kotlinx.serialization
 import com.lightningkite.mirror.info.*
 import kotlin.reflect.KClass
 import kotlinx.serialization.*
+import mirror.kotlin.*
 
 data class SerializableMirror(
     val with: kotlin.reflect.KClass<out kotlinx.serialization.KSerializer<*>> = KSerializer::class

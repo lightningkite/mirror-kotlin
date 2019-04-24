@@ -5,6 +5,7 @@ package com.lightningkite.mirror.info
 import com.lightningkite.mirror.info.*
 import kotlin.reflect.KClass
 import kotlinx.serialization.*
+import mirror.kotlin.*
 
 class MutatesMirror(
 ): MirrorAnnotation {

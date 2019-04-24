@@ -5,6 +5,7 @@ package com.lightningkite.recktangle
 import com.lightningkite.mirror.info.*
 import kotlin.reflect.KClass
 import kotlinx.serialization.*
+import mirror.kotlin.*
 
 object PointMirror : MirrorClass<Point>() {
     @Suppress("UNCHECKED_CAST")

@@ -5,6 +5,7 @@ package mirror.kotlin
 import com.lightningkite.mirror.info.*
 import kotlin.reflect.KClass
 import kotlinx.serialization.*
+import mirror.kotlin.*
 
 data class ComparatorMirror<T: Any?>(
     val TMirror: MirrorType<T>

@@ -219,7 +219,7 @@ fun TabWriter.writeMirrorCompanionObject(classInfo: ReadClassInfo){
             append(classInfo.typeParameters.joinToString {
                 buildString {
                     append("""TypeArgumentMirrorType("${it.name}", """)
-                    append(it.minimumBound(classInfo).toString())
+                    append(it.minimumBound(classInfo, maxResolutions = 2).toString())
                     append(")")
                 }
             })
@@ -233,7 +233,7 @@ fun TabWriter.writeMirrorCompanionObject(classInfo: ReadClassInfo){
             append(classInfo.typeParameters.joinToString {
                 buildString {
                     append("typeArguments[${index++}] as MirrorType<")
-                    append(it.useMinimumBound(classInfo))
+                    append(it.useMinimumBound(classInfo, maxResolutions = 3))
                     append(">")
                 }
 

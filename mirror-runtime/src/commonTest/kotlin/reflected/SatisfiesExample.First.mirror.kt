@@ -5,6 +5,7 @@ package com.lightningkite.mirror.test
 import com.lightningkite.mirror.info.*
 import kotlin.reflect.KClass
 import kotlinx.serialization.*
+import mirror.kotlin.*
 
 data class SatisfiesExampleFirstMirror<T: Any?>(
     val TMirror: MirrorType<T>
