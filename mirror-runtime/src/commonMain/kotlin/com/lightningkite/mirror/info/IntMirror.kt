@@ -14,6 +14,7 @@ object IntMirror : MirrorClass<Int>() {
     override val fields: Array<Field<Int, *>> get() = arrayOf()
     override val kind: SerialKind get() = PrimitiveKind.INT
     override val companion: Any? get() = Int.Companion
+    override val implements: Array<MirrorClass<*>> get() = arrayOf(NumberMirror, ComparableMirror(IntMirror))
     override fun deserialize(decoder: Decoder): Int = decoder.decodeInt()
     override fun serialize(encoder: Encoder, obj: Int) = encoder.encodeInt(obj)
 }

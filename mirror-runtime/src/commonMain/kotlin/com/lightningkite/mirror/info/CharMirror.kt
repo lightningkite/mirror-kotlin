@@ -14,6 +14,7 @@ object CharMirror : MirrorClass<Char>() {
     override val fields: Array<Field<Char, *>> get() = arrayOf()
     override val kind: SerialKind get() = PrimitiveKind.CHAR
     override val companion: Any? get() = Char.Companion
+    override val implements: Array<MirrorClass<*>> get() = arrayOf(ComparableMirror(CharMirror))
     override fun deserialize(decoder: Decoder): Char = decoder.decodeChar()
     override fun serialize(encoder: Encoder, obj: Char) = encoder.encodeChar(obj)
 }

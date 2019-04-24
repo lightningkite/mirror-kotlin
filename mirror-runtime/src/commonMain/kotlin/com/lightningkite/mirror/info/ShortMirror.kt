@@ -14,6 +14,7 @@ object ShortMirror : MirrorClass<Short>() {
     override val fields: Array<Field<Short, *>> get() = arrayOf()
     override val kind: SerialKind get() = PrimitiveKind.SHORT
     override val companion: Any? get() = Short.Companion
+    override val implements: Array<MirrorClass<*>> get() = arrayOf(NumberMirror, ComparableMirror(ShortMirror))
     override fun deserialize(decoder: Decoder): Short = decoder.decodeShort()
     override fun serialize(encoder: Encoder, obj: Short) = encoder.encodeShort(obj)
 }

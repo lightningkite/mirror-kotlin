@@ -14,6 +14,7 @@ object FloatMirror : MirrorClass<Float>() {
     override val fields: Array<Field<Float, *>> get() = arrayOf()
     override val kind: SerialKind get() = PrimitiveKind.FLOAT
     override val companion: Any? get() = Float.Companion
+    override val implements: Array<MirrorClass<*>> get() = arrayOf(NumberMirror, ComparableMirror(FloatMirror))
     override fun deserialize(decoder: Decoder): Float = decoder.decodeFloat()
     override fun serialize(encoder: Encoder, obj: Float) = encoder.encodeFloat(obj)
 }

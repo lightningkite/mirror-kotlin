@@ -14,6 +14,7 @@ object BooleanMirror : MirrorClass<Boolean>() {
     override val fields: Array<Field<Boolean, *>> get() = arrayOf()
     override val kind: SerialKind get() = PrimitiveKind.BOOLEAN
     override val companion: Any? get() = Boolean.Companion
+    override val implements: Array<MirrorClass<*>> get() = arrayOf(ComparableMirror(BooleanMirror))
     override fun deserialize(decoder: Decoder): Boolean = decoder.decodeBoolean()
     override fun serialize(encoder: Encoder, obj: Boolean) = encoder.encodeBoolean(obj)
     override val enumValues: Array<Boolean>?

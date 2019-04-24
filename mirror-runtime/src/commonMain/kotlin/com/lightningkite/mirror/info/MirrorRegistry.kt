@@ -44,6 +44,10 @@ object MirrorRegistry {
         }
     }
 
+    fun allSatisfying(type: MirrorType<*>): List<MirrorType<*>> {
+        return index.value.byName.values.mapNotNull { it.satisfies(type) }
+    }
+
     init {
         register(
                 UnitMirror,
@@ -56,6 +60,7 @@ object MirrorRegistry {
                 DoubleMirror,
                 CharMirror,
                 StringMirror,
+                NumberMirror,
                 MirrorClassMirror.minimal,
                 MirrorClassFieldMirror.minimal,
                 AnyMirror,

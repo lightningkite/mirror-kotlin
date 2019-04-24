@@ -14,6 +14,7 @@ object LongMirror : MirrorClass<Long>() {
     override val fields: Array<Field<Long, *>> get() = arrayOf()
     override val kind: SerialKind get() = PrimitiveKind.LONG
     override val companion: Any? get() = Long.Companion
+    override val implements: Array<MirrorClass<*>> get() = arrayOf(NumberMirror, ComparableMirror(LongMirror))
     override fun deserialize(decoder: Decoder): Long = decoder.decodeLong()
     override fun serialize(encoder: Encoder, obj: Long) = encoder.encodeLong(obj)
 }

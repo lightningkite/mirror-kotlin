@@ -14,6 +14,7 @@ object StringMirror : MirrorClass<String>() {
     override val fields: Array<Field<String, *>> get() = arrayOf()
     override val kind: SerialKind get() = PrimitiveKind.STRING
     override val companion: Any? get() = String.Companion
+    override val implements: Array<MirrorClass<*>> get() = arrayOf(ComparableMirror(StringMirror))
     override fun deserialize(decoder: Decoder): String = decoder.decodeString()
     override fun serialize(encoder: Encoder, obj: String) = encoder.encodeString(obj)
 }

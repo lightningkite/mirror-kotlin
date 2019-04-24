@@ -12,12 +12,21 @@ val <Type> MirrorType<Type>.nullable: MirrorType<Type?>
         else -> throw IllegalArgumentException()
     }
 
+val MirrorClass<*>.allImplements: Sequence<MirrorClass<*>> get() = implements.asSequence().flatMap { sequenceOf(it) + it.allImplements }
+
 fun MirrorType<*>.satisfies(other: MirrorType<*>): MirrorType<*>? {
     if (!other.isNullable && this.isNullable) return null
+    if(other.base == AnyMirror) return this
 
     val mirrorCompanion = this.base.mirrorClassCompanion ?: return null
+
+    val bk = other.base.kClass
+    val similar = this.base.allImplements.find { it.base.kClass == bk } ?: return null
+    if (similar == other) return this
+    if (similar.typeParameters.none { it is TypeArgumentMirrorType }) return null
+
     val params = mirrorCompanion.minimal.typeParameters.toList().mapNotNull { it as? TypeArgumentMirrorType }.toTypedArray()
-    if(!params.apply(this, other)) return null
+    if(!params.apply(similar, other)) return null
     return mirrorCompanion.make(params.map { it.minimal })
 }
 
