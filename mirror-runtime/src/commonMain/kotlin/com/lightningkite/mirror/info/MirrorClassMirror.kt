@@ -3,8 +3,11 @@ package com.lightningkite.mirror.info
 import kotlinx.serialization.*
 import kotlin.reflect.KClass
 
-class MirrorClassMirror<Type : Any>(val TypeMirror: MirrorClass<Type>) : MirrorClass<MirrorClass<Type>>() {
-    companion object {
+data class MirrorClassMirror<Type : Any>(val TypeMirror: MirrorType<Type>) : MirrorClass<MirrorClass<Type>>() {
+    override val mirrorClassCompanion: MirrorClassCompanion?
+        get() = Companion
+
+    companion object: MirrorClassCompanion {
         @Deprecated("Index has been moved to MirrorRegistry.", ReplaceWith("MirrorRegistry.Index", "com.lightningkite.mirror.info.MirrorRegistry"))
         class Index(
                 val byName: Map<String, MirrorClass<*>>,
@@ -21,7 +24,9 @@ class MirrorClassMirror<Type : Any>(val TypeMirror: MirrorClass<Type>) : MirrorC
         @Deprecated("Index has been moved to MirrorRegistry.", ReplaceWith("MirrorRegistry.retrieve(any)", "com.lightningkite.mirror.info.MirrorRegistry"))
         fun retrieve(any: Any): MirrorClass<*> = MirrorRegistry.retrieve(any)
 
-        val minimal = MirrorClassMirror(AnyMirror)
+        override val minimal = MirrorClassMirror(TypeArgumentMirrorType("Type", AnyMirror))
+        @Suppress("UNCHECKED_CAST")
+        override fun make(typeArguments: List<MirrorType<*>>): MirrorClass<*> = MirrorClassMirror(typeArguments[0] as MirrorType<Any>)
     }
 
     override val typeParameters: Array<MirrorType<*>> get() = arrayOf(TypeMirror)

@@ -62,7 +62,7 @@ abstract class PolymorphicMirror<T : Any> : MirrorClass<T>() {
                 desc = this,
                 index = 0,
                 serializer = MirrorClassMirror.minimal,
-                value = mirror as MirrorClass<Any>
+                value = mirror.base as MirrorClass<Any>
         )
         @Suppress("UNCHECKED_CAST")
         struct.encodeSerializableElement(

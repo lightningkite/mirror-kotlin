@@ -10,8 +10,12 @@ data class ListMirror<E>(
 ) : MirrorClass<List<E>>(),
         KSerializer<List<E>> by EMirror.list,
         SerialDescriptor by EMirror.list.descriptor {
-    companion object {
-        val minimal = ListMirror(AnyMirror.nullable)
+    override val mirrorClassCompanion: MirrorClassCompanion?
+        get() = Companion
+
+    companion object: MirrorClassCompanion {
+        override val minimal = ListMirror(TypeArgumentMirrorType("E", AnyMirror.nullable))
+        override fun make(typeArguments: List<MirrorType<*>>): MirrorClass<*> = ListMirror(typeArguments[0])
     }
 
     override val typeParameters: Array<MirrorType<*>> get() = arrayOf(EMirror)

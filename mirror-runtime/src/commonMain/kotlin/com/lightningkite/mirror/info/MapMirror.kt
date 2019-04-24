@@ -11,8 +11,12 @@ data class MapMirror<K, V>(
 ) : MirrorClass<Map<K, V>>(),
         KSerializer<Map<K, V>> by (KMirror to VMirror).map,
         SerialDescriptor by (KMirror to VMirror).map.descriptor {
-    companion object {
-        val minimal = MapMirror(AnyMirror.nullable, AnyMirror.nullable)
+    override val mirrorClassCompanion: MirrorClassCompanion?
+        get() = Companion
+
+    companion object: MirrorClassCompanion {
+        override val minimal = MapMirror(TypeArgumentMirrorType("K", AnyMirror.nullable), TypeArgumentMirrorType("V", AnyMirror.nullable))
+        override fun make(typeArguments: List<MirrorType<*>>): MirrorClass<*> = MapMirror(typeArguments[0], typeArguments[1])
     }
 
     override val typeParameters: Array<MirrorType<*>> get() = arrayOf(KMirror, VMirror)

@@ -2,6 +2,8 @@ package com.lightningkite.mirror.info
 
 import com.lightningkite.kommon.atomic.AtomicReference
 import com.lightningkite.kommon.native.freeze
+import com.lightningkite.mirror.request.registerKotlin
+import com.lightningkite.mirror.request.registerRequests
 import kotlinx.serialization.SerializationException
 import kotlin.reflect.KClass
 
@@ -62,6 +64,8 @@ object MirrorRegistry {
                 SetMirror.minimal,
                 ComparableMirror.minimal
         )
+        registerKotlin()
+        registerRequests()
     }
 }
 

@@ -11,8 +11,12 @@ data class SetMirror<E>(
 ) : MirrorClass<Set<E>>(),
         KSerializer<Set<E>> by typeE.set,
         SerialDescriptor by typeE.set.descriptor {
-    companion object {
-        val minimal = SetMirror(AnyMirror.nullable)
+    override val mirrorClassCompanion: MirrorClassCompanion?
+        get() = Companion
+
+    companion object : MirrorClassCompanion {
+        override val minimal = SetMirror(TypeArgumentMirrorType("E", AnyMirror.nullable))
+        override fun make(typeArguments: List<MirrorType<*>>): MirrorClass<*> = SetMirror(typeArguments[0])
     }
 
     override val typeParameters: Array<MirrorType<*>> get() = arrayOf(typeE)

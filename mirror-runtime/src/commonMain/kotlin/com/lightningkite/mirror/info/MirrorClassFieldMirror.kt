@@ -4,13 +4,17 @@ import kotlinx.serialization.*
 import kotlin.reflect.KClass
 
 @Suppress("UNCHECKED_CAST")
-class MirrorClassFieldMirror<Owner, Value>(
+data class MirrorClassFieldMirror<Owner: Any, Value>(
         val OwnerMirror: MirrorType<Owner>,
         val ValueMirror: MirrorType<Value>
 ) : MirrorClass<MirrorClass.Field<Owner, Value>>() {
 
-    companion object {
-        val minimal = MirrorClassFieldMirror(AnyMirror, AnyMirror.nullable)
+    override val mirrorClassCompanion: MirrorClassCompanion?
+        get() = Companion
+
+    companion object: MirrorClassCompanion {
+        override val minimal = MirrorClassFieldMirror(TypeArgumentMirrorType("Owner", AnyMirror), TypeArgumentMirrorType("Value", AnyMirror.nullable))
+        override fun make(typeArguments: List<MirrorType<*>>): MirrorClass<*> = MirrorClassFieldMirror(typeArguments[0] as MirrorClass<Any>, typeArguments[1])
     }
 
     override val typeParameters: Array<MirrorType<*>> get() = arrayOf(OwnerMirror, ValueMirror)

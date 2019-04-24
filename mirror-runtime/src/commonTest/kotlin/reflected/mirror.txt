@@ -12,3 +12,5 @@ com.lightningkite.mirror.test.Zoo
 com.lightningkite.mirror.test.Attitude
 com.lightningkite.mirror.test.IntData
 com.lightningkite.mirror.test.Tree
+com.lightningkite.mirror.test.SatisfiesExample
+com.lightningkite.mirror.test.SatisfiesExample.*

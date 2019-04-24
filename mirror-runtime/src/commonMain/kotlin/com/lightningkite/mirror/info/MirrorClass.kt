@@ -11,6 +11,7 @@ abstract class MirrorClass<Type : Any> : MirrorType<Type> {
     override val descriptor: SerialDescriptor get() = this
     override val kind: SerialKind get() = StructureKind.CLASS
 
+    open val mirrorClassCompanion: MirrorClassCompanion? get() = null
     open val typeParameters: Array<MirrorType<*>> get() = arrayOf()
     open val modifiers: Array<Modifier> get() = arrayOf()
     open val owningClass: KClass<*>? get() = null
