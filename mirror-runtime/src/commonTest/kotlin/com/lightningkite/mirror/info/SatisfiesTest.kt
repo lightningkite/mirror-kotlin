@@ -22,6 +22,13 @@ class SatisfiesTest {
         assertTrue { result == SatisfiesExampleFirstMirror(IntMirror) }
     }
 
+    @Test fun number(){
+        val toSatisfy = NumberMirror
+        val with = IntMirror
+        val result = with.satisfies(toSatisfy)
+        assertTrue { result == IntMirror }
+    }
+
     fun printOptionsFor(type: MirrorType<*>){
         val options = MirrorRegistry.allSatisfying(type)
         println("Options for $type:")
@@ -35,6 +42,8 @@ class SatisfiesTest {
         printOptionsFor(SatisfiesExampleMirror(IntMirror))
         printOptionsFor(SatisfiesExampleMirror(StringMirror))
         printOptionsFor(SatisfiesExampleMirror(SatisfiesExampleMirror(IntMirror)))
+        printOptionsFor(NumberMirror)
+        assertTrue { MirrorRegistry.allSatisfying(NumberMirror).contains(IntMirror) }
         printOptionsFor(AnyMirror)
     }
 }
