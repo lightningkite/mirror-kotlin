@@ -569,7 +569,7 @@ fun TabWriter.writeNormalMirror(classInfo: ReadClassInfo) = with(classInfo) {
                 }
                 line {
                     append("annotations = listOf<Annotation>(")
-                    append(classInfo.mirrorAnnotations.joinToString { it.name + "Mirror" + "(" + it.arguments.joinToString() + ")" })
+                    append(field.mirrorAnnotations.joinToString { it.name + "Mirror" + "(" + it.arguments.joinToString() + ")" })
                     append(")")
                 }
             }

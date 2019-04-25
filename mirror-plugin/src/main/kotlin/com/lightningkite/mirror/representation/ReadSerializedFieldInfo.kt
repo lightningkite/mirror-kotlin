@@ -10,5 +10,6 @@ data class ReadFieldInfo(
         val mutable: Boolean = false,
         val default: String? = null
 ) {
+    val mirrorAnnotations @JsonIgnore get() = annotations.filter { it.name != "Suppress" }
     val fieldName @JsonIgnore get() = "field${name.capitalize()}"
 }

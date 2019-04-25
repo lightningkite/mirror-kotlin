@@ -132,7 +132,8 @@ class MirrorTxtFile(
                 .map { it.qualifiedName }
         return declarationsToWrite.asSequence()
                 .flatMap { declaration ->
-                    declaration.annotations.asSequence().flatMap { anno ->
+                    val fieldAnnotationSeq = declaration.fields.asSequence().flatMap { it.mirrorAnnotations.asSequence() }
+                    (declaration.mirrorAnnotations.asSequence() + fieldAnnotationSeq).flatMap { anno ->
                         val kClass = anno.name
                         if (kClass[0].isUpperCase()) {
                             //It's a non-qualified name.
