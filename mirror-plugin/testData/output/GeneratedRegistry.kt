@@ -6,6 +6,10 @@ import com.lightningkite.mirror.info.*
 import kotlin.reflect.KClass
 
 fun GeneratedRegistry() = MirrorRegistry.register(
+    com.lightningkite.mirror.test.SatisfiesExampleThirdMirror.minimal,
+    com.lightningkite.mirror.test.SatisfiesExampleSecondMirror.minimal,
+    com.lightningkite.mirror.test.SatisfiesExampleFirstMirror.minimal,
+    com.lightningkite.mirror.test.SatisfiesExampleAnyTestMirror,
     com.lightningkite.mirror.archive.model.UuidMirror,
     com.lightningkite.mirror.archive.model.UuidMirror,
     com.lightningkite.mirror.archive.model.SortFieldMirror.minimal,
@@ -47,6 +51,7 @@ fun GeneratedRegistry() = MirrorRegistry.register(
     com.lightningkite.mirror.archive.model.ConditionAlwaysMirror.minimal,
     com.lightningkite.mirror.archive.model.ConditionNeverMirror.minimal,
     com.lightningkite.mirror.archive.model.ConditionMirror.minimal,
+    com.lightningkite.mirror.test.SatisfiesExampleMirror.minimal,
     test.AnnotatedClassMirror,
     test.BoxMirror.minimal,
     test.TestInterfaceMirror,

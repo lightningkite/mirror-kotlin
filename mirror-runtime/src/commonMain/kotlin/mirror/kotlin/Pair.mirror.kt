@@ -14,7 +14,10 @@ data class PairMirror<A: Any?, B: Any?>(
     
     override val mirrorClassCompanion: MirrorClassCompanion? get() = Companion
     companion object : MirrorClassCompanion {
-        override val minimal = PairMirror(TypeArgumentMirrorType("A", AnyMirror.nullable), TypeArgumentMirrorType("B", AnyMirror.nullable))
+        val AMirrorMinimal get() = AnyMirror.nullable
+        val BMirrorMinimal get() = AnyMirror.nullable
+        
+        override val minimal = PairMirror(TypeArgumentMirrorType("A", Variance.OUT, AMirrorMinimal), TypeArgumentMirrorType("B", Variance.OUT, BMirrorMinimal))
         override fun make(typeArguments: List<MirrorType<*>>): MirrorClass<*> = PairMirror(typeArguments[0] as MirrorType<Any?>, typeArguments[1] as MirrorType<Any?>)
     }
     

@@ -15,7 +15,11 @@ data class TripleMirror<A: Any?, B: Any?, C: Any?>(
     
     override val mirrorClassCompanion: MirrorClassCompanion? get() = Companion
     companion object : MirrorClassCompanion {
-        override val minimal = TripleMirror(TypeArgumentMirrorType("A", AnyMirror.nullable), TypeArgumentMirrorType("B", AnyMirror.nullable), TypeArgumentMirrorType("C", AnyMirror.nullable))
+        val AMirrorMinimal get() = AnyMirror.nullable
+        val BMirrorMinimal get() = AnyMirror.nullable
+        val CMirrorMinimal get() = AnyMirror.nullable
+        
+        override val minimal = TripleMirror(TypeArgumentMirrorType("A", Variance.OUT, AMirrorMinimal), TypeArgumentMirrorType("B", Variance.OUT, BMirrorMinimal), TypeArgumentMirrorType("C", Variance.OUT, CMirrorMinimal))
         override fun make(typeArguments: List<MirrorType<*>>): MirrorClass<*> = TripleMirror(typeArguments[0] as MirrorType<Any?>, typeArguments[1] as MirrorType<Any?>, typeArguments[2] as MirrorType<Any?>)
     }
     

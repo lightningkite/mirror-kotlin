@@ -212,15 +212,17 @@ fun TabWriter.writeMirrorCompanionObject(classInfo: ReadClassInfo){
     line("override val mirrorClassCompanion: MirrorClassCompanion? get() = Companion")
     line("companion object : MirrorClassCompanion {")
     tab {
+        for(typeParam in classInfo.typeParameters){
+            line("val ${typeParam.name}MirrorMinimal get() = ${typeParam.minimumBound(classInfo, maxResolutions = 2)}")
+        }
+        line()
         line {
             append("override val minimal = ")
             append(classInfo.reflectionName)
             append("(")
             append(classInfo.typeParameters.joinToString {
                 buildString {
-                    append("""TypeArgumentMirrorType("${it.name}", """)
-                    append(it.minimumBound(classInfo, maxResolutions = 2).toString())
-                    append(")")
+                    append("""TypeArgumentMirrorType("${it.name}", Variance.${it.projection.variance.name}, ${it.name}MirrorMinimal)""")
                 }
             })
             append(")")

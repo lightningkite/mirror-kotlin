@@ -67,7 +67,7 @@ primaryConstructor
     ;
 
 classParameters
-    : LPAREN (classParameter (COMMA classParameter)*)? RPAREN
+    : LPAREN NL* (classParameter NL* (COMMA NL* classParameter NL*)*)? RPAREN
     ;
 
 classParameter
@@ -145,7 +145,7 @@ functionDeclaration
     ;
 
 functionValueParameters
-    : LPAREN (functionValueParameter (COMMA functionValueParameter)*)? RPAREN
+    : LPAREN NL* (functionValueParameter NL* (COMMA NL* functionValueParameter NL*)*)? RPAREN
     ;
 
 functionValueParameter
@@ -183,11 +183,11 @@ propertyDeclaration
     (NL* (multiVariableDeclaration | variableDeclaration))
     (NL* typeConstraints)?
     (NL* (BY | ASSIGNMENT) NL* expression)?
-    semi? (getter? (NL* setter)? | setter? (NL* getter)?)
+    (NL? (getter (NL* setter)? | setter (NL* getter)?))?
     ;
 
 multiVariableDeclaration
-    : LPAREN variableDeclaration (COMMA variableDeclaration)* RPAREN
+    : LPAREN NL* variableDeclaration NL* (COMMA variableDeclaration NL*)* RPAREN
     ;
 
 variableDeclaration
@@ -196,12 +196,12 @@ variableDeclaration
 
 getter
     : modifierList? GETTER
-    | modifierList? GETTER NL* LPAREN RPAREN (NL* COLON NL* type)? NL* (block | ASSIGNMENT NL* expression)
+    | modifierList? GETTER NL* LPAREN NL* RPAREN (NL* COLON NL* type)? NL* (block | ASSIGNMENT NL* expression)
     ;
 
 setter
     : modifierList? SETTER
-    | modifierList? SETTER NL* LPAREN (annotations | parameterModifier)* (simpleIdentifier | parameter) RPAREN NL* functionBody
+    | modifierList? SETTER NL* LPAREN NL* (annotations | parameterModifier)* NL* (simpleIdentifier | parameter) NL* RPAREN NL* functionBody
     ;
 
 typeAlias
@@ -229,7 +229,7 @@ typeModifierList
     ;
 
 parenthesizedType
-    : LPAREN type RPAREN
+    : LPAREN NL* type NL* RPAREN
     ;
 
 nullableType
@@ -237,7 +237,7 @@ nullableType
     ;
 
 typeReference
-    : LPAREN typeReference RPAREN
+    : LPAREN NL* typeReference NL* RPAREN
     | userType
     | DYNAMIC
     ;
@@ -262,7 +262,7 @@ simpleUserType
 
 //parameters for functionType
 functionTypeParameters
-    : LPAREN (parameter | type)? (COMMA (parameter | type))* RPAREN
+    : LPAREN NL* (parameter | type)? NL* (COMMA NL* (parameter | type) NL*)* RPAREN
     ;
 
 typeConstraints
@@ -319,8 +319,9 @@ comparison
     ;
 
 infixOperation
-    : elvisExpression (inOperator NL* elvisExpression)*
-    | elvisExpression (isOperator NL* type)?
+    : elvisExpression
+    | elvisExpression (inOperator NL* elvisExpression)+
+    | elvisExpression (isOperator NL* type)
     ;
 
 elvisExpression
@@ -352,22 +353,22 @@ asExpressionTail
     ;
 
 prefixUnaryExpression
-    : prefixUnaryOperator* postfixUnaryExpression
-    | annotations* postfixUnaryExpression
+    : annotations* prefixUnaryOperator* postfixUnaryExpression
     ;
 
 postfixUnaryExpression
-    : assignableExpression
-    | callExpression
+    : callExpression
+    | assignableExpression
     | labeledExpression
     | dotQualifiedExpression
     | assignableExpression postfixUnaryOperator*
-    | LPAREN callableReference RPAREN postfixUnaryOperator+
+    | LPAREN NL* callableReference NL* RPAREN postfixUnaryOperator+
     | callableReference
     ;
 
 callExpression
-    : assignableExpression typeArguments? valueArguments? annotatedLambda*
+    : assignableExpression typeArguments? valueArguments
+    | assignableExpression typeArguments? valueArguments? annotatedLambda
     ;
 
 labeledExpression
@@ -406,12 +407,12 @@ arrayAccess
     ;
 
 valueArguments
-    : LPAREN valueArgument? RPAREN
-    | LPAREN valueArgument (COMMA valueArgument)* RPAREN
+    : LPAREN NL* valueArgument? NL* RPAREN
+    | LPAREN NL* valueArgument NL* (COMMA NL* valueArgument)* NL* RPAREN
     ;
 
 typeArguments
-    : LANGLE NL* typeProjection (NL* COMMA typeProjection)* NL* RANGLE
+    : LANGLE NL* typeProjection (NL* COMMA NL* typeProjection)* NL* RANGLE
     ;
 
 typeProjection
@@ -430,7 +431,6 @@ primaryExpression
     : parenthesizedExpression
     | literalConstant
     | stringLiteral
-    | simpleIdentifier
     | functionLiteral
     | objectLiteral
     | collectionLiteral
@@ -440,19 +440,20 @@ primaryExpression
     | tryExpression
     | loopExpression
     | jumpExpression
+    | simpleIdentifier
     ;
 
 parenthesizedExpression
-    : LPAREN expression RPAREN
+    : LPAREN NL* expression NL* RPAREN
     ;
 
 literalConstant
     : BooleanLiteral
+    | RealLiteral
     | IntegerLiteral
     | HexLiteral
     | BinLiteral
     | CharacterLiteral
-    | RealLiteral
     | NullLiteral
     | LongLiteral
     ;
@@ -510,7 +511,7 @@ objectLiteral
     ;
 
 collectionLiteral
-    : LSQUARE expression? (COMMA expression)* RSQUARE
+    : LSQUARE NL* expression? NL* (COMMA NL* expression NL* )* RSQUARE
     ;
 
 thisExpression
@@ -527,7 +528,7 @@ conditionalExpression
     ;
 
 ifExpression
-    : IF NL* LPAREN expression RPAREN NL* controlStructureBody? SEMICOLON?
+    : IF NL* LPAREN NL* expression NL* RPAREN NL* controlStructureBody? SEMICOLON?
     (NL* ELSE NL* controlStructureBody?)?
     ;
 
@@ -537,7 +538,7 @@ controlStructureBody
     ;
 
 whenExpression
-    : WHEN NL* (LPAREN expression RPAREN)? NL* LCURL NL* (whenEntry NL*)* NL* RCURL
+    : WHEN NL* (LPAREN NL* expression NL* RPAREN)? NL* LCURL NL* (whenEntry NL*)* NL* RCURL
     ;
 
 whenEntry
@@ -564,7 +565,7 @@ tryExpression
     ;
 
 catchBlock
-    : CATCH NL* LPAREN annotations* simpleIdentifier COLON userType RPAREN NL* block
+    : CATCH NL* LPAREN NL* annotations* NL* simpleIdentifier NL* COLON NL* userType NL* RPAREN NL* block
     ;
 
 finallyBlock
@@ -578,15 +579,15 @@ loopExpression
     ;
 
 forExpression
-    : FOR NL* LPAREN annotations* (variableDeclaration | multiVariableDeclaration) IN expression RPAREN NL* controlStructureBody?
+    : FOR NL* LPAREN annotations* NL* (variableDeclaration | multiVariableDeclaration) NL* IN NL* expression NL* RPAREN NL* controlStructureBody?
     ;
 
 whileExpression
-    : WHILE NL* LPAREN expression RPAREN NL* controlStructureBody?
+    : WHILE NL* LPAREN NL* expression NL* RPAREN NL* controlStructureBody?
     ;
 
 doWhileExpression
-    : DO NL* controlStructureBody? NL* WHILE NL* LPAREN expression RPAREN
+    : DO NL* controlStructureBody? NL* WHILE NL* LPAREN NL* expression NL* RPAREN
     ;
 
 jumpExpression
@@ -656,11 +657,11 @@ prefixUnaryOperator
     ;
 
 postfixUnaryOperator
-    : INCR | DECR | EXCL EXCL
+    : INCR | DECR | EXCL_EXCL
     ;
 
 memberAccessOperator
-    : DOT | QUEST DOT
+    : DOT | QUEST DOT | EXCL_EXCL DOT
     ;
 
 modifierList

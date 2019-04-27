@@ -3,3 +3,5 @@ kotlin.Pair
 test.Box
 test.AnnotatedClass
 com.lightningkite.mirror.archive.model.*
+com.lightningkite.mirror.test.SatisfiesExample
+com.lightningkite.mirror.test.SatisfiesExample.*

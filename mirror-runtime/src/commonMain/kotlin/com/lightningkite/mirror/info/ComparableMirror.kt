@@ -11,7 +11,7 @@ data class ComparableMirror<T>(
 
     override val mirrorClassCompanion: MirrorClassCompanion? get() = Companion
     companion object : MirrorClassCompanion {
-        override val minimal = ComparableMirror(TypeArgumentMirrorType("T", AnyMirror.nullable))
+        override val minimal = ComparableMirror(TypeArgumentMirrorType("T", Variance.INVARIANT, AnyMirror.nullable))
         override fun make(typeArguments: List<MirrorType<*>>): MirrorClass<*> = ComparableMirror(typeArguments[0])
     }
 

@@ -79,10 +79,17 @@ class SourceListener : KotlinParserBaseListener() {
     }
 
     fun KotlinParser.TypeParameterContext.convert(): ReadTypeParameter {
+        var variance = ReadTypeProjection.Variance.INVARIANT
+        this.modifierList()?.modifier()?.forEach {
+            it.varianceAnnotation()?.let {
+                if(it.IN() != null) variance = ReadTypeProjection.Variance.IN
+                if(it.OUT() != null) variance = ReadTypeProjection.Variance.OUT
+            }
+        }
         return ReadTypeParameter(
                 name = this.simpleIdentifier().text,
-                projection = this.type()?.let { ReadTypeProjection(type = it.convert(), variance = ReadTypeProjection.Variance.INVARIANT) }
-                        ?: ReadTypeProjection(ReadType("Any", nullable = true), ReadTypeProjection.Variance.INVARIANT)
+                projection = this.type()?.let { ReadTypeProjection(type = it.convert(), variance = variance) }
+                        ?: ReadTypeProjection(ReadType("Any", nullable = true), variance)
         )
     }
 

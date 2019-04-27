@@ -39,7 +39,7 @@ abstract class MirrorClass<Type : Any> : MirrorType<Type> {
     override fun getEntityAnnotations(): List<Annotation> = annotations
     override fun isElementOptional(index: Int): Boolean = fields[index].optional
 
-    data class Field<Owner, Value>(
+    data class Field<in Owner, Value>(
             val owner: MirrorClass<*>,
             val index: Int,
             val name: String,

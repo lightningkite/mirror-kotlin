@@ -15,7 +15,7 @@ data class SetMirror<E>(
         get() = Companion
 
     companion object : MirrorClassCompanion {
-        override val minimal = SetMirror(TypeArgumentMirrorType("E", AnyMirror.nullable))
+        override val minimal = SetMirror(TypeArgumentMirrorType("E", Variance.OUT, AnyMirror.nullable))
         override fun make(typeArguments: List<MirrorType<*>>): MirrorClass<*> = SetMirror(typeArguments[0])
     }
 

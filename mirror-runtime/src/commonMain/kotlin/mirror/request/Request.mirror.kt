@@ -13,7 +13,9 @@ data class RequestMirror<T: Any?>(
     
     override val mirrorClassCompanion: MirrorClassCompanion? get() = Companion
     companion object : MirrorClassCompanion {
-        override val minimal = RequestMirror(TypeArgumentMirrorType("T", AnyMirror.nullable))
+        val TMirrorMinimal get() = AnyMirror.nullable
+        
+        override val minimal = RequestMirror(TypeArgumentMirrorType("T", Variance.OUT, TMirrorMinimal))
         override fun make(typeArguments: List<MirrorType<*>>): MirrorClass<*> = RequestMirror(typeArguments[0] as MirrorType<Any?>)
     }
     

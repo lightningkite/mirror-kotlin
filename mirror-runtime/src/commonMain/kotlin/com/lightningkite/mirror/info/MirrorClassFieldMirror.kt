@@ -13,7 +13,7 @@ data class MirrorClassFieldMirror<Owner: Any, Value>(
         get() = Companion
 
     companion object: MirrorClassCompanion {
-        override val minimal = MirrorClassFieldMirror(TypeArgumentMirrorType("Owner", AnyMirror), TypeArgumentMirrorType("Value", AnyMirror.nullable))
+        override val minimal = MirrorClassFieldMirror(TypeArgumentMirrorType("Owner", Variance.IN, AnyMirror), TypeArgumentMirrorType("Value", Variance.INVARIANT, AnyMirror.nullable))
         override fun make(typeArguments: List<MirrorType<*>>): MirrorClass<*> = MirrorClassFieldMirror(typeArguments[0] as MirrorClass<Any>, typeArguments[1])
     }
 

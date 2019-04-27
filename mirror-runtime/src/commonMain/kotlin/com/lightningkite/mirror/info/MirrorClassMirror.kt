@@ -24,7 +24,7 @@ data class MirrorClassMirror<Type : Any>(val TypeMirror: MirrorType<Type>) : Mir
         @Deprecated("Index has been moved to MirrorRegistry.", ReplaceWith("MirrorRegistry.retrieve(any)", "com.lightningkite.mirror.info.MirrorRegistry"))
         fun retrieve(any: Any): MirrorClass<*> = MirrorRegistry.retrieve(any)
 
-        override val minimal = MirrorClassMirror(TypeArgumentMirrorType("Type", AnyMirror))
+        override val minimal = MirrorClassMirror(TypeArgumentMirrorType("Type", Variance.INVARIANT, AnyMirror))
         @Suppress("UNCHECKED_CAST")
         override fun make(typeArguments: List<MirrorType<*>>): MirrorClass<*> = MirrorClassMirror(typeArguments[0] as MirrorType<Any>)
     }

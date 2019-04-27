@@ -2,6 +2,7 @@ package com.lightningkite.mirror.info
 
 import com.lightningkite.mirror.registerTest
 import com.lightningkite.mirror.test.SatisfiesExample
+import com.lightningkite.mirror.test.SatisfiesExampleAnyTestMirror
 import com.lightningkite.mirror.test.SatisfiesExampleFirstMirror
 import com.lightningkite.mirror.test.SatisfiesExampleMirror
 import kotlin.test.BeforeTest
@@ -20,6 +21,13 @@ class SatisfiesTest {
         val with = SatisfiesExampleFirstMirror.minimal
         val result = with.satisfies(toSatisfy)
         assertTrue { result == SatisfiesExampleFirstMirror(IntMirror) }
+    }
+
+    @Test fun varianceTest(){
+        val toSatisfy = SatisfiesExampleMirror(IntMirror)
+        val with = SatisfiesExampleAnyTestMirror
+        val result = with.satisfies(toSatisfy)
+        assertTrue { result == SatisfiesExampleAnyTestMirror }
     }
 
     @Test fun number(){

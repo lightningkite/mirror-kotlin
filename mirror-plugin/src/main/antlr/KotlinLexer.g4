@@ -31,7 +31,7 @@ LineComment
 
 WS
     : [\u0020\u0009\u000C]
-      -> skip
+      -> channel(HIDDEN)
     ;
 
 NL: '\u000A' | '\u000D' '\u000A' ;
@@ -57,6 +57,7 @@ DECR: '--' ;
 CONJ: '&&' ;
 DISJ: '||' ;
 EXCL: '!' ;
+EXCL_EXCL: '!!' ;
 COLON: ':' ;
 SEMICOLON: ';' ;
 ASSIGNMENT: '=' ;
@@ -184,8 +185,8 @@ FloatLiteral
     ;
 
 DoubleLiteral
-    : ( (DecDigitNoZero DecDigit*)? '.'
-      | (DecDigitNoZero (DecDigit | '_')* DecDigit)? '.')
+    : ( (DecDigit DecDigit*)? '.'
+      | (DecDigit (DecDigit | '_')* DecDigit)? '.')
      ( DecDigit+
       | DecDigit (DecDigit | '_')+ DecDigit
       | DecDigit+ [eE] ('+' | '-')? DecDigit+
@@ -349,6 +350,7 @@ Inside_DECR: DECR  -> type(DECR) ;
 Inside_CONJ: CONJ  -> type(CONJ) ;
 Inside_DISJ: DISJ  -> type(DISJ) ;
 Inside_EXCL: EXCL  -> type(EXCL) ;
+Inside_EXCL_EXCL: EXCL_EXCL  -> type(EXCL_EXCL) ;
 Inside_COLON: COLON  -> type(COLON) ;
 Inside_SEMICOLON: SEMICOLON  -> type(SEMICOLON) ;
 Inside_ASSIGNMENT: ASSIGNMENT  -> type(ASSIGNMENT) ;
@@ -455,8 +457,8 @@ Inside_Identifier: Identifier -> type(Identifier) ;
 Inside_LabelReference: LabelReference -> type(LabelReference) ;
 Inside_LabelDefinition: LabelDefinition -> type(LabelDefinition) ;
 Inside_Comment: (LineComment | DelimitedComment) -> channel(HIDDEN) ;
-Inside_WS: WS -> skip ;
-Inside_NL: NL -> skip ;
+Inside_WS: WS -> channel(HIDDEN) ;
+Inside_NL: NL -> type(NL) ;
 
 
 mode LineString ;
@@ -509,7 +511,7 @@ MultiLineStrExprStart
     : '${' -> pushMode(StringExpression)
     ;
 
-MultiLineNL: NL -> skip ;
+MultiLineNL: NL -> channel(HIDDEN) ;
 
 
 mode StringExpression ;
@@ -534,6 +536,7 @@ StrExpr_DECR: DECR  -> type(DECR) ;
 StrExpr_CONJ: CONJ  -> type(CONJ) ;
 StrExpr_DISJ: DISJ  -> type(DISJ) ;
 StrExpr_EXCL: EXCL  -> type(EXCL) ;
+StrExpr_EXCL_EXCL: EXCL_EXCL  -> type(EXCL_EXCL) ;
 StrExpr_COLON: COLON  -> type(COLON) ;
 StrExpr_SEMICOLON: SEMICOLON  -> type(SEMICOLON) ;
 StrExpr_ASSIGNMENT: ASSIGNMENT  -> type(ASSIGNMENT) ;
@@ -583,5 +586,5 @@ StrExpr_Identifier: Identifier -> type(Identifier) ;
 StrExpr_LabelReference: LabelReference -> type(LabelReference) ;
 StrExpr_LabelDefinition: LabelDefinition -> type(LabelDefinition) ;
 StrExpr_Comment: (LineComment | DelimitedComment) -> channel(HIDDEN) ;
-StrExpr_WS: WS -> skip ;
-StrExpr_NL: NL -> skip ;
+StrExpr_WS: WS -> channel(HIDDEN) ;
+StrExpr_NL: NL -> channel(HIDDEN) ;
