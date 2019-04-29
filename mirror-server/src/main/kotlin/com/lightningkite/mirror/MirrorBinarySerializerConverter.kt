@@ -2,8 +2,10 @@ package com.lightningkite.mirror
 
 import com.lightningkite.mirror.info.MirrorRegistry
 import com.lightningkite.mirror.info.MirrorType
+import com.lightningkite.mirror.ktor.contentTypeOrFail
 import io.ktor.application.ApplicationCall
 import io.ktor.features.ContentConverter
+import io.ktor.features.ContentNegotiation
 import io.ktor.http.ContentType
 import io.ktor.http.content.ByteArrayContent
 import io.ktor.http.content.TextContent
@@ -12,10 +14,10 @@ import io.ktor.util.pipeline.PipelineContext
 import kotlinx.coroutines.io.ByteReadChannel
 import kotlinx.coroutines.io.jvm.javaio.toInputStream
 import kotlinx.serialization.BinaryFormat
+import kotlinx.serialization.StringFormat
 
 class MirrorBinarySerializerConverter(
-        val format: BinaryFormat,
-        val contentType: ContentType
+        val format: BinaryFormat
 ) : ContentConverter {
     override suspend fun convertForReceive(context: PipelineContext<ApplicationReceiveRequest, ApplicationCall>): Any? {
         val request: ApplicationReceiveRequest = context.subject
@@ -44,4 +46,8 @@ class MirrorBinarySerializerConverter(
             )
         }
     }
+}
+
+fun ContentNegotiation.Configuration.register(format: BinaryFormat, contentType: ContentType = format.contentTypeOrFail()){
+    register(contentType, MirrorBinarySerializerConverter(format))
 }
