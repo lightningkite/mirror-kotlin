@@ -5,10 +5,7 @@ import com.lightningkite.mirror.representation.ReadFieldInfo
 import com.lightningkite.mirror.representation.ReadType
 import com.lightningkite.mirror.representation.ReadTypeParameter
 import com.lightningkite.mirror.representation.ReadTypeProjection
-import me.eugeniomarletti.kotlin.metadata.classKind
-import me.eugeniomarletti.kotlin.metadata.declaresDefaultValue
-import me.eugeniomarletti.kotlin.metadata.isDataClass
-import me.eugeniomarletti.kotlin.metadata.modality
+import me.eugeniomarletti.kotlin.metadata.*
 import me.eugeniomarletti.kotlin.metadata.shadow.builtins.BuiltInSerializerProtocol
 import me.eugeniomarletti.kotlin.metadata.shadow.builtins.BuiltInsBinaryVersion
 import me.eugeniomarletti.kotlin.metadata.shadow.metadata.ProtoBuf
@@ -115,7 +112,9 @@ class PackageFragmentReader(val fragment: ProtoBuf.PackageFragment) {
                         }
                     else null,
                     annotations = listOf(), //hasAnnotations
-                    fields = readFields(this.constructorList.firstOrNull(), this.propertyList, table),
+                    fields = readFields(this.constructorList.find {
+                        it.isPrimary
+                    }, this.propertyList, table),
                     hasCompanion = fragment.class_List.any {
                         it.classKind == ProtoBuf.Class.Kind.COMPANION_OBJECT && it.hasFqName() && it.fqName in children
                     }
