@@ -18,15 +18,18 @@ package com.lightningkite.mirror.breaker
 
 import com.lightningkite.mirror.info.MirrorEnum
 import kotlinx.serialization.*
-import kotlinx.serialization.context.SerialContext
 import kotlinx.serialization.internal.EnumDescriptor
+import kotlinx.serialization.modules.EmptyModule
+import kotlinx.serialization.modules.SerialModule
 
-object PartialBreaker : AbstractSerialFormat() {
+open class PartialBreaker(context: SerialModule = EmptyModule) : AbstractSerialFormat(context) {
+
+    companion object : PartialBreaker()
 
     fun <T> fold(type: KSerializer<T>, elements: Map<Int, Any?>) = type.deserialize(D(elements))
 
-    class D(val elements: Map<Int, Any?>) : Decoder {
-        override val context: SerialContext get() = PartialBreaker.context
+    inner class D(val elements: Map<Int, Any?>) : Decoder {
+        override val context: SerialModule get() = this@PartialBreaker.context
         override val updateMode: UpdateMode get() = UpdateMode.OVERWRITE
 
         override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeDecoder = DE(elements)
@@ -45,8 +48,8 @@ object PartialBreaker : AbstractSerialFormat() {
         override fun decodeUnit() = Unit
     }
 
-    class DE(val elements: Map<Int, Any?>) : CompositeDecoder {
-        override val context: SerialContext get() = PartialBreaker.context
+    inner class DE(val elements: Map<Int, Any?>) : CompositeDecoder {
+        override val context: SerialModule get() = this@PartialBreaker.context
         override val updateMode: UpdateMode get() = UpdateMode.OVERWRITE
 
         override fun decodeBooleanElement(desc: SerialDescriptor, index: Int): Boolean {

@@ -42,7 +42,7 @@ kotlin {
     sources {
         main {
             dependency(standardLibrary)
-            dependency(serialization("0.10.0").type(KDependencyType.Api))
+            dependency(serialization(versions.getProperty("kotlinx_serialization")).type(KDependencyType.Api))
             dependency(projectOrMavenDashPlatform("com.lightningkite", "kommon", versions.getProperty("kommon")))
         }
         test {

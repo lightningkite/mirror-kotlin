@@ -9,11 +9,9 @@ import kotlinx.serialization.internal.EnumDescriptor
 abstract class MirrorEnum<T: Any>: MirrorClass<T>() {
     override val kind: SerialKind get() = UnionKind.ENUM_KIND
     abstract override val enumValues: Array<T>
-    override val descriptor by lazy { MirrorEnum.Descriptor(this) }
+    override val descriptor by lazy { EnumDescriptor(name, enumValues.map { (it as Enum<*>).name }.toTypedArray()) }
     override val fields: Array<Field<T, *>>
         get() = arrayOf()
-
-    class Descriptor<T : Any>(val parent: MirrorEnum<T>) : EnumDescriptor(parent.name, parent.enumValues.map { (it as Enum<*>).name }.toTypedArray())
 
     final override fun serialize(encoder: Encoder, obj: T) {
         val index = enumValues.indexOf(obj)
@@ -24,7 +22,7 @@ abstract class MirrorEnum<T: Any>: MirrorClass<T>() {
     final override fun deserialize(decoder: Decoder): T {
         val index = decoder.decodeEnum(descriptor)
         check(index in enumValues.indices)
-        { "$index is not among valid $name choices, choices size is ${enumValues.size}" }
+        { "$index is not among valid $name choices, choices are $enumValues" }
         return enumValues[index]
     }
 }

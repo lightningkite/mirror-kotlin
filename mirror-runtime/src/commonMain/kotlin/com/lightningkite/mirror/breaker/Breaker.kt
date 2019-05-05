@@ -17,11 +17,15 @@ package com.lightningkite.mirror.breaker
  */
 
 import com.lightningkite.mirror.info.MirrorEnum
+import com.lightningkite.mirror.info.MirrorRegistry
 import kotlinx.serialization.*
-import kotlinx.serialization.context.SerialContext
 import kotlinx.serialization.internal.EnumDescriptor
+import kotlinx.serialization.modules.EmptyModule
+import kotlinx.serialization.modules.SerialModule
 
-object Breaker : AbstractSerialFormat() {
+open class Breaker(context: SerialModule = EmptyModule) : AbstractSerialFormat(context) {
+
+    companion object: Breaker()
 
     fun <T> snap(type: KSerializer<T>, value: T) = E(type.descriptor.elementsCount).apply { type.serialize(this, value) }.elements
     fun <T> fold(type: KSerializer<T>, elements: Array<Any?>) = type.deserialize(D(elements))
@@ -31,9 +35,9 @@ object Breaker : AbstractSerialFormat() {
         return type.deserialize(D(elements))
     }
 
-    class E(size: Int) : Encoder {
+    inner class E(size: Int) : Encoder {
         val elements = Array<Any?>(size) { null }
-        override val context: SerialContext get() = Breaker.context
+        override val context: SerialModule get() = this@Breaker.context
 
         override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeEncoder = CE(elements)
 
@@ -74,7 +78,8 @@ object Breaker : AbstractSerialFormat() {
         }
 
         override fun encodeEnum(enumDescription: EnumDescriptor, ordinal: Int) {
-            elements[0] = (enumDescription as MirrorEnum.Descriptor<*>).parent.enumValues[ordinal]
+            val actualMirrorClass = MirrorRegistry[enumDescription.name]!!
+            elements[0] = actualMirrorClass.enumValues!![ordinal]
         }
 
         override fun encodeNotNullMark() {}
@@ -84,8 +89,8 @@ object Breaker : AbstractSerialFormat() {
         }
     }
 
-    class CE(val elements: Array<Any?>) : CompositeEncoder {
-        override val context: SerialContext get() = Breaker.context
+    inner class CE(val elements: Array<Any?>) : CompositeEncoder {
+        override val context: SerialModule get() = this@Breaker.context
         override fun encodeBooleanElement(desc: SerialDescriptor, index: Int, value: Boolean) {
             elements[index] = value
         }
@@ -139,8 +144,8 @@ object Breaker : AbstractSerialFormat() {
         }
     }
 
-    class D(val elements: Array<Any?>) : Decoder {
-        override val context: SerialContext get() = Breaker.context
+    inner class D(val elements: Array<Any?>) : Decoder {
+        override val context: SerialModule get() = this@Breaker.context
         override val updateMode: UpdateMode get() = UpdateMode.OVERWRITE
 
         override fun beginStructure(desc: SerialDescriptor, vararg typeParams: KSerializer<*>): CompositeDecoder = DE(elements)
@@ -159,8 +164,8 @@ object Breaker : AbstractSerialFormat() {
         override fun decodeUnit() = Unit
     }
 
-    class DE(val elements: Array<Any?>) : CompositeDecoder {
-        override val context: SerialContext get() = Breaker.context
+    inner class DE(val elements: Array<Any?>) : CompositeDecoder {
+        override val context: SerialModule get() = this@Breaker.context
         override val updateMode: UpdateMode get() = UpdateMode.OVERWRITE
 
         override fun decodeBooleanElement(desc: SerialDescriptor, index: Int): Boolean {
