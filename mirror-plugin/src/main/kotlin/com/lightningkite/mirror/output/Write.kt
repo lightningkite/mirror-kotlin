@@ -176,8 +176,16 @@ fun ReadClassInfo.fullImportsWithMirrors(): List<String> {
             fields.flatMap { it.annotations.map { it.name } } +
             annotations.map { it.name }
     for (mirror in mirrors) {
-        if(mirror[0].isLowerCase()) continue
-        val search = mirror.substringBefore('.', mirror)
+        if (mirror[0].isLowerCase()) {
+            if (!mirror.substringAfter("kotlin.").contains('.')) {
+                //Skip, already imported
+            } else if (mirror.startsWith("kotlin.")) {
+                i.add("mirror." + mirror + "Mirror")
+            } else {
+                i.add(mirror + "Mirror")
+            }
+        }
+        val search = "." + mirror.substringBefore('.', mirror)
         val postOwner = mirror.substringAfter('.', "")
         val append = if(postOwner.isEmpty()) "" else postOwner.filter { it.isLetterOrDigit() }
 
