@@ -60,6 +60,7 @@ kotlin {
                     api("io.ktor:ktor-server-core:${versions.getProperty("ktor")}")
                     api("io.ktor:ktor-auth:${versions.getProperty("ktor")}")
                     api("io.ktor:ktor-websockets:${versions.getProperty("ktor")}")
+                    api("io.ktor:ktor-metrics:${versions.getProperty("ktor")}")
                 }
             }
             test {
