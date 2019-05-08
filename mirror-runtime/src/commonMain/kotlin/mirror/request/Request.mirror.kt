@@ -16,7 +16,15 @@ data class RequestMirror<T: Any?>(
         val TMirrorMinimal get() = AnyMirror.nullable
         
         override val minimal = RequestMirror(TypeArgumentMirrorType("T", Variance.OUT, TMirrorMinimal))
+        @Suppress("UNCHECKED_CAST")
         override fun make(typeArguments: List<MirrorType<*>>): MirrorClass<*> = RequestMirror(typeArguments[0] as MirrorType<Any?>)
+
+        @Suppress("UNCHECKED_CAST")
+        fun make(
+                TMirror: MirrorType<*>? = null
+        ) = RequestMirror<Any?>(
+                TMirror = (TMirror ?: TMirrorMinimal) as MirrorType<Any?>
+        )
     }
     
     override val typeParameters: Array<MirrorType<*>> get() = arrayOf(TMirror)

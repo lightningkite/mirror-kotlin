@@ -20,7 +20,19 @@ data class TripleMirror<A: Any?, B: Any?, C: Any?>(
         val CMirrorMinimal get() = AnyMirror.nullable
         
         override val minimal = TripleMirror(TypeArgumentMirrorType("A", Variance.OUT, AMirrorMinimal), TypeArgumentMirrorType("B", Variance.OUT, BMirrorMinimal), TypeArgumentMirrorType("C", Variance.OUT, CMirrorMinimal))
+        @Suppress("UNCHECKED_CAST")
         override fun make(typeArguments: List<MirrorType<*>>): MirrorClass<*> = TripleMirror(typeArguments[0] as MirrorType<Any?>, typeArguments[1] as MirrorType<Any?>, typeArguments[2] as MirrorType<Any?>)
+
+        @Suppress("UNCHECKED_CAST")
+        fun make(
+                AMirror: MirrorType<*>? = null,
+                BMirror: MirrorType<*>? = null,
+                CMirror: MirrorType<*>? = null
+        ) = TripleMirror<Any?, Any?, Any?>(
+                AMirror = (AMirror ?: AMirrorMinimal) as MirrorType<Any?>,
+                BMirror = (BMirror ?: BMirrorMinimal) as MirrorType<Any?>,
+                CMirror = (CMirror ?: CMirrorMinimal) as MirrorType<Any?>
+        )
     }
     
     override val typeParameters: Array<MirrorType<*>> get() = arrayOf(AMirror, BMirror, CMirror)

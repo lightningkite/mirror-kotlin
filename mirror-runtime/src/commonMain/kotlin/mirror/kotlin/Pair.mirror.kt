@@ -18,7 +18,17 @@ data class PairMirror<A: Any?, B: Any?>(
         val BMirrorMinimal get() = AnyMirror.nullable
         
         override val minimal = PairMirror(TypeArgumentMirrorType("A", Variance.OUT, AMirrorMinimal), TypeArgumentMirrorType("B", Variance.OUT, BMirrorMinimal))
+        @Suppress("UNCHECKED_CAST")
         override fun make(typeArguments: List<MirrorType<*>>): MirrorClass<*> = PairMirror(typeArguments[0] as MirrorType<Any?>, typeArguments[1] as MirrorType<Any?>)
+
+        @Suppress("UNCHECKED_CAST")
+        fun make(
+                AMirror: MirrorType<*>? = null,
+                BMirror: MirrorType<*>? = null
+        ) = PairMirror<Any?, Any?>(
+                AMirror = (AMirror ?: AMirrorMinimal) as MirrorType<Any?>,
+                BMirror = (BMirror ?: BMirrorMinimal) as MirrorType<Any?>
+        )
     }
     
     override val typeParameters: Array<MirrorType<*>> get() = arrayOf(AMirror, BMirror)

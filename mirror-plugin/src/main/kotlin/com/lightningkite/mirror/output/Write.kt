@@ -250,6 +250,7 @@ fun TabWriter.writeMirrorCompanionObject(classInfo: ReadClassInfo){
             })
             append(")")
         }
+        line("""@Suppress("UNCHECKED_CAST")""")
         line {
             append("override fun make(typeArguments: List<MirrorType<*>>): MirrorClass<*> = ")
             append(classInfo.reflectionName)
@@ -265,8 +266,68 @@ fun TabWriter.writeMirrorCompanionObject(classInfo: ReadClassInfo){
             })
             append(")")
         }
+        line()
+        line("""@Suppress("UNCHECKED_CAST")""")
+        line {
+            append("fun make(")
+        }
+        tab {
+            classInfo.typeParameters.forEachIndexed { index, readTypeParameter ->
+                line {
+                    append(readTypeParameter.name)
+                    append("Mirror: MirrorType<*>? = null")
+                    if (index != classInfo.typeParameters.lastIndex) {
+                        append(",")
+                    }
+                }
+            }
+        }
+        line(") = ${classInfo.reflectionName}<${classInfo.typeParameters.joinToString { it.projection.type.useMinimumBound(classInfo, maxResolutions = 3) }}>(")
+        tab {
+            classInfo.typeParameters.forEachIndexed { index, readTypeParameter ->
+                line {
+                    append(readTypeParameter.name)
+                    append("Mirror = ")
+                    append("(")
+                    append(readTypeParameter.name)
+                    append("Mirror ?: ")
+                    append(readTypeParameter.name)
+                    append("MirrorMinimal")
+                    append(") as MirrorType<")
+                    append(readTypeParameter.projection.type.useMinimumBound(classInfo, maxResolutions = 3))
+                    append(">")
+                    if (index != classInfo.typeParameters.lastIndex) {
+                        append(",")
+                    }
+                }
+            }
+        }
+        line(")")
     }
     line("}")
+}
+
+fun TabWriter.writeTypeParameterDataClassStart(classInfo: ReadClassInfo) {
+    line {
+        append("data class ")
+        append(classInfo.reflectionName)
+        append(classInfo.typeParameters.joinToString(", ", "<", ">") { it.name + ": " + it.projection.type.use })
+        append("(")
+    }
+    tab {
+        classInfo.typeParameters.forEachIndexed { index, readTypeParameter ->
+            line {
+                append("val ")
+                append(readTypeParameter.name)
+                append("Mirror: MirrorType<")
+                append(readTypeParameter.name)
+                append(">")
+                if (index != classInfo.typeParameters.lastIndex) {
+                    append(",")
+                }
+            }
+        }
+    }
 }
 
 fun TabWriter.writeInterfaceMirror(classInfo: ReadClassInfo) = with(classInfo) {
@@ -280,26 +341,7 @@ fun TabWriter.writeInterfaceMirror(classInfo: ReadClassInfo) = with(classInfo) {
     }
     line()
     if (typeParameters.isNotEmpty()) {
-        line {
-            append("data class ")
-            append(reflectionName)
-            append(typeParameters.joinToString(", ", "<", ">") { it.name + ": " + it.projection.type.use })
-            append("(")
-        }
-        tab {
-            typeParameters.forEachIndexed { index, readTypeParameter ->
-                line {
-                    append("val ")
-                    append(readTypeParameter.name)
-                    append("Mirror: MirrorType<")
-                    append(readTypeParameter.name)
-                    append(">")
-                    if (index != typeParameters.lastIndex) {
-                        append(",")
-                    }
-                }
-            }
-        }
+        writeTypeParameterDataClassStart(classInfo)
         line {
             append(") : $PolymorphicMirrorName<")
             append(classInfo.accessNameWithArguments)
@@ -377,26 +419,7 @@ fun TabWriter.writeEnumMirror(classInfo: ReadClassInfo) = with(classInfo) {
     }
     line()
     if (typeParameters.isNotEmpty()) {
-        line {
-            append("data class ")
-            append(reflectionName)
-            append(typeParameters.joinToString(", ", "<", ">") { it.name + ": " + it.projection.type.use })
-            append("(")
-        }
-        tab {
-            typeParameters.forEachIndexed { index, readTypeParameter ->
-                line {
-                    append("val ")
-                    append(readTypeParameter.name)
-                    append("Mirror: MirrorType<")
-                    append(readTypeParameter.name)
-                    append(">")
-                    if (index != typeParameters.lastIndex) {
-                        append(",")
-                    }
-                }
-            }
-        }
+        writeTypeParameterDataClassStart(classInfo)
         line {
             append(") : MirrorEnum<")
             append(classInfo.accessNameWithArguments)
@@ -489,26 +512,7 @@ fun TabWriter.writeNormalMirror(classInfo: ReadClassInfo) = with(classInfo) {
 
     line()
     if (typeParameters.isNotEmpty()) {
-        line {
-            append("data class ")
-            append(reflectionName)
-            append(typeParameters.joinToString(", ", "<", ">") { it.name + ": " + it.projection.type.use })
-            append("(")
-        }
-        tab {
-            typeParameters.forEachIndexed { index, readTypeParameter ->
-                line {
-                    append("val ")
-                    append(readTypeParameter.name)
-                    append("Mirror: MirrorType<")
-                    append(readTypeParameter.name)
-                    append(">")
-                    if (index != typeParameters.lastIndex) {
-                        append(",")
-                    }
-                }
-            }
-        }
+        writeTypeParameterDataClassStart(classInfo)
         line {
             append(") : MirrorClass<")
             append(classInfo.accessNameWithArguments)

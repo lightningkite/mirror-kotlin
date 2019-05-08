@@ -23,6 +23,9 @@ data class ReadTypeProjection(
         }
 
     override fun toString(): String {
+        if (variance == Variance.STAR) {
+            return "null"
+        }
         return type.toString()
     }
 }

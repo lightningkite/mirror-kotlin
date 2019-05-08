@@ -2,8 +2,7 @@ package com.lightningkite.mirror.server.test
 
 import com.lightningkite.kommon.exception.ForbiddenException
 import com.lightningkite.kommon.exception.stackTraceString
-import com.lightningkite.mirror.MirrorStringSerializerConverter
-import com.lightningkite.mirror.PrincipalWrapper
+import com.lightningkite.mirror.*
 import com.lightningkite.mirror.info.*
 import com.lightningkite.mirror.expose
 import com.lightningkite.mirror.request.RemoteExceptionData
@@ -64,8 +63,7 @@ class KtorBasicsTest {
 
     val setupTestApplication: Application.() -> Unit = {
         install(ContentNegotiation) {
-            val converter = MirrorStringSerializerConverter(serializer, ContentType.Application.Json)
-            register(converter.contentType, converter)
+            register(serializer)
         }
         install(StatusPages) {
             status(HttpStatusCode.NotFound) {

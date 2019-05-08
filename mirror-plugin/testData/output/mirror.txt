@@ -5,3 +5,5 @@ test.AnnotatedClass
 com.lightningkite.mirror.archive.model.*
 com.lightningkite.mirror.test.SatisfiesExample
 com.lightningkite.kommon.string.Email
+com.lightningkite.mirror.archive.model.Condition
+com.lightningkite.mirror.archive.model.Condition.*

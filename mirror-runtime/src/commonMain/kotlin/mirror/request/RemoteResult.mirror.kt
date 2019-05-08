@@ -16,7 +16,15 @@ data class RemoteResultMirror<T: Any?>(
         val TMirrorMinimal get() = AnyMirror.nullable
         
         override val minimal = RemoteResultMirror(TypeArgumentMirrorType("T", Variance.INVARIANT, TMirrorMinimal))
+        @Suppress("UNCHECKED_CAST")
         override fun make(typeArguments: List<MirrorType<*>>): MirrorClass<*> = RemoteResultMirror(typeArguments[0] as MirrorType<Any?>)
+
+        @Suppress("UNCHECKED_CAST")
+        fun make(
+                TMirror: MirrorType<*>? = null
+        ) = RemoteResultMirror<Any?>(
+                TMirror = (TMirror ?: TMirrorMinimal) as MirrorType<Any?>
+        )
     }
     
     override val typeParameters: Array<MirrorType<*>> get() = arrayOf(TMirror)
