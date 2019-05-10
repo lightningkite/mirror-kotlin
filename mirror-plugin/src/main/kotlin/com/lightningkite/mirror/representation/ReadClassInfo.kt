@@ -70,7 +70,7 @@ class ReadClassInfo(
             return if (typeParameters.isEmpty()) reflectionQualifiedName
             else "$reflectionQualifiedName.minimal"
         }
-    val reflectionName: String @JsonIgnore get() = "${owner ?: ""}${name}Mirror"
+    val reflectionName: String @JsonIgnore get() = "${owner?.filter { it != '.' } ?: ""}${name}Mirror"
     val accessName: String @JsonIgnore get() = (if (owner == null) "" else owner + ".") + name
 
     val accessNameWithStars: String
