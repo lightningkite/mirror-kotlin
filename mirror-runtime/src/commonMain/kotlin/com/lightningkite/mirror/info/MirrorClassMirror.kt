@@ -8,6 +8,8 @@ data class MirrorClassMirror<Type : Any>(val TypeMirror: MirrorType<Type>) : Mir
         get() = Companion
 
     companion object: MirrorClassCompanion {
+        val TypeMirrorMinimal = AnyMirror
+
         @Deprecated("Index has been moved to MirrorRegistry.", ReplaceWith("MirrorRegistry.Index", "com.lightningkite.mirror.info.MirrorRegistry"))
         class Index(
                 val byName: Map<String, MirrorClass<*>>,
@@ -27,6 +29,8 @@ data class MirrorClassMirror<Type : Any>(val TypeMirror: MirrorType<Type>) : Mir
         override val minimal = MirrorClassMirror(TypeArgumentMirrorType("Type", Variance.INVARIANT, AnyMirror))
         @Suppress("UNCHECKED_CAST")
         override fun make(typeArguments: List<MirrorType<*>>): MirrorClass<*> = MirrorClassMirror(typeArguments[0] as MirrorType<Any>)
+        @Suppress("UNCHECKED_CAST")
+        fun make(TypeMirror: MirrorType<*>?): MirrorClassMirror<*> = MirrorClassMirror(TypeMirror as? MirrorType<Any> ?: TypeMirrorMinimal)
     }
 
     override val typeParameters: Array<MirrorType<*>> get() = arrayOf(TypeMirror)
