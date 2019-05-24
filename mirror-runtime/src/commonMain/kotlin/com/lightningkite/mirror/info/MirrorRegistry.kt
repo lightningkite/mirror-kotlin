@@ -69,7 +69,8 @@ object MirrorRegistry {
                 ListMirror.minimal,
                 MapMirror.minimal,
                 SetMirror.minimal,
-                ComparableMirror.minimal
+                ComparableMirror.minimal,
+                ByteArrayMirror
         )
         registerKotlin()
         registerRequests()

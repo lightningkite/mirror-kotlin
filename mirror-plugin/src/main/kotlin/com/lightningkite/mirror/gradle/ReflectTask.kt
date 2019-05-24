@@ -33,8 +33,11 @@ open class ReflectTask() : DefaultTask() {
         } catch (e: Throwable) {
         }
         println("Files: ${files.joinToString("\n")}")
+        val cacheFile = File("build/mirror-cache-${project.name}.json")
+        println("Cache: $cacheFile")
         reflectTask(
-                directories = files
+                directories = files,
+                mirrorCacheFile = cacheFile
         )
     }
 

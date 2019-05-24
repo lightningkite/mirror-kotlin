@@ -11,7 +11,7 @@ import java.io.File
 import java.util.jar.JarFile
 
 
-fun reflectTask(directories: List<File>) {
+fun reflectTask(directories: List<File>, mirrorCacheFile: File = File("build/mirror-cache.json")) {
     val sourceDirectories = directories.filter { it.isDirectory }
     val jarsToInspect = directories.filter { it.extension == "jar" }
     println("Checking source directories: $sourceDirectories")
@@ -43,21 +43,20 @@ fun reflectTask(directories: List<File>) {
 
     println("Requested names: $requestedNames")
 
-    val declarations = allDeclarations(sourceDirectories, jarsToInspect)
+    val declarations = allDeclarations(sourceDirectories, jarsToInspect, mirrorCacheFile = mirrorCacheFile)
 
     for (file in requestFiles) {
         file.output(declarations)
     }
 }
 
-fun allDeclarations(directories: List<File>, jarsToInspect: List<File>): Map<String, ReadClassInfo> {
+fun allDeclarations(directories: List<File>, jarsToInspect: List<File>, mirrorCacheFile: File = File("build/mirror-cache.json")): Map<String, ReadClassInfo> {
     val mapper = ObjectMapper().registerModule(KotlinModule())
             .disable(DeserializationFeature.FAIL_ON_IGNORED_PROPERTIES)
             .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
 
-    val mirrorCacheFile = File("build/mirror-cache.json")
     mirrorCacheFile.parentFile.mkdirs()
-    val cacheType =object : TypeReference<Map<String, SourceFileRead>>() {}
+    val cacheType = object : TypeReference<Map<String, SourceFileRead>>() {}
     val previousDeclarations: Map<String, SourceFileRead> = mirrorCacheFile
             .takeIf { it.exists() }
             ?.readText()
