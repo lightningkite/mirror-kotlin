@@ -13,6 +13,9 @@ abstract class MirrorEnum<T: Any>: MirrorClass<T>() {
     override val fields: Array<Field<T, *>>
         get() = arrayOf()
 
+    override val empty: T
+        get() = enumValues.first()
+
     final override fun serialize(encoder: Encoder, obj: T) {
         val index = enumValues.indexOf(obj)
                 .also { check(it != -1) { "$obj is not a valid enum $name, choices are $enumValues" } }

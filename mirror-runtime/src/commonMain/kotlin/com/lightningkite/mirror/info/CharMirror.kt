@@ -7,6 +7,8 @@ import kotlinx.serialization.SerialKind
 import kotlin.reflect.KClass
 
 object CharMirror : MirrorClass<Char>() {
+    override val empty: Char
+        get() = ' '
     override val typeParameters: Array<MirrorType<*>> get() = arrayOf()
     override val kClass: KClass<Char> get() = Char::class
     override val packageName: String get() = "kotlin"

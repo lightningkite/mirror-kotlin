@@ -1,6 +1,5 @@
 package com.lightningkite.mirror.serialization.json
 
-import com.lightningkite.mirror.fastjson.LameJson
 import com.lightningkite.mirror.info.registerDefaults
 import com.lightningkite.mirror.registerTest
 import com.lightningkite.mirror.test.*
@@ -12,7 +11,6 @@ import kotlinx.serialization.json.Json
 class PerformanceTest {
 
     init {
-        registerDefaults()
         registerTest()
     }
 
@@ -45,9 +43,7 @@ class PerformanceTest {
 
     val options = listOf(
             Option(name = "KotlinX Json", format = Json.plain, serializer = Zoo.serializer()),
-            Option(name = "Mirror Json", format = Json.plain, serializer = ZooMirror),
-            Option(name = "KotlinX LameJson", format = LameJson, serializer = Zoo.serializer()),
-            Option(name = "Mirror LameJson", format = LameJson, serializer = ZooMirror)
+            Option(name = "Mirror Json", format = Json.plain, serializer = ZooMirror)
     )
 
     inline fun benchmarkWithAllOptions(test: String, warmup: Int = 2_000, iterations: Int = 20_000, action: (StringFormat, KSerializer<Zoo>) -> Unit) {

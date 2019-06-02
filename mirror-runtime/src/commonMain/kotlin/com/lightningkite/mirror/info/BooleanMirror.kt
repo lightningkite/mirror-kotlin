@@ -7,6 +7,8 @@ import kotlinx.serialization.SerialKind
 import kotlin.reflect.KClass
 
 object BooleanMirror : MirrorClass<Boolean>() {
+    override val empty: Boolean
+        get() = false
     override val typeParameters: Array<MirrorType<*>> get() = arrayOf()
     override val kClass: KClass<Boolean> get() = Boolean::class
     override val packageName: String get() = "kotlin"

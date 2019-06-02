@@ -14,6 +14,9 @@ data class MapMirror<K, V>(
     override val mirrorClassCompanion: MirrorClassCompanion?
         get() = Companion
 
+    override val empty: Map<K, V>
+        get() = mapOf()
+
     companion object: MirrorClassCompanion {
         val KMirrorMinimal = TypeArgumentMirrorType("K", Variance.INVARIANT, AnyMirror.nullable)
         val VMirrorMinimal = TypeArgumentMirrorType("V", Variance.OUT, AnyMirror.nullable)

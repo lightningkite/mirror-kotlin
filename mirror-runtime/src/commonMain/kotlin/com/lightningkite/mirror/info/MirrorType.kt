@@ -5,4 +5,5 @@ import kotlinx.serialization.SerialDescriptor
 
 interface MirrorType<Type> : KSerializer<Type>, SerialDescriptor {
     val base: MirrorClass<*>
+    val empty: Type
 }

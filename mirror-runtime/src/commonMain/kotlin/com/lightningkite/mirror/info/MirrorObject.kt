@@ -6,6 +6,8 @@ import kotlinx.serialization.SerialKind
 import kotlinx.serialization.UnionKind
 
 abstract class MirrorObject<T : Any>(val singleton: T) : MirrorClass<T>() {
+    override val empty: T
+        get() = singleton
     override val typeParameters: Array<MirrorType<*>> get() = arrayOf()
     override val fields: Array<Field<T, *>> get() = arrayOf()
     override val kind: SerialKind get() = UnionKind.OBJECT

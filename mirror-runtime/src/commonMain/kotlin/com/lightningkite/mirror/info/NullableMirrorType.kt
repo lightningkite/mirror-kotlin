@@ -6,6 +6,7 @@ import kotlinx.serialization.Encoder
 import kotlinx.serialization.SerialDescriptor
 
 data class NullableMirrorType<Type : Any>(override val base: MirrorClass<Type>) : MirrorType<Type?>, SerialDescriptor by base {
+    override val empty: Type? get() = null
     override val descriptor: SerialDescriptor get() = this
 
     override val isNullable: Boolean

@@ -7,6 +7,8 @@ import kotlinx.serialization.SerialKind
 import kotlin.reflect.KClass
 
 object ByteMirror : MirrorClass<Byte>() {
+    override val empty: Byte
+        get() = 0
     override val typeParameters: Array<MirrorType<*>> get() = arrayOf()
     override val kClass: KClass<Byte> get() = Byte::class
     override val packageName: String get() = "kotlin"

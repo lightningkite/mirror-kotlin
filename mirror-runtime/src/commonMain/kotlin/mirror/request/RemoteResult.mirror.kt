@@ -28,6 +28,10 @@ data class RemoteResultMirror<T: Any?>(
     }
     
     override val typeParameters: Array<MirrorType<*>> get() = arrayOf(TMirror)
+    override val empty: RemoteResult<T> get() = RemoteResult(
+        resultOrNull = null,
+        exception = null
+    )
     @Suppress("UNCHECKED_CAST")
     override val kClass: KClass<RemoteResult<T>> get() = RemoteResult::class as KClass<RemoteResult<T>>
     override val modifiers: Array<Modifier> get() = arrayOf(Modifier.Data)

@@ -36,6 +36,11 @@ data class TripleMirror<A: Any?, B: Any?, C: Any?>(
     }
     
     override val typeParameters: Array<MirrorType<*>> get() = arrayOf(AMirror, BMirror, CMirror)
+    override val empty: Triple<A,B,C> get() = Triple(
+        first = AMirror.empty,
+        second = BMirror.empty,
+        third = CMirror.empty
+    )
     @Suppress("UNCHECKED_CAST")
     override val kClass: KClass<Triple<A,B,C>> get() = Triple::class as KClass<Triple<A,B,C>>
     override val modifiers: Array<Modifier> get() = arrayOf(Modifier.Data)

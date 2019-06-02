@@ -8,6 +8,12 @@ import kotlinx.serialization.*
 import mirror.kotlin.*
 
 object RemoteExceptionDataMirror : MirrorClass<RemoteExceptionData>() {
+    override val empty: RemoteExceptionData get() = RemoteExceptionData(
+        type = "",
+        message = "",
+        trace = "",
+        data = null
+    )
     @Suppress("UNCHECKED_CAST")
     override val kClass: KClass<RemoteExceptionData> get() = RemoteExceptionData::class as KClass<RemoteExceptionData>
     override val modifiers: Array<Modifier> get() = arrayOf()

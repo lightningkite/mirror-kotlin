@@ -10,6 +10,8 @@ data class SetMirror<E>(
 ) : MirrorClass<Set<E>>(),
         KSerializer<Set<E>> by EMirror.set,
         SerialDescriptor by EMirror.set.descriptor {
+    override val empty: Set<E>
+        get() = setOf()
     override val mirrorClassCompanion: MirrorClassCompanion?
         get() = Companion
 

@@ -4,10 +4,22 @@ import kotlinx.serialization.*
 import kotlin.reflect.KClass
 
 @Suppress("UNCHECKED_CAST")
-data class MirrorClassFieldMirror<Owner: Any, Value>(
+data class MirrorClassFieldMirror<Owner, Value>(
         val OwnerMirror: MirrorType<Owner>,
         val ValueMirror: MirrorType<Value>
 ) : MirrorClass<MirrorClass.Field<Owner, Value>>() {
+
+    override val empty: Field<Owner, Value>
+        get() = Field(
+                owner = AnyMirror,
+                index = -1,
+                name = "",
+                type = AnyMirror as MirrorType<Value>,
+                optional = true,
+                get = { Unit as Value },
+                set = null,
+                annotations = listOf()
+        )
 
     override val mirrorClassCompanion: MirrorClassCompanion?
         get() = Companion

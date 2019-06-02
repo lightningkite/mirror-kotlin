@@ -10,6 +10,9 @@ data class ListMirror<E>(
 ) : MirrorClass<List<E>>(),
         KSerializer<List<E>> by EMirror.list,
         SerialDescriptor by EMirror.list.descriptor {
+    override val empty: List<E>
+        get() = listOf()
+
     override val mirrorClassCompanion: MirrorClassCompanion?
         get() = Companion
 

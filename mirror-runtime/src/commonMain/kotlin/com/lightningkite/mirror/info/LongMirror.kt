@@ -7,6 +7,8 @@ import kotlinx.serialization.SerialKind
 import kotlin.reflect.KClass
 
 object LongMirror : MirrorClass<Long>() {
+    override val empty: Long
+        get() = 0
     override val typeParameters: Array<MirrorType<*>> get() = arrayOf()
     override val kClass: KClass<Long> get() = Long::class
     override val packageName: String get() = "kotlin"

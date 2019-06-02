@@ -4,10 +4,27 @@ import kotlinx.serialization.*
 import kotlin.reflect.KClass
 
 data class MirrorClassMirror<Type : Any>(val TypeMirror: MirrorType<Type>) : MirrorClass<MirrorClass<Type>>() {
+    @Suppress("UNCHECKED_CAST")
+    override val empty: MirrorClass<Type>
+        get() = object : MirrorClass<Type>() {
+            override val kClass: KClass<Type>
+                get() = Any::class as KClass<Type>
+            override val packageName: String
+                get() = ""
+            override val localName: String
+                get() = ""
+            override val fields: Array<Field<Type, *>>
+                get() = arrayOf()
+            override val empty: Type
+                get() = Unit as Type
+
+            override fun deserialize(decoder: Decoder): Type = empty
+            override fun serialize(encoder: Encoder, obj: Type) {}
+        }
     override val mirrorClassCompanion: MirrorClassCompanion?
         get() = Companion
 
-    companion object: MirrorClassCompanion {
+    companion object : MirrorClassCompanion {
         val TypeMirrorMinimal = AnyMirror
 
         @Deprecated("Index has been moved to MirrorRegistry.", ReplaceWith("MirrorRegistry.Index", "com.lightningkite.mirror.info.MirrorRegistry"))
@@ -29,8 +46,10 @@ data class MirrorClassMirror<Type : Any>(val TypeMirror: MirrorType<Type>) : Mir
         override val minimal = MirrorClassMirror(TypeArgumentMirrorType("Type", Variance.INVARIANT, AnyMirror))
         @Suppress("UNCHECKED_CAST")
         override fun make(typeArguments: List<MirrorType<*>>): MirrorClass<*> = MirrorClassMirror(typeArguments[0] as MirrorType<Any>)
+
         @Suppress("UNCHECKED_CAST")
-        fun make(TypeMirror: MirrorType<*>?): MirrorClassMirror<*> = MirrorClassMirror(TypeMirror as? MirrorType<Any> ?: TypeMirrorMinimal)
+        fun make(TypeMirror: MirrorType<*>?): MirrorClassMirror<*> = MirrorClassMirror(TypeMirror as? MirrorType<Any>
+                ?: TypeMirrorMinimal)
     }
 
     override val typeParameters: Array<MirrorType<*>> get() = arrayOf(TypeMirror)

@@ -7,6 +7,8 @@ import kotlinx.serialization.SerialKind
 import kotlin.reflect.KClass
 
 object FloatMirror : MirrorClass<Float>() {
+    override val empty: Float
+        get() = 0f
     override val typeParameters: Array<MirrorType<*>> get() = arrayOf()
     override val kClass: KClass<Float> get() = Float::class
     override val packageName: String get() = "kotlin"

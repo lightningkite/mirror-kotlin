@@ -3,6 +3,8 @@ package com.lightningkite.mirror.info
 import kotlinx.serialization.*
 
 abstract class PolymorphicMirror<T : Any> : MirrorClass<T>() {
+    override val empty: T
+        get() = (MirrorRegistry.firstSatisfying(this) ?: throw IllegalStateException("No types satisfying this one found")).empty as T
     override val fields: Array<Field<T, *>>
         get() = arrayOf(
                 Field(

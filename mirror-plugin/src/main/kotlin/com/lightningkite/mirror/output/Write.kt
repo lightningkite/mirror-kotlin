@@ -540,6 +540,21 @@ fun TabWriter.writeNormalMirror(classInfo: ReadClassInfo) = with(classInfo) {
 
     tab {
 
+        line("""override val empty: ${classInfo.accessNameWithArguments} get() = ${classInfo.accessName}(""")
+        tab {
+            for ((index, field) in fields.withIndex()) {
+                line {
+                    append(field.name)
+                    append(" = ")
+                    append(field.default ?: (field.type.toString() + ".empty"))
+                    if (index != fields.lastIndex) {
+                        append(",")
+                    }
+                }
+            }
+        }
+        line(")")
+
         line("""@Suppress("UNCHECKED_CAST")""")
         line {
             append("override val kClass: KClass<")

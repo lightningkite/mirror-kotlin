@@ -7,6 +7,8 @@ import kotlinx.serialization.SerialKind
 import kotlin.reflect.KClass
 
 object ShortMirror : MirrorClass<Short>() {
+    override val empty: Short
+        get() = 0
     override val typeParameters: Array<MirrorType<*>> get() = arrayOf()
     override val kClass: KClass<Short> get() = Short::class
     override val packageName: String get() = "kotlin"

@@ -32,6 +32,10 @@ data class PairMirror<A: Any?, B: Any?>(
     }
     
     override val typeParameters: Array<MirrorType<*>> get() = arrayOf(AMirror, BMirror)
+    override val empty: Pair<A,B> get() = Pair(
+        first = AMirror.empty,
+        second = BMirror.empty
+    )
     @Suppress("UNCHECKED_CAST")
     override val kClass: KClass<Pair<A,B>> get() = Pair::class as KClass<Pair<A,B>>
     override val modifiers: Array<Modifier> get() = arrayOf(Modifier.Data)

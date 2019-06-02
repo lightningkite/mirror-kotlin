@@ -50,6 +50,10 @@ object MirrorRegistry {
         return index.value.byName.values.mapNotNull { it.satisfies(type) }
     }
 
+    fun firstSatisfying(type: MirrorType<*>): MirrorClass<*>? {
+        return index.value.byName.values.asSequence().mapNotNull { it.satisfies(type) }.firstOrNull()
+    }
+
     init {
         register(
                 UnitMirror,

@@ -8,7 +8,10 @@ import kotlin.reflect.KClass
 data class ComparableMirror<T>(
         val typeT: MirrorType<T>
 ) : PolymorphicMirror<Comparable<T>>() {
-
+    override val empty: Comparable<T>
+        get() = object : Comparable<T> {
+            override fun compareTo(other: T): Int = -1
+        }
     override val mirrorClassCompanion: MirrorClassCompanion? get() = Companion
     companion object : MirrorClassCompanion {
         override val minimal = ComparableMirror(TypeArgumentMirrorType("T", Variance.INVARIANT, AnyMirror.nullable))
