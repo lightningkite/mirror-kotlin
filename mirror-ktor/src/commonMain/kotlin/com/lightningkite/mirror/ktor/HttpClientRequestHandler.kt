@@ -31,6 +31,7 @@ class HttpClientRequestHandler(
                 deserializer = RemoteResultMirror(request.returnType) as RemoteResultMirror<T>,
                 response = result.response
         )
+        raw.exception?.trace?.let{ println("Server side trace: $it") }
         return raw.result
     }
 }

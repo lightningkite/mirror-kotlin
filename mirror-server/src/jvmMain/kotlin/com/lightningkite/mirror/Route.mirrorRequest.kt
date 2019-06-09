@@ -47,3 +47,36 @@ fun Route.expose(handler: Request.Handler, path: String, suppressStackTrace: Boo
     }
 
 }
+
+@ContextDsl
+fun Route.exposeMulti(handler: Request.Handler, path: String, suppressStackTrace: Boolean = true): Route {
+    return post(path) { _ ->
+        try {
+            val requests = call.receive<List<Request<Any?>>>(RequestMirror(AnyMirror.nullable).list)
+            val respondType = RemoteResultMirror(AnyMirror.nullable).list
+            val results = requests.map { sf ->
+                try {
+                    val result = handler.invoke(sf)
+                    RemoteResult<Any?>(result)
+                } catch (e: Throwable) {
+                    e.printStackTrace()
+                    val isExpected = sf.throwsTypes?.contains(e.javaClass.simpleName) ?: false
+                    RemoteResult<Any?>(exception = RemoteExceptionData(
+                            type = e.javaClass.simpleName,
+                            message = e.message ?: "",
+                            trace = if (suppressStackTrace) "" else e.stackTraceString(),
+                            data = null
+                    ))
+                }
+            }
+            call.respond(
+                    status = HttpStatusCode.OK,
+                    type = respondType,
+                    value = results
+            )
+        } catch (e: Throwable) {
+            e.printStackTrace()
+        }
+    }
+
+}

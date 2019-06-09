@@ -40,6 +40,7 @@ object MirrorRegistry {
             is List<*> -> ListMirror.minimal
             is Set<*> -> SetMirror.minimal
             is Map<*, *> -> MapMirror.minimal
+            is ClosedRange<*> -> ClosedRangeMirror.minimal
             is MirrorClass<*> -> MirrorClassMirror.minimal
             is MirrorClass.Field<*, *> -> MirrorClassFieldMirror.minimal
             else -> null
@@ -74,6 +75,7 @@ object MirrorRegistry {
                 MapMirror.minimal,
                 SetMirror.minimal,
                 ComparableMirror.minimal,
+                ClosedRangeMirror.minimal,
                 ByteArrayMirror
         )
         registerKotlin()
