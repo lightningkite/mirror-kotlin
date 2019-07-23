@@ -29,6 +29,8 @@ repositories {
     maven("https://dl.bintray.com/lightningkite/com.lightningkite.krosslin")
     maven("https://kotlin.bintray.com/kotlinx")
     maven("https://kotlin.bintray.com/ktor")
+    maven("https://dl.bintray.com/kotlin/kotlin-eap")
+    maven("https://dl.bintray.com/kotlin/kotlin-dev")
 }
 
 val versions = Properties().apply {
