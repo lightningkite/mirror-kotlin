@@ -43,6 +43,7 @@ object MirrorRegistry {
             is ClosedRange<*> -> ClosedRangeMirror.minimal
             is MirrorClass<*> -> MirrorClassMirror.minimal
             is MirrorClass.Field<*, *> -> MirrorClassFieldMirror.minimal
+            is Data -> DataMirror
             else -> null
         }
     }
@@ -76,7 +77,8 @@ object MirrorRegistry {
                 SetMirror.minimal,
                 ComparableMirror.minimal,
                 ClosedRangeMirror.minimal,
-                ByteArrayMirror
+                ByteArrayMirror,
+                DataMirror
         )
         registerKotlin()
         registerRequests()
