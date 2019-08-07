@@ -2,8 +2,9 @@ package com.lightningkite.mirror.info
 
 import com.lightningkite.kommon.string.Uri
 import com.lightningkite.kommon.thread.ThreadLocal
-import kotlinx.io.ByteArrayInputStream
 import kotlinx.io.InputStream
+import kotlinx.io.core.ByteReadPacket
+import kotlinx.io.core.Input
 import kotlinx.serialization.*
 import kotlin.reflect.KClass
 
@@ -13,11 +14,11 @@ import kotlin.reflect.KClass
  * It is recommended that servers tweak these values to send down a specific implementation that requests HTTP instead, rather than using Multipart.
  */
 interface Data {
-    fun read(): InputStream
+    fun read(): Input
 
     companion object {
         val empty = object : Data {
-            override fun read(): InputStream = ByteArrayInputStream(byteArrayOf())
+            override fun read(): Input = ByteReadPacket(byteArrayOf(), 0, 0)
         }
     }
 }
@@ -67,11 +68,11 @@ class SerializationDataScope {
         return list[index]
     }
 
-    var generateParsedDataForIndex: (Int) -> InputStream = { Data.empty.read() }
+    var generateParsedDataForIndex: (Int) -> Input = { Data.empty.read() }
     fun generate(index: Int): Data = object : Data {
         val myGetter = generateParsedDataForIndex
         val myIndex = index
-        override fun read(): InputStream = myGetter(myIndex)
+        override fun read(): Input = myGetter(myIndex)
     }
 }
 

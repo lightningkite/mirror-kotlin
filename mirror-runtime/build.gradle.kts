@@ -46,6 +46,7 @@ kotlin {
             dependency(standardLibrary)
             dependency(serialization(versions.getProperty("kotlinx_serialization")).type(KDependencyType.Api))
             dependency(projectOrMavenDashPlatform("com.lightningkite", "kommon", versions.getProperty("kommon")))
+            dependency(io(versions.getProperty("kotlinx_io")))
         }
         test {
             dependency(testing)
